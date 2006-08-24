@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.0
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -45,6 +45,7 @@ ExclusiveArch: %{ix86} x86_64 ia64
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
 BuildRequires: python-devel
+BuildRequires: gettext
 
 %description
 Virtual Machine Manager provides a graphical tool for administering
@@ -97,6 +98,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Aug 24 2006 Jeremy Katz <katzj@redhat.com> - 0.2.0-3
+- BR gettext
+
 * Thu Aug 24 2006 Jeremy Katz <katzj@redhat.com> - 0.2.0-2
 - only build on arches with virt
 
