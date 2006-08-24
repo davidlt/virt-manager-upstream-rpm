@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -39,6 +39,8 @@ Requires: python-xeninst >= 0.90.1
 
 # Earlier vte han broken python binding module
 Requires: vte >= 0.12.2
+
+ExclusiveArch: %{ix86} x86_64 ia64
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -95,6 +97,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Aug 24 2006 Jeremy Katz <katzj@redhat.com> - 0.2.0-2
+- only build on arches with virt
+
 * Tue Aug 22 2006 Daniel Berrange <berrange@redhat.com> - 0.2.0-1
 - Added wizard for creating virtual machines
 - Added embedded serial console
