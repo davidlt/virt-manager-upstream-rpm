@@ -7,8 +7,8 @@
 %define _extra_release %{?extra_release:%{extra_release}}
 
 Name: virt-manager
-Version: 0.1.5
-Release: 2%{_extra_release}
+Version: 0.2.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -21,18 +21,24 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.1.1
+Requires: libvirt-python >= 0.1.4-3
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
 # We use 'ctypes' so don't need the 'gnome-keyring-python' bits
 Requires: gnome-keyring >= 0.4.9
 # Minimum we've tested with
-Requires: python-ctypes >= 0.9.9.6
+# Although if you don't have this, comment it out and the app
+# will work just fine - keyring functionality will simply be
+# disabled 
+Requires: gnome-python2-gnomekeyring >= 2.15.4
+# Minimum we've tested with
+Requires: libxml2-python >= 2.6.23
+# Required to install Xen guests
+Requires: python-xeninst >= 0.90.1
 
-# src/vncViewer/image.py needs this but we'd like to kill it off
-# soon because it pulls in TCL/TK :-(
-Requires: python-imaging
+# Earlier vte han broken python binding module
+Requires: vte >= 0.12.2
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -56,11 +62,12 @@ rm -rf $RPM_BUILD_ROOT
 make install  DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
+%find_lang %{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc README COPYING AUTHORS ChangeLog NEWS
 %{_bindir}/%{name}
@@ -83,10 +90,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/vncViewer/*.pyc
 %ghost %{_datadir}/%{name}/vncViewer/*.pyo
 
+
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Aug 22 2006 Daniel Berrange <berrange@redhat.com> - 0.2.0-1
+- Added wizard for creating virtual machines
+- Added embedded serial console
+- Added ability to take screenshots
+
 * Mon Jul 24 2006 Daniel Berrange <berrange@redhat.com> - 0.1.5-2
 - Prefix *.pyo files with 'ghost' macro
 - Use fully qualified URL in Source  tag
