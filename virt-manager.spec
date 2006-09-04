@@ -7,14 +7,14 @@
 %define _extra_release %{?extra_release:%{extra_release}}
 
 Name: virt-manager
-Version: 0.2.0
-Release: 3%{_extra_release}
+Version: 0.2.1
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPL
 URL: http://virt-manager.et.redhat.com/
-Source0: http://virt-manager.et.redhat.com/%{name}-%{version}.tar.gz
+Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -47,6 +47,10 @@ BuildRequires: gtk2-devel
 BuildRequires: python-devel
 BuildRequires: gettext
 
+Requires(pre): GConf2
+Requires(post): GConf2
+Requires(preun): GConf2
+
 %description
 Virtual Machine Manager provides a graphical tool for administering
 virtual machines such as Xen. It uses libvirt as the backend management
@@ -70,9 +74,34 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%pre
+if [ "$1" -gt 1 ]; then
+    export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+    gconftool-2 --makefile-uninstall-rule \
+      %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
+fi
+
+%post
+export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+gconftool-2 --makefile-install-rule \
+  %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
+
+update-desktop-database %{_datadir}/applications
+
+%postun
+update-desktop-database %{_datadir}/applications
+
+%preun
+if [ "$1" -eq 0 ]; then
+    export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
+    gconftool-2 --makefile-uninstall-rule \
+      %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
+fi
+
 %files -f %{name}.lang
 %defattr(-,root,root,-)
 %doc README COPYING AUTHORS ChangeLog NEWS
+%{_sysconfdir}/gconf/schemas/%{name}.schemas
 %{_bindir}/%{name}
 %{_libexecdir}/%{name}-launch
 %{_libdir}/%{name}/*
@@ -98,6 +127,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Sep  4 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-1
+- Updated to 0.2.1 tar.gz
+- Added rules to install/uninstall gconf schemas in preun,post,pre
+  scriptlets
+- Updated URL for source to reflect new upstream download URL
+
 * Thu Aug 24 2006 Jeremy Katz <katzj@redhat.com> - 0.2.0-3
 - BR gettext
 
