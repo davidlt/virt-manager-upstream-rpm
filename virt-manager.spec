@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.1
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -112,21 +112,24 @@ fi
 
 %{_datadir}/%{name}/*.py
 %{_datadir}/%{name}/*.pyc
-%ghost %{_datadir}/%{name}/*.pyo
+%{_datadir}/%{name}/*.pyo
 
 %{_datadir}/%{name}/virtManager/*.py
 %{_datadir}/%{name}/virtManager/*.pyc
-%ghost %{_datadir}/%{name}/virtManager/*.pyo
+%{_datadir}/%{name}/virtManager/*.pyo
 
 %{_datadir}/%{name}/vncViewer/*.py
 %{_datadir}/%{name}/vncViewer/*.pyc
-%ghost %{_datadir}/%{name}/vncViewer/*.pyo
+%{_datadir}/%{name}/vncViewer/*.pyo
 
 
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Sep  6 2006 Jeremy Katz <katzj@redhat.com> - 0.2.1-%{extra_release}}
+- don't ghost pyo files (#205448)
+
 * Mon Sep  4 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-1
 - Updated to 0.2.1 tar.gz
 - Added rules to install/uninstall gconf schemas in preun,post,pre
