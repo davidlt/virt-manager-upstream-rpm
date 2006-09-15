@@ -1,0 +1,4 @@
+USER=root
+PROGRAM=/usr/sbin/virt-manager
+SESSION=true
+FALLBACK=true

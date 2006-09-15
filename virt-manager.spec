@@ -4,17 +4,19 @@
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
-%define _extra_release %{?extra_release:%{extra_release}}
+%define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
 Version: 0.2.1
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPL
 URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
+Source1: %{name}.pam
+Source2: %{name}.console
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -25,20 +27,24 @@ Requires: libvirt-python >= 0.1.4-3
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
-# We use 'ctypes' so don't need the 'gnome-keyring-python' bits
 Requires: gnome-keyring >= 0.4.9
 # Minimum we've tested with
 # Although if you don't have this, comment it out and the app
 # will work just fine - keyring functionality will simply be
-# disabled 
+# disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
 Requires: python-xeninst >= 0.90.1
-
-# Earlier vte han broken python binding module
+# Required for loading the glade UI
+Requires: pygtk2-libglade
+# Required for our graphics which are currently SVG format
+Requires: librsvg2
+# Earlier vte had broken python binding module
 Requires: vte >= 0.12.2
+# For the consolehelper PAM stuff
+Requires: usermode
 
 ExclusiveArch: %{ix86} x86_64 ia64
 
@@ -69,6 +75,16 @@ rm -rf $RPM_BUILD_ROOT
 make install  DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
+
+# Adjust for console-helper magic
+mkdir -p $RPM_BUILD_ROOT%{_sbindir}
+mv $RPM_BUILD_ROOT%{_bindir}/%{name} $RPM_BUILD_ROOT%{_sbindir}/%{name}
+ln -s %{_bindir}/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
+cp %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/%{name}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps
+cp %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps/%{name}
+
 %find_lang %{name}
 
 %clean
@@ -102,7 +118,10 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
+%{_sysconfdir}/pam.d/%{name}
+%{_sysconfdir}/security/console.apps/%{name}
 %{_bindir}/%{name}
+%{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
 %{_libdir}/%{name}/*
 
@@ -127,7 +146,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Wed Sep  6 2006 Jeremy Katz <katzj@redhat.com> - 0.2.1-%{extra_release}}
+* Mon Sep 11 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-3
+- Added requires on pygtk2-libglade & librsvg2 (bz 205941 & 205942)
+- Re-arrange to use console-helper to launch app
+- Added 'dist' component to release number
+
+* Wed Sep  6 2006 Jeremy Katz <katzj@redhat.com> - 0.2.1-2
 - don't ghost pyo files (#205448)
 
 * Mon Sep  4 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-1
