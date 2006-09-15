@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.2.1
-Release: 3%{_extra_release}
+Version: 0.2.2
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -146,6 +146,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Fri Sep 15 2006 Daniel Berrange <berrange@redhat.com> - 0.2.2-1
+- Fix event handling in create VM wizard (bz 206660 & 206186)
+- Fix close button in about dialog (bz 205943)
+- Refresh .pot files
+- Turn on VNC scrollbars fulltime to avoid GTK window sizing issue
+  which consistently resize too small.
+
 * Mon Sep 11 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-3
 - Added requires on pygtk2-libglade & librsvg2 (bz 205941 & 205942)
 - Re-arrange to use console-helper to launch app
