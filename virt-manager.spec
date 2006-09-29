@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.3
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,7 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+Patch1: %{name}-sparklinesegv.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -64,6 +65,7 @@ API.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 %configure
@@ -146,7 +148,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Tue Sep 26 2006 Daniel Berrange <berrange@redhat.com> - 0.2.3-1
+* Fri Sep 29 2006 Daniel P. Berrange <berrange@redhat.com> 0.2.3-2.fc6
+- Fix segv in sparkline code when no data points are defined (bz  208185)
+- Clamp CPU utilization between 0 & 100% just in case (bz 208185)
+
+* Tue Sep 26 2006 Daniel Berrange <berrange@redhat.com> - 0.2.3-1.fc6
 - Require xeninst >= 0.93.0 to fix block backed devices
 - Skip para/fully-virt step when going back in wizard if not HVM host (bz 207409)
 - Fix handling of modifier keys in VNC console so Alt key doesn't get stuck (bz 207949)
@@ -164,14 +170,14 @@ fi
 - Fix visibility of file size spin box (bz 206186 part 2)
 - Check for GTK failing to open X11 display (bz 205938)
 
-* Fri Sep 15 2006 Daniel Berrange <berrange@redhat.com> - 0.2.2-1
+* Fri Sep 15 2006 Daniel Berrange <berrange@redhat.com> - 0.2.2-1.fc6
 - Fix event handling in create VM wizard (bz 206660 & 206186)
 - Fix close button in about dialog (bz 205943)
 - Refresh .pot files
 - Turn on VNC scrollbars fulltime to avoid GTK window sizing issue
   which consistently resize too small.
 
-* Mon Sep 11 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-3
+* Mon Sep 11 2006 Daniel Berrange <berrange@redhat.com> - 0.2.1-3.fc6
 - Added requires on pygtk2-libglade & librsvg2 (bz 205941 & 205942)
 - Re-arrange to use console-helper to launch app
 - Added 'dist' component to release number
