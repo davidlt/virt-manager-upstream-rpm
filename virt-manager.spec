@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.2.3
-Release: 2%{_extra_release}
+Version: 0.2.5
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,14 +17,13 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Patch1: %{name}-sparklinesegv.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.1.4-3
+Requires: libvirt-python >= 0.1.8
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -37,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-xeninst >= 0.93.0
+Requires: python-virtinst >= 0.96.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -65,7 +64,6 @@ API.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 %configure
@@ -148,6 +146,22 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Oct 19 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.5-1.fc7
+- Switch to use python-virtinst instead of python-xeninst due to 
+  renaming of original package
+- Disable keyboard accelerators when grabbing mouse to avoid things like
+  Ctrl-W closing the local window, instead of remote window bz 210364
+- Fix host memory reporting bz 211281
+- Remove duplicate application menu entry bz 211230
+- Fix duplicated mnemonics (bz 208408)
+- Use blktap backed disks if available
+- Use a drop down list to remember past URLs (bz 209479)
+- Remove unused help button from preferences dialog (bz 209251)
+- Fix exception when no VNC graphics is defined
+- Force immediate refresh of VMs after creating a new one
+- Improve error reporting if run on a kernel without Xen (bz 209122)
+- More fixes to avoid stuck modifier keys on focus-out (bz 207949)
+
 * Fri Sep 29 2006 Daniel P. Berrange <berrange@redhat.com> 0.2.3-2.fc6
 - Fix segv in sparkline code when no data points are defined (bz  208185)
 - Clamp CPU utilization between 0 & 100% just in case (bz 208185)
