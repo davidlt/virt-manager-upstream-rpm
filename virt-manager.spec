@@ -7,7 +7,7 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.2.5
+Version: 0.2.6
 Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
@@ -146,6 +146,23 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Nov  9 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.6-1.fc7
+- Imported translations from Fedora i18n repository
+- Make (most) scrollbar policies automatic
+- Set busy cursor while creating new VMs
+- Preference for controlling keygrab policy
+- Preference for when to automatically open console (bz 211385)
+- Re-try VNC connection attempt periodically in case VNC daemon
+  hasn't finished starting up
+- Added activation of URLs for about dialog (bz 210782)
+- Improved error reporting when connecting to HV (bz 211229)
+- Add command line args to open specific windows
+- Don't skip para/full virt wizard step - instead gray out full
+  virt option & tell user why
+- Change 'physical' to 'logical' when refering to host CPUs
+- Include hostname in titlebar
+- Disable wizard sensitivity while creating VM
+
 * Thu Oct 19 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.5-1.fc7
 - Switch to use python-virtinst instead of python-xeninst due to 
   renaming of original package
