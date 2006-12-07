@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.6
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -146,6 +146,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Dec  7 2006 Jeremy Katz <katzj@redhat.com> - 0.2.6-%{extra_release}}}
+- rebuild for python 2.5
+
 * Thu Nov  9 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.6-1.fc7
 - Imported translations from Fedora i18n repository
 - Make (most) scrollbar policies automatic
