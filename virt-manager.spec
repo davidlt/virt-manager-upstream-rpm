@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.2.6
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,13 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+# Updated translations from Fedora i18n repository
+Source3: %{name}-i18n-po-2006-12-18.tar.gz
+Patch1: vm-use-ipv4-for-console.patch
+Patch2: virt-manager-hostname-resolution-errors.patch
+Patch3: vm-limit-memory.patch
+Patch4: virt-manager-disable-config-hvm.patch
+Patch5: vm-non-sparse-file.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -36,7 +43,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.96.0
+Requires: python-virtinst >= 0.98.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -63,7 +70,12 @@ virtual machines such as Xen. It uses libvirt as the backend management
 API.
 
 %prep
-%setup -q
+%setup -q -a 3
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %configure
@@ -146,7 +158,20 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Thu Dec  7 2006 Jeremy Katz <katzj@redhat.com> - 0.2.6-%{extra_release}}}
+* Tue Dec 19 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.6-3.fc7
+- Imported latest translations from Fedora i18n repository (bz 203783)
+- Use 127.0.0.1 address for connecting to VNC console instead of
+  localhost to avoid some issue with messed up /etc/hosts.
+- Add selector for sparse or non-sparse file, defaulting to non-sparse.
+  Add appropriate warnings and progress-bar text. (bz 218996)
+- Disable memory ballooning & CPU hotplug for HVM guests (bz 214432)
+- Updated memory-setting UI to include a hard upper limit for physical
+  host RAM
+- Added documentation on the page warning that setting virtual host RAM
+  too high can exhaust the memory of the machine
+- Handle errors when hostname resolution fails to avoid app exiting (bz 216975)
+
+* Thu Dec  7 2006 Jeremy Katz <katzj@redhat.com> - 0.2.6-2.fc7
 - rebuild for python 2.5
 
 * Thu Nov  9 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.6-1.fc7
