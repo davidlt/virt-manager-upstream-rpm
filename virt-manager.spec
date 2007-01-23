@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.2.6
-Release: 3%{_extra_release}
+Version: 0.3.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,20 +17,13 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-# Updated translations from Fedora i18n repository
-Source3: %{name}-i18n-po-2006-12-18.tar.gz
-Patch1: vm-use-ipv4-for-console.patch
-Patch2: virt-manager-hostname-resolution-errors.patch
-Patch3: vm-limit-memory.patch
-Patch4: virt-manager-disable-config-hvm.patch
-Patch5: vm-non-sparse-file.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.1.8
+Requires: libvirt-python >= 0.1.11-1
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -43,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.98.0
+Requires: python-virtinst >= 0.100.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -70,12 +63,7 @@ virtual machines such as Xen. It uses libvirt as the backend management
 API.
 
 %prep
-%setup -q -a 3
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
+%setup -q
 
 %build
 %configure
@@ -158,6 +146,20 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Jan 22 2007 Daniel P. Berrange <berrange@redhat.com - 0.3.0-1.fc7
+- Added support for managing inactive domains
+- Require virt-inst >= 0.100.0 and libvirt >= 0.1.11 for ianctive
+  domain management capabilities
+- Add progress bars during VM creation stage
+- Improved reliability of VNC console
+- Updated translations again
+- Added destroy option to menu bar to forceably kill a guest
+- Visually differentiate allocated memory, from actual used memory on host
+- Validate file magic when restoring a guest from a savd file
+- Performance work on domain listing
+- Allow creation of non-sparse files
+- Fix backspace key in serial console
+
 * Tue Dec 19 2006 Daniel P. Berrange <berrange@redhat.com> - 0.2.6-3.fc7
 - Imported latest translations from Fedora i18n repository (bz 203783)
 - Use 127.0.0.1 address for connecting to VNC console instead of
