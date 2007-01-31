@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.3.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -56,6 +56,8 @@ BuildRequires: gettext
 Requires(pre): GConf2
 Requires(post): GConf2
 Requires(preun): GConf2
+Requires(post): desktop-file-utils
+Requires(postun): desktop-file-utils
 
 %description
 Virtual Machine Manager provides a graphical tool for administering
@@ -146,7 +148,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Mon Jan 22 2007 Daniel P. Berrange <berrange@redhat.com - 0.3.0-1.fc7
+* Wed Jan 31 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.0-2.fc7
+- Added dep on desktop-file-utils for post/postun scripts
+
+* Mon Jan 22 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.0-1.fc7
 - Added support for managing inactive domains
 - Require virt-inst >= 0.100.0 and libvirt >= 0.1.11 for ianctive
   domain management capabilities
