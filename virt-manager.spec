@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.3.1
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,7 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+Patch1: %{name}-hvm-check.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -66,6 +67,7 @@ API.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 %configure
@@ -148,6 +150,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Feb 20 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-2.fc7
+- Only check for HVM on Xen hypervisor
+
 * Tue Feb 20 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-1.fc7
 - Added support for managing QEMU domains
 - Automatically grab mouse pointer to workaround dual-cursor crazyness
