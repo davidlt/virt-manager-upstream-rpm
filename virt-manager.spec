@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.3.1
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -18,6 +18,7 @@ Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{ve
 Source1: %{name}.pam
 Source2: %{name}.console
 Patch1: %{name}-hvm-check.patch
+Patch2: %{name}-keyungrab.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -68,6 +69,7 @@ API.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
 
 %build
 %configure
@@ -150,6 +152,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Fri Mar  2 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-3.fc7
+- Fixed keyboard ungrab in VNC widget
+
 * Tue Feb 20 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-2.fc7
 - Only check for HVM on Xen hypervisor
 
