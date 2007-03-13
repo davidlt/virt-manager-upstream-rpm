@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.3.1
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -19,6 +19,7 @@ Source1: %{name}.pam
 Source2: %{name}.console
 Patch1: %{name}-hvm-check.patch
 Patch2: %{name}-keyungrab.patch
+Patch3: %{name}-threading.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -70,6 +71,7 @@ API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %configure
@@ -152,6 +154,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Mar 13 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-4.fc7
+- Fixed thread locking to avoid deadlocks when a11y is enabled
+
 * Fri Mar  2 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-3.fc7
 - Fixed keyboard ungrab in VNC widget
 
