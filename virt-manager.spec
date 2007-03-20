@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.3.1
-Release: 4%{_extra_release}
+Version: 0.3.2
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,16 +17,13 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Patch1: %{name}-hvm-check.patch
-Patch2: %{name}-keyungrab.patch
-Patch3: %{name}-threading.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.2.0-3.fc7
+Requires: libvirt-python >= 0.2.1-1.fc7
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -39,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.101.0
+Requires: python-virtinst >= 0.102.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -48,6 +45,8 @@ Requires: librsvg2
 Requires: vte >= 0.12.2
 # For the consolehelper PAM stuff
 Requires: usermode
+# For online help
+Requires: scrollkeeper
 
 ExclusiveArch: %{ix86} x86_64 ia64
 
@@ -55,7 +54,7 @@ BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
 BuildRequires: python-devel
 BuildRequires: gettext
-
+BuildRequires: scrollkeeper
 Requires(pre): GConf2
 Requires(post): GConf2
 Requires(preun): GConf2
@@ -69,9 +68,6 @@ API.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 %configure
@@ -112,8 +108,12 @@ gconftool-2 --makefile-install-rule \
 
 update-desktop-database %{_datadir}/applications
 
+if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q -o %{_datadir}/omf/%{name}; fi
+
 %postun
 update-desktop-database %{_datadir}/applications
+
+if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q; fi
 
 %preun
 if [ "$1" -eq 0 ]; then
@@ -124,7 +124,7 @@ fi
 
 %files -f %{name}.lang
 %defattr(-,root,root,-)
-%doc README COPYING AUTHORS ChangeLog NEWS
+%doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
 %{_sysconfdir}/pam.d/%{name}
 %{_sysconfdir}/security/console.apps/%{name}
@@ -149,11 +149,17 @@ fi
 %{_datadir}/%{name}/vncViewer/*.pyc
 %{_datadir}/%{name}/vncViewer/*.pyo
 
+%{_datadir}/omf/%{name}
+%{_datadir}/gnome/help
 
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Mar 20 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.2-1.fc7
+- Added online help to all windows
+- Bug fixes to virtual console popup, key grab & accelerator override
+
 * Tue Mar 13 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.1-4.fc7
 - Fixed thread locking to avoid deadlocks when a11y is enabled
 
