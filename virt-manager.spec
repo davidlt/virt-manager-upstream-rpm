@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.3.2
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -131,31 +131,39 @@ fi
 %{_bindir}/%{name}
 %{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
+%dir %{_libdir}/%{name}/
 %{_libdir}/%{name}/*
 
+%dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/*.glade
-%{_datadir}/%{name}/pixmaps/*.png
-%{_datadir}/%{name}/pixmaps/*.svg
-
 %{_datadir}/%{name}/*.py
 %{_datadir}/%{name}/*.pyc
 %{_datadir}/%{name}/*.pyo
 
+%dir %{_datadir}/%{name}/pixmaps/
+%{_datadir}/%{name}/pixmaps/*.png
+%{_datadir}/%{name}/pixmaps/*.svg
+
+%dir %{_datadir}/%{name}/virtManager/
 %{_datadir}/%{name}/virtManager/*.py
 %{_datadir}/%{name}/virtManager/*.pyc
 %{_datadir}/%{name}/virtManager/*.pyo
 
+%dir %{_datadir}/%{name}/vncViewer/
 %{_datadir}/%{name}/vncViewer/*.py
 %{_datadir}/%{name}/vncViewer/*.pyc
 %{_datadir}/%{name}/vncViewer/*.pyo
 
-%{_datadir}/omf/%{name}
-%{_datadir}/gnome/help
+%{_datadir}/omf/%{name}/
+%{_datadir}/gnome/help/%{name}/
 
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Mar 27 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.2-2.fc7
+- Ensure we own all directories we create (bz 233816)
+
 * Tue Mar 20 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.2-1.fc7
 - Added online help to all windows
 - Bug fixes to virtual console popup, key grab & accelerator override
