@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.3.2
-Release: 2%{_extra_release}
+Version: 0.4.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -36,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.102.0
+Requires: python-virtinst >= 0.103.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -161,6 +161,16 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Apr 16 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-1.fc7
+- Support for managing virtual networks
+- Ability to attach guest to virtual networks
+- Automatically set VNC keymap based on local keymap
+- Support for disk & network device addition/removal
+
+* Wed Mar 28 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.2-3.fc7
+- Fix HVM check to allow KVM guests to be created (bz 233644)
+- Fix default file size suggestion
+
 * Tue Mar 27 2007 Daniel P. Berrange <berrange@redhat.com> - 0.3.2-2.fc7
 - Ensure we own all directories we create (bz 233816)
 
