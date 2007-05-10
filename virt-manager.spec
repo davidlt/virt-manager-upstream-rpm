@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.4.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,10 @@ URL: http://virt-manager.et.redhat.com/
 Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+Source3: %{name}-%{version}-po-2007-05-09.tar.gz
+Patch1: %{name}-%{version}-file-dialog-fix.patch
+Patch2: %{name}-%{version}-toolbar-state.patch
+Patch3: %{name}-%{version}-device-remove.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -67,7 +71,10 @@ virtual machines such as Xen. It uses libvirt as the backend management
 API.
 
 %prep
-%setup -q
+%setup -q -a 3
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %configure
@@ -161,6 +168,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed May  9 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-2.fc7
+- Refresh po file translations (bz 238369)
+- Fixed removal of disk/network devices
+- Fixed toolbar menu option state
+- Fixed file dialogs & default widget states
+
 * Mon Apr 16 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-1.fc7
 - Support for managing virtual networks
 - Ability to attach guest to virtual networks

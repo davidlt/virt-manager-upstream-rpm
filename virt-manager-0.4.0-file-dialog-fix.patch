@@ -1,0 +1,157 @@
+changeset:   482:7263412862de
+user:        "Hugh O. Brock <hbrock@redhat.com>"
+date:        Mon Apr 23 15:08:56 2007 -0400
+summary:     Fix up empty combo boxes, non-working file dialogs, and a few other bugs.
+
+diff -r 053429952481 -r 7263412862de src/virtManager/addhardware.py
+--- a/src/virtManager/addhardware.py	Mon Apr 16 11:31:48 2007 -0400
++++ b/src/virtManager/addhardware.py	Mon Apr 23 15:08:56 2007 -0400
+@@ -179,6 +179,7 @@ class vmmAddHardware(gobject.GObject):
+         self.window.get_widget("create-forward").show()
+         self.window.get_widget("create-back").set_sensitive(False)
+         self.window.get_widget("storage-file-size").set_sensitive(False)
++        self.window.get_widget("create-help").hide()
+ 
+         self.change_storage_type()
+         self.change_network_type()
+@@ -190,11 +191,15 @@ class vmmAddHardware(gobject.GObject):
+         self.window.get_widget("storage-file-address").set_text("")
+         self.window.get_widget("storage-file-size").set_value(2000)
+         self.window.get_widget("non-sparse").set_active(True)
+-
+-        model = self.window.get_widget("net-network").get_model()
+-        self.populate_network_model(model)
+-        device = self.window.get_widget("net-device").get_model()
+-        self.populate_device_model(device)
++        self.window.get_widget("hardware-type").set_active(0)
++
++        net_box = self.window.get_widget("net-network")
++        self.populate_network_model(net_box.get_model())
++        net_box.set_active(0)
++        
++        dev_box = self.window.get_widget("net-device")
++        self.populate_device_model(dev_box.get_model())
++        dev_box.set_active(0)
+ 
+ 
+     def forward(self, ignore=None):
+@@ -414,23 +419,38 @@ class vmmAddHardware(gobject.GObject):
+ 
+     def browse_storage_file_address(self, src, ignore=None):
+         self.window.get_widget("storage-file-size").set_sensitive(True)
+-        fcdialog = gtk.FileChooserDialog(_("Locate or Create New Storage File"),
+-                                         self.window.get_widget("vmm-create"),
+-                                         gtk.FILE_CHOOSER_ACTION_SAVE,
++        folder = self.config.get_default_image_dir(self.vm.get_connection())
++        file = self._browse_file(_("Locate or Create New Storage File"), \
++                                 folder=folder, confirm_overwrite=True)
++        if file != None:
++            self.window.get_widget("storage-file-address").set_text(file)
++
++    def _browse_file(self, dialog_name, folder=None, type=None, confirm_overwrite=False):
++        # user wants to browse for an ISO
++        fcdialog = gtk.FileChooserDialog(dialog_name,
++                                         self.window.get_widget("vmm-add-hardware"),
++                                         gtk.FILE_CHOOSER_ACTION_OPEN,
+                                          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                           gtk.STOCK_OPEN, gtk.RESPONSE_ACCEPT),
+                                          None)
+-
+-        fcdialog.set_current_folder(self.config.get_default_image_dir(self.vm.get_connection()))
+-        fcdialog.set_do_overwrite_confirmation(True)
+-        fcdialog.connect("confirm-overwrite", self.confirm_overwrite_callback)
++        if type != None:
++            f = gtk.FileFilter()
++            f.add_pattern("*." + type)
++            fcdialog.set_filter(f)
++        if folder != None:
++            fcdialog.set_current_folder(folder)
++        if confirm_overwrite:
++            fcdialog.set_do_overwrite_confirmation(True)
++            fcdialog.connect("confirm-overwrite", self.confirm_overwrite_callback)
+         response = fcdialog.run()
+         fcdialog.hide()
+-        file = None
+         if(response == gtk.RESPONSE_ACCEPT):
+-            file = fcdialog.get_filename()
+-        if file != None:
+-            self.window.get_widget("storage-file-address").set_text(file)
++            filename = fcdialog.get_filename()
++            fcdialog.destroy()
++            return filename
++        else:
++            fcdialog.destroy()
++            return None
+ 
+     def toggle_storage_size(self, ignore1=None, ignore2=None):
+         file = self.get_config_disk_image()
+diff -r 053429952481 -r 7263412862de src/virtManager/create.py
+--- a/src/virtManager/create.py	Mon Apr 16 11:31:48 2007 -0400
++++ b/src/virtManager/create.py	Mon Apr 23 15:08:56 2007 -0400
+@@ -302,12 +302,16 @@ class vmmCreate(gobject.GObject):
+ 
+         # Fill list of OS types
+         self.populate_os_type_model()
+-        self.window.get_widget("os-type").set_active(-1)
+-
+-        model = self.window.get_widget("net-network").get_model()
+-        self.populate_network_model(model)
+-        device = self.window.get_widget("net-device").get_model()
+-        self.populate_device_model(device)
++        self.window.get_widget("os-type").set_active(0)
++
++        net_box = self.window.get_widget("net-network")
++        self.populate_network_model(net_box.get_model())
++        net_box.set_active(0)
++        
++        dev_box = self.window.get_widget("net-device")
++        self.populate_device_model(dev_box.get_model())
++        dev_box.set_active(0)
++
+         self.install_error = None
+ 
+ 
+@@ -511,13 +515,13 @@ class vmmCreate(gobject.GObject):
+             except ValueError, e:
+                 self._validation_error_box(_("Invalid FV media address"),e.args[0])
+             try:
+-                if self.get_config_os_type() is not None:
++                if self.get_config_os_type() is not None and self.get_config_os_type() != "generic":
+                     logging.debug("OS Type: %s" % self.get_config_os_type())
+                     guest.os_type = self.get_config_os_type()
+             except ValueError, e:
+                 self._validation_error_box(_("Invalid FV OS Type"),e.args[0])
+             try:
+-                if self.get_config_os_variant() is not None:
++                if self.get_config_os_variant() is not None and self.get_config_os_type() != "generic":
+                     logging.debug("OS Variant: %s" % self.get_config_os_variant())
+                     guest.os_variant = self.get_config_os_variant()
+             except ValueError, e:
+@@ -986,6 +990,7 @@ class vmmCreate(gobject.GObject):
+     def populate_os_type_model(self):
+         model = self.window.get_widget("os-type").get_model()
+         model.clear()
++        model.append(["generic", "Generic"])
+         types = virtinst.FullVirtGuest.list_os_types()
+         types.sort()
+         for type in types:
+@@ -994,6 +999,9 @@ class vmmCreate(gobject.GObject):
+     def populate_os_variant_model(self, type):
+         model = self.window.get_widget("os-variant").get_model()
+         model.clear()
++        if type=="generic":
++            model.append(["generic", "Generic"])
++            return
+         variants = virtinst.FullVirtGuest.list_os_variants(type)
+         variants.sort()
+         for variant in variants:
+@@ -1018,7 +1026,7 @@ class vmmCreate(gobject.GObject):
+             type = model.get_value(box.get_active_iter(), 0)
+             self.populate_os_variant_model(type)
+         variant = self.window.get_widget("os-variant")
+-        variant.set_active(-1)
++        variant.set_active(0)
+ 
+     def change_virt_method(self, ignore=None):
+         arch = self.window.get_widget("cpu-architecture")
+
