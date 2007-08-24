@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.4.0
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -51,8 +51,6 @@ Requires: vte >= 0.12.2
 Requires: usermode
 # For online help
 Requires: scrollkeeper
-
-ExclusiveArch: %{ix86} x86_64 ia64
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -168,6 +166,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Fri Aug 24 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-3.fc8
+- Remove ExcludeArch since libvirt is now available
+
 * Wed May  9 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-2.fc7
 - Refresh po file translations (bz 238369)
 - Fixed removal of disk/network devices
