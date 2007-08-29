@@ -7,20 +7,16 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.4.0
-Release: 3%{_extra_release}
+Version: 0.5.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPL
-URL: http://virt-manager.et.redhat.com/
-Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
+URL: http://virt-manager.org/
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Source3: %{name}-%{version}-po-2007-05-09.tar.gz
-Patch1: %{name}-%{version}-file-dialog-fix.patch
-Patch2: %{name}-%{version}-toolbar-state.patch
-Patch3: %{name}-%{version}-device-remove.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -51,6 +47,8 @@ Requires: vte >= 0.12.2
 Requires: usermode
 # For online help
 Requires: scrollkeeper
+# For the guest console
+Requires: gtk-vnc-python
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -69,10 +67,7 @@ virtual machines such as Xen. It uses libvirt as the backend management
 API.
 
 %prep
-%setup -q -a 3
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%setup -q
 
 %build
 %configure
@@ -139,6 +134,8 @@ fi
 %dir %{_libdir}/%{name}/
 %{_libdir}/%{name}/*
 
+%{_mandir}/man1/%{name}.1*
+
 %dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/*.glade
 %{_datadir}/%{name}/*.py
@@ -154,11 +151,6 @@ fi
 %{_datadir}/%{name}/virtManager/*.pyc
 %{_datadir}/%{name}/virtManager/*.pyo
 
-%dir %{_datadir}/%{name}/vncViewer/
-%{_datadir}/%{name}/vncViewer/*.py
-%{_datadir}/%{name}/vncViewer/*.pyc
-%{_datadir}/%{name}/vncViewer/*.pyo
-
 %{_datadir}/omf/%{name}/
 %{_datadir}/gnome/help/%{name}/
 
@@ -166,6 +158,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Aug 29 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.0-1.fc8
+- Updated to 0.5.0 release
+- Support for managing remote hosts
+- Switch to use GTK-VNC for the guest console
+
 * Fri Aug 24 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-3.fc8
 - Remove ExcludeArch since libvirt is now available
 
