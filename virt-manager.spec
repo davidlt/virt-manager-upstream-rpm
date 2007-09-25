@@ -7,7 +7,7 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.5.0
+Version: 0.5.1
 Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
@@ -36,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.103.0
+Requires: python-virtinst >= 0.300.1
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -158,6 +158,14 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Sep 25 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.1-1.fc8
+- Updated to 0.5.1 release
+- Open connections in background
+- Make VNC connection retries more robust
+- Allow changing of CDROM media on the fly
+- Add PXE boot installation of HVM guests
+- Allow tunnelling VNC over SSH
+
 * Wed Aug 29 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.0-1.fc8
 - Updated to 0.5.0 release
 - Support for managing remote hosts
