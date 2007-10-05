@@ -7,7 +7,7 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.5.1
+Version: 0.5.2
 Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
@@ -23,7 +23,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.2.1-1.fc7
+Requires: libvirt-python >= 0.3.3
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -158,6 +158,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Oct  4 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.2-1.fc8
+- Update to 0.5.2 release
+- No scrollbars for high res guest in low res host (rhbz 273181)
+- Unable to remove network device (rhbz 242900)
+- Fixed broken menu items (rhbz 307551)
+- Require libvirt 0.3.3 to get CDROM change capability for Xen
+
 * Tue Sep 25 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.1-1.fc8
 - Updated to 0.5.1 release
 - Open connections in background
