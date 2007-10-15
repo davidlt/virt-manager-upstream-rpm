@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.5.2
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,7 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+Patch1: %{name}-%{version}-vnc-credential-name.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -68,6 +69,7 @@ API.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 %configure
@@ -158,6 +160,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Oct 15 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.2-2.fc8
+- Change TLS x509 credential name to sync with libvirt
+
 * Thu Oct  4 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.2-1.fc8
 - Update to 0.5.2 release
 - No scrollbars for high res guest in low res host (rhbz 273181)
