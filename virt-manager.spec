@@ -7,27 +7,23 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.4.0
-Release: 2%{_extra_release}
+Version: 0.5.3
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
-License: GPL
-URL: http://virt-manager.et.redhat.com/
-Source0: http://virt-manager.et.redhat.com/download/sources/%{name}/%{name}-%{version}.tar.gz
+License: GPLv2+
+URL: http://virt-manager.org/
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Source3: %{name}-%{version}-po-2007-05-09.tar.gz
-Patch1: %{name}-%{version}-file-dialog-fix.patch
-Patch2: %{name}-%{version}-toolbar-state.patch
-Patch3: %{name}-%{version}-device-remove.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.2.1-1.fc7
+Requires: libvirt-python >= 0.3.3
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -40,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.103.0
+Requires: python-virtinst >= 0.300.2
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -51,6 +47,8 @@ Requires: vte >= 0.12.2
 Requires: usermode
 # For online help
 Requires: scrollkeeper
+# For the guest console
+Requires: gtk-vnc-python
 
 ExclusiveArch: %{ix86} x86_64 ia64
 
@@ -71,10 +69,7 @@ virtual machines such as Xen. It uses libvirt as the backend management
 API.
 
 %prep
-%setup -q -a 3
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
+%setup -q
 
 %build
 %configure
@@ -90,7 +85,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
 # Adjust for console-helper magic
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 mv $RPM_BUILD_ROOT%{_bindir}/%{name} $RPM_BUILD_ROOT%{_sbindir}/%{name}
-ln -s %{_bindir}/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
+ln -s ../bin/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 cp %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps
@@ -133,13 +128,15 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
-%{_sysconfdir}/pam.d/%{name}
+%config(noreplace) %{_sysconfdir}/pam.d/%{name}
 %{_sysconfdir}/security/console.apps/%{name}
 %{_bindir}/%{name}
 %{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
 %dir %{_libdir}/%{name}/
 %{_libdir}/%{name}/*
+
+%{_mandir}/man1/%{name}.1*
 
 %dir %{_datadir}/%{name}/
 %{_datadir}/%{name}/*.glade
@@ -156,11 +153,6 @@ fi
 %{_datadir}/%{name}/virtManager/*.pyc
 %{_datadir}/%{name}/virtManager/*.pyo
 
-%dir %{_datadir}/%{name}/vncViewer/
-%{_datadir}/%{name}/vncViewer/*.py
-%{_datadir}/%{name}/vncViewer/*.pyc
-%{_datadir}/%{name}/vncViewer/*.pyo
-
 %{_datadir}/omf/%{name}/
 %{_datadir}/gnome/help/%{name}/
 
@@ -168,6 +160,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Jan 10 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.3-1.fc7
+- Updated to 0.5.3 release
+
 * Wed May  9 2007 Daniel P. Berrange <berrange@redhat.com> - 0.4.0-2.fc7
 - Refresh po file translations (bz 238369)
 - Fixed removal of disk/network devices
