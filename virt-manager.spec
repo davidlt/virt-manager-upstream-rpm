@@ -7,17 +7,16 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.5.2
-Release: 2%{_extra_release}
+Version: 0.5.3
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
-License: GPL
+License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Patch1: %{name}-%{version}-vnc-credential-name.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -37,7 +36,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen guests
-Requires: python-virtinst >= 0.300.1
+Requires: python-virtinst >= 0.300.2
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -69,7 +68,6 @@ API.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 %configure
@@ -85,7 +83,7 @@ rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
 # Adjust for console-helper magic
 mkdir -p $RPM_BUILD_ROOT%{_sbindir}
 mv $RPM_BUILD_ROOT%{_bindir}/%{name} $RPM_BUILD_ROOT%{_sbindir}/%{name}
-ln -s %{_bindir}/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
+ln -s ../bin/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
 cp %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/%{name}
 mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps
@@ -128,7 +126,7 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
-%{_sysconfdir}/pam.d/%{name}
+%config(noreplace) %{_sysconfdir}/pam.d/%{name}
 %{_sysconfdir}/security/console.apps/%{name}
 %{_bindir}/%{name}
 %{_sbindir}/%{name}
@@ -160,6 +158,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Jan 10 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.3-1.fc9
+- Update to 0.5.3 release
+
 * Mon Oct 15 2007 Daniel P. Berrange <berrange@redhat.com> - 0.5.2-2.fc8
 - Change TLS x509 credential name to sync with libvirt
 
