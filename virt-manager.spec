@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.5.3
-Release: 2%{_extra_release}
+Version: 0.5.4
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -23,7 +23,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.3.3
+Requires: libvirt-python >= 0.4.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 # Might work with earlier, but this is what we've tested
@@ -48,7 +48,7 @@ Requires: usermode
 # For online help
 Requires: scrollkeeper
 # For the guest console
-Requires: gtk-vnc-python
+Requires: gtk-vnc-python >= 0.3.4
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -158,6 +158,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Mar 10 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-1.fc9
+- Update to 0.5.4 release
+
 * Mon Feb 18 2008 Fedora Release Engineering <rel-eng@fedoraproject.org> - 0.5.3-2
 - Autorebuild for GCC 4.3
 
