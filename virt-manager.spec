@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.5.4
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,7 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+Patch1: %{name}-%{version}-polkit-root.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -68,6 +69,7 @@ API.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 %configure
@@ -158,6 +160,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Mar 13 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-2.fc9
+- Don't run policykit checks when root (rhbz #436994)
+
 * Mon Mar 10 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-1.fc9
 - Update to 0.5.4 release
 
