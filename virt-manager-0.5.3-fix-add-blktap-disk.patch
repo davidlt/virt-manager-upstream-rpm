@@ -1,0 +1,19 @@
+# HG changeset patch
+# User "Cole Robinson <crobinso@redhat.com>"
+# Date 1201714089 18000
+# Node ID 90dd30034ebc05edd006a2174680b8d7ff0f522a
+# Parent  384724cb14e02c6c98bec00db5567e03349caca6
+Fix adding virtual blktap disk to pv guest via addhardware wizard. rhbz 430926
+
+diff -r 384724cb14e0 -r 90dd30034ebc src/virtManager/addhardware.py
+--- a/src/virtManager/addhardware.py	Wed Jan 16 11:49:56 2008 -0500
++++ b/src/virtManager/addhardware.py	Wed Jan 30 12:28:09 2008 -0500
+@@ -700,7 +700,7 @@ class vmmAddHardware(gobject.GObject):
+                                                   device=device)
+                 if self._disk.type == virtinst.VirtualDisk.TYPE_FILE and \
+                    not self.vm.is_hvm() and virtinst.util.is_blktap_capable():
+-                        disk.driver_name = virtinst.VirtualDisk.DRIVER_TAP
++                    self._disk.driver_name = virtinst.VirtualDisk.DRIVER_TAP
+             except ValueError, e:
+                 self._validation_error_box(_("Invalid Storage Parameters"), \
+                                             str(e))
