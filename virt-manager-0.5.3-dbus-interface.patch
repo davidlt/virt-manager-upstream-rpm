@@ -1,0 +1,124 @@
+diff -ruNp virt-manager-0.5.3.orig/src/virtManager/connection.py virt-manager-0.5.3.new/src/virtManager/connection.py
+--- virt-manager-0.5.3.orig/src/virtManager/connection.py	2008-01-10 20:17:51.000000000 -0500
++++ virt-manager-0.5.3.new/src/virtManager/connection.py	2008-03-06 11:06:26.000000000 -0500
+@@ -161,9 +161,10 @@ class vmmConnection(gobject.GObject):
+ 
+     def _device_added(self, path):
+         obj = self.bus.get_object("org.freedesktop.Hal", path)
+-        if obj.QueryCapability("net"):
+-            name = obj.GetPropertyString("net.interface")
+-            mac = obj.GetPropertyString("net.address")
++        objif = dbus.Interface(obj, "org.freedesktop.Hal.Device")
++        if objif.QueryCapability("net"):
++            name = objif.GetPropertyString("net.interface")
++            mac = objif.GetPropertyString("net.address")
+ 
+             # Now magic to determine if the device is part of a bridge
+             shared = False
+@@ -171,7 +172,7 @@ class vmmConnection(gobject.GObject):
+             try:
+                 # XXX Linux specific - needs porting for other OS - patches
+                 # welcomed...
+-                sysfspath = obj.GetPropertyString("linux.sysfs_path")
++                sysfspath = objif.GetPropertyString("linux.sysfs_path")
+ 
+                 # If running a device in bridged mode, there's a reasonable
+                 # chance that the actual ethernet device has been renamed to
+diff -ruNp virt-manager-0.5.3.orig/src/virtManager/createnet.py virt-manager-0.5.3.new/src/virtManager/createnet.py
+--- virt-manager-0.5.3.orig/src/virtManager/createnet.py	2008-01-10 20:17:51.000000000 -0500
++++ virt-manager-0.5.3.new/src/virtManager/createnet.py	2008-03-06 11:04:52.000000000 -0500
+@@ -404,10 +404,11 @@ class vmmCreateNetwork(gobject.GObject):
+         # Find info about all current present media
+         for d in self.hal_iface.FindDeviceByCapability("volume"):
+             vol = self.bus.get_object("org.freedesktop.Hal", d)
+-            if vol.GetPropertyBoolean("volume.is_disc") and \
+-                   vol.GetPropertyBoolean("volume.disc.has_data"):
+-                devnode = vol.GetProperty("block.device")
+-                label = vol.GetProperty("volume.label")
++            volif = dbus.Interface(vol, "org.freedesktop.Hal.Device")
++            if volif.GetPropertyBoolean("volume.is_disc") and \
++                   volif.GetPropertyBoolean("volume.disc.has_data"):
++                devnode = volif.GetProperty("block.device")
++                label = volif.GetProperty("volume.label")
+                 if label == None or len(label) == 0:
+                     label = devnode
+                 vollabel[devnode] = label
+@@ -416,7 +417,8 @@ class vmmCreateNetwork(gobject.GObject):
+ 
+         for d in self.hal_iface.FindDeviceByCapability("storage.cdrom"):
+             dev = self.bus.get_object("org.freedesktop.Hal", d)
+-            devnode = dev.GetProperty("block.device")
++            devif = dbus.Interface(dev, "org.freedesktop.Hal.Device")
++            devnode = devif.GetProperty("block.device")
+             if vollabel.has_key(devnode):
+                 model.append([devnode, vollabel[devnode], True, volpath[devnode]])
+             else:
+diff -ruNp virt-manager-0.5.3.orig/src/virtManager/create.py virt-manager-0.5.3.new/src/virtManager/create.py
+--- virt-manager-0.5.3.orig/src/virtManager/create.py	2008-01-10 20:17:51.000000000 -0500
++++ virt-manager-0.5.3.new/src/virtManager/create.py	2008-03-06 11:04:52.000000000 -0500
+@@ -139,7 +139,6 @@ class vmmCreate(gobject.GObject):
+         cd_list.add_attribute(text, 'sensitive', 2)
+         try:
+             self.optical_helper = vmmOpticalDriveHelper(self.window.get_widget("cd-path"))
+-            self.optical_helper.populate_opt_media()
+             self.window.get_widget("media-physical").set_sensitive(True)
+         except Exception, e:
+             logging.error("Unable to create optical-helper widget: '%s'", e)
+diff -ruNp virt-manager-0.5.3.orig/src/virtManager/opticalhelper.py virt-manager-0.5.3.new/src/virtManager/opticalhelper.py
+--- virt-manager-0.5.3.orig/src/virtManager/opticalhelper.py	2008-01-10 20:17:51.000000000 -0500
++++ virt-manager-0.5.3.new/src/virtManager/opticalhelper.py	2008-03-06 11:04:52.000000000 -0500
+@@ -52,10 +52,11 @@ class vmmOpticalDriveHelper(gobject.GObj
+         # Find info about all current present media
+         for d in self.hal_iface.FindDeviceByCapability("volume"):
+             vol = self.bus.get_object("org.freedesktop.Hal", d)
+-            if vol.GetPropertyBoolean("volume.is_disc") and \
+-                   vol.GetPropertyBoolean("volume.disc.has_data"):
+-                devnode = vol.GetProperty("block.device")
+-                label = vol.GetProperty("volume.label")
++            volif = dbus.Interface(vol, "org.freedesktop.Hal.Device")
++            if volif.GetPropertyBoolean("volume.is_disc") and \
++                   volif.GetPropertyBoolean("volume.disc.has_data"):
++                devnode = volif.GetProperty("block.device")
++                label = volif.GetProperty("volume.label")
+                 if label == None or len(label) == 0:
+                     label = devnode
+                 vollabel[devnode] = label
+@@ -63,19 +64,21 @@ class vmmOpticalDriveHelper(gobject.GObj
+ 
+         for d in self.hal_iface.FindDeviceByCapability("storage.cdrom"):
+             dev = self.bus.get_object("org.freedesktop.Hal", d)
+-            devnode = dev.GetProperty("block.device")
++            devif = dbus.Interface(dev, "org.freedesktop.Hal.Device")
++            devnode = devif.GetProperty("block.device")
+             if vollabel.has_key(devnode):
+-                self.model.append([devnode, vollabel[devnode], True, volpath[devnode]])
++                self.model.append([devnode, "%s (%s)" % (vollabel[devnode], devnode), True, volpath[devnode]])
+             else:
+-                self.model.append([devnode, _("No media present"), False, None])
++                self.model.append([devnode, "%s (%s)" % (_("No media present"), devnode), False, None])
+ 
+     def _device_added(self, path):
+         vol = self.bus.get_object("org.freedesktop.Hal", path)
+-        if vol.QueryCapability("volume"):
+-            if vol.GetPropertyBoolean("volume.is_disc") and \
+-                   vol.GetPropertyBoolean("volume.disc.has_data"):
+-                devnode = vol.GetProperty("block.device")
+-                label = vol.GetProperty("volume.label")
++        volif = dbus.Interface(vol, "org.freedesktop.Hal.Device")
++        if volif.QueryCapability("volume"):
++            if volif.GetPropertyBoolean("volume.is_disc") and \
++                   volif.GetPropertyBoolean("volume.disc.has_data"):
++                devnode = volif.GetProperty("block.device")
++                label = volif.GetProperty("volume.label")
+                 if label == None or len(label) == 0:
+                     label = devnode
+ 
+@@ -88,8 +91,6 @@ class vmmOpticalDriveHelper(gobject.GObj
+                         row[3] = path
+ 
+     def _device_removed(self, path):
+-        vol = self.bus.get_object("org.freedesktop.Hal", path)
+-
+         active = self.widget.get_active()
+         idx = 0
+         # Search for the row containing matching HAL volume path

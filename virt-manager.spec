@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.5.3
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,13 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
+
+Patch1: %{name}-%{version}-fix-add-bridge.patch
+Patch2: %{name}-%{version}-fix-add-blktap-disk.patch
+Patch3: %{name}-%{version}-dbus-interface.patch
+Patch4: %{name}-%{version}-default-xen-uri.patch
+Patch5: %{name}-%{version}-fix-xen-cdrom-insert.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -70,6 +77,11 @@ API.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %configure
@@ -160,6 +172,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Mar 19 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.3-2.fc7
+- Fix cdrom media connect
+- Fix default Xen hypervisor URI
+- Fix DBus calls to use an explicit interface (rhbz #435506)
+- Fix adding blktap disk to PV guest via addhardware wizard
+- Fix adding shared network devices via addhardware wizard
+
 * Thu Jan 10 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.3-1.fc7
 - Updated to 0.5.3 release
 
