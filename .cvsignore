@@ -1,5 +1,1 @@
-*.src.rpm
-.build*.log
-x86_64
-i686
-virt-manager-0.5.4.tar.gz
+virt-manager-0.6.0.tar.gz
