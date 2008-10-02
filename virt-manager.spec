@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.5.4
-Release: 4%{_extra_release}
+Release: 5%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -20,6 +20,7 @@ Source2: %{name}.console
 Patch1: %{name}-%{version}-polkit-root.patch
 Patch2: %{name}-%{version}-i18n.patch
 Patch3: %{name}-%{version}-image-dir.patch
+Patch4: %{name}-%{version}-polkit-check.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -74,6 +75,7 @@ API.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 %build
 %configure
@@ -164,6 +166,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Oct  2 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-5.fc9
+- Fix polkit policy file check (rhbz #464069)
+
 * Fri May  9 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-4.fc9
 - Default disk images to /var/lib/libvirt/images
 
