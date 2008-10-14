@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -18,6 +18,12 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 Source1: %{name}.pam
 Source2: %{name}.console
 Patch1: %{name}-%{version}-polkit-root.patch
+Patch2: %{name}-%{version}-conn-details-sensitivity.patch
+Patch3: %{name}-%{version}-catalan-translation.patch
+Patch4: %{name}-%{version}-dutch-translation.patch
+Patch5: %{name}-%{version}-german-update.patch
+Patch6: %{name}-%{version}-populate-hostinfo-early.patch
+Patch7: %{name}-%{version}-update-potfiles.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -35,6 +41,7 @@ Requires: gnome-keyring >= 0.4.9
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: gnome-python2-gnomevfs >= 2.15.4
+Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
@@ -82,6 +89,12 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 %build
 %configure
@@ -171,6 +184,15 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Oct 14 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-2.fc10
+- Add gnome-python2-gnome requirement.
+- Allow seeing connection details if disconnected.
+- Updated catalan translation.
+- Update dutch translation.
+- Update german translation. (bug 438136)
+- Fix showing domain console when connecting to hypervisor.
+- Update POTFILES to reflect reality (bug 466835)
+
 * Wed Sep 10 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-1.fc10
 - Update to 0.6.0 release
 - Add libvirt storage management support

@@ -1,0 +1,97 @@
+# HG changeset patch
+# User "Cole Robinson <crobinso@redhat.com>"
+# Date 1224004952 14400
+# Node ID ba26f6f584144bce5f33fdc19b5e6d09adbba8d2
+# Parent  7442ab043062ab4270b2de7ec23007866c7d5158
+Update POTFILES to reflect reality.
+
+diff -r 7442ab043062 -r ba26f6f58414 po/POTFILES.in
+--- a/po/POTFILES.in	Tue Oct 07 10:09:03 2008 -0400
++++ b/po/POTFILES.in	Tue Oct 14 13:22:32 2008 -0400
+@@ -1,45 +1,47 @@
+ src/virt-manager.desktop.in.in
+-src/vmm-about.glade
+-src/vmm-details.glade
+-src/vmm-add-hardware.glade
+-src/vmm-host.glade
+-src/vmm-choose-cd.glade
+-src/vmm-manager.glade
+-src/vmm-create.glade
+-src/vmm-open-connection.glade
+-src/vmm-create-net.glade
+-src/vmm-preferences.glade
+-src/vmm-create-pool.glade
+-src/vmm-progress.glade
+-src/vmm-create-vol.glade
+ src/virt-manager.py.in
+ src/virt-manager.schemas.in
++src/virtManager/IPy.py
++src/virtManager/__init__.py
+ src/virtManager/about.py
++src/virtManager/addhardware.py
++src/virtManager/asyncjob.py
++src/virtManager/choosecd.py
++src/virtManager/config.py
++src/virtManager/connect.py
+ src/virtManager/connection.py
++src/virtManager/create.py
++src/virtManager/createmeter.py
+ src/virtManager/createnet.py
++src/virtManager/createpool.py
++src/virtManager/createvol.py
++src/virtManager/details.py
++src/virtManager/domain.py
+ src/virtManager/engine.py
+-src/virtManager/IPy.py
++src/virtManager/error.py
++src/virtManager/host.py
++src/virtManager/keyring.py
++src/virtManager/manager.py
+ src/virtManager/netdev.py
++src/virtManager/network.py
++src/virtManager/opticalhelper.py
++src/virtManager/preferences.py
++src/virtManager/remote.py
+ src/virtManager/secret.py
+-src/virtManager/addhardware.py
+-src/virtManager/connect.py
+-src/virtManager/create.py
+-src/virtManager/createvol.py
+-src/virtManager/createpool.py
++src/virtManager/serialcon.py
++src/virtManager/storagepool.py
+ src/virtManager/storagevol.py
+-src/virtManager/storagepool.py
+-src/virtManager/error.py
+-src/virtManager/keyring.py
+-src/virtManager/network.py
+-src/virtManager/serialcon.py
+-src/virtManager/asyncjob.py
+-src/virtManager/details.py
+-src/virtManager/host.py
+-src/virtManager/preferences.py
+-src/virtManager/config.py
+-src/virtManager/createmeter.py
+-src/virtManager/domain.py
+-src/virtManager/__init__.py
+-src/virtManager/manager.py
+-src/virtManager/remote.py
+ src/virtManager/util.py
++src/vmm-about.glade
++src/vmm-add-hardware.glade
++src/vmm-choose-cd.glade
++src/vmm-create-net.glade
++src/vmm-create-pool.glade
++src/vmm-create-vol.glade
++src/vmm-create.glade
++src/vmm-details.glade
++src/vmm-host.glade
++src/vmm-manager.glade
++src/vmm-open-connection.glade
++src/vmm-preferences.glade
++src/vmm-progress.glade
+diff -r 7442ab043062 -r ba26f6f58414 po/POTFILES.skip
+--- a/po/POTFILES.skip	Tue Oct 07 10:09:03 2008 -0400
++++ b/po/POTFILES.skip	Tue Oct 14 13:22:32 2008 -0400
+@@ -1,1 +0,0 @@
+-src/virt-manager.desktop.in
