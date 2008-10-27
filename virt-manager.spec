@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -19,11 +19,12 @@ Source1: %{name}.pam
 Source2: %{name}.console
 Patch1: %{name}-%{version}-polkit-root.patch
 Patch2: %{name}-%{version}-conn-details-sensitivity.patch
-Patch3: %{name}-%{version}-catalan-translation.patch
-Patch4: %{name}-%{version}-dutch-translation.patch
-Patch5: %{name}-%{version}-german-update.patch
-Patch6: %{name}-%{version}-populate-hostinfo-early.patch
-Patch7: %{name}-%{version}-update-potfiles.patch
+Patch3: %{name}-%{version}-populate-hostinfo-early.patch
+Patch4: %{name}-%{version}-update-potfiles.patch
+Patch5: %{name}-%{version}-update-translations.patch
+Patch6: %{name}-%{version}-multiple-sound-dev.patch
+Patch7: %{name}-%{version}-vol-copy-popup.patch
+Patch8: %{name}-%{version}-connect-variable-typo.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -33,6 +34,7 @@ Requires: gnome-python2-gconf >= 1.99.11-7
 Requires: libvirt-python >= 0.4.5
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
+Requires: dbus-x11
 # Might work with earlier, but this is what we've tested
 Requires: gnome-keyring >= 0.4.9
 # Minimum we've tested with
@@ -95,6 +97,7 @@ management API.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 %build
 %configure
@@ -184,6 +187,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Oct 27 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-3.fc10
+- Add dbus-x11 to Requires (bug 467886)
+- Fedora translation updates (bug 467808)
+- Don't add multiple sound devices if install fails
+- Only popup volume path copy option on right click
+- Fix a variable typo
+
 * Tue Oct 14 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-2.fc10
 - Add gnome-python2-gnome requirement.
 - Allow seeing connection details if disconnected.
