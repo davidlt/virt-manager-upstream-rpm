@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 3%{_extra_release}
+Release: 3.1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -43,7 +43,7 @@ Requires: gnome-keyring >= 0.4.9
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: gnome-python2-gnomevfs >= 2.15.4
-Requires: gnome-python2-gnome
+Requires: gnome-python2
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
@@ -187,6 +187,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Nov  3 2008 Juan Quintela <quintela@redhat.com> - 0.6.0-3.1-fc10
+- recompile for F-9.
+- gnome-python2-gnome in rawhide is gnome-pythone2 in F-9, go figure.
+
 * Mon Oct 27 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-3.fc10
 - Add dbus-x11 to Requires (bug 467886)
 - Fedora translation updates (bug 467808)
