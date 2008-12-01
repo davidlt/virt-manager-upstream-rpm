@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -187,6 +187,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sun Nov 30 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 0.6.0-4
+- Rebuild for Python 2.6
+
 * Mon Oct 27 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-3.fc10
 - Add dbus-x11 to Requires (bug 467886)
 - Fedora translation updates (bug 467808)
