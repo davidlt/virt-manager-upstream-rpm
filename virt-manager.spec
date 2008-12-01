@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 0%{_extra_release}
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
