@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -25,6 +25,7 @@ Patch5: %{name}-%{version}-update-translations.patch
 Patch6: %{name}-%{version}-multiple-sound-dev.patch
 Patch7: %{name}-%{version}-vol-copy-popup.patch
 Patch8: %{name}-%{version}-connect-variable-typo.patch
+Patch9: %{name}-%{version}-fix-virt-type-desc.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -43,7 +44,11 @@ Requires: gnome-keyring >= 0.4.9
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: gnome-python2-gnomevfs >= 2.15.4
+%if "%{fedora}" <= "9"
+Requires: gnome-python2
+%else
 Requires: gnome-python2-gnome
+%endif
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
@@ -98,6 +103,7 @@ management API.
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
 
 %build
 %configure
@@ -187,6 +193,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Dec  1 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-4.fc10
+- Fix spec for building on F9
+- Update 'New VM' virt descriptions to be less black and white (bz 470563)
+
 * Mon Oct 27 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-3.fc10
 - Add dbus-x11 to Requires (bug 467886)
 - Fedora translation updates (bug 467808)
