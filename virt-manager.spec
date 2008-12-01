@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.5.4
-Release: 5%{_extra_release}
+Version: 0.6.0
+Release: 0%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -18,18 +18,24 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 Source1: %{name}.pam
 Source2: %{name}.console
 Patch1: %{name}-%{version}-polkit-root.patch
-Patch2: %{name}-%{version}-i18n.patch
-Patch3: %{name}-%{version}-image-dir.patch
-Patch4: %{name}-%{version}-polkit-check.patch
+Patch2: %{name}-%{version}-conn-details-sensitivity.patch
+Patch3: %{name}-%{version}-populate-hostinfo-early.patch
+Patch4: %{name}-%{version}-update-potfiles.patch
+Patch5: %{name}-%{version}-update-translations.patch
+Patch6: %{name}-%{version}-multiple-sound-dev.patch
+Patch7: %{name}-%{version}-vol-copy-popup.patch
+Patch8: %{name}-%{version}-connect-variable-typo.patch
+Patch9: %{name}-%{version}-fix-virt-type-desc.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.4.0
+Requires: libvirt-python >= 0.4.5
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
+Requires: dbus-x11
 # Might work with earlier, but this is what we've tested
 Requires: gnome-keyring >= 0.4.9
 # Minimum we've tested with
@@ -37,10 +43,16 @@ Requires: gnome-keyring >= 0.4.9
 # will work just fine - keyring functionality will simply be
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
+Requires: gnome-python2-gnomevfs >= 2.15.4
+%if "%{fedora}" <= "9"
+Requires: gnome-python2
+%else
+Requires: gnome-python2-gnome
+%endif
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
-# Required to install Xen guests
-Requires: python-virtinst >= 0.300.3-6.fc9
+# Required to install Xen & QEMU guests
+Requires: python-virtinst >= 0.400.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -51,14 +63,23 @@ Requires: vte >= 0.12.2
 Requires: usermode
 # For online help
 Requires: scrollkeeper
-# For the guest console
+# For console widget
 Requires: gtk-vnc-python >= 0.3.4
+# For local authentication against PolicyKit
+Requires: PolicyKit-gnome
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
+BuildRequires: pygobject2-devel
+BuildRequires: glib2-devel
 BuildRequires: python-devel
+BuildRequires: pango-devel
+BuildRequires: atk-devel
+BuildRequires: cairo-devel
 BuildRequires: gettext
 BuildRequires: scrollkeeper
+BuildRequires: intltool
+
 Requires(pre): GConf2
 Requires(post): GConf2
 Requires(preun): GConf2
@@ -66,9 +87,11 @@ Requires(post): desktop-file-utils
 Requires(postun): desktop-file-utils
 
 %description
-Virtual Machine Manager provides a graphical tool for administering
-virtual machines such as Xen. It uses libvirt as the backend management
-API.
+Virtual Machine Manager provides a graphical tool for administering virtual
+machines for KVM, Xen, and QEmu. Start, stop, add or remove virtual devices,
+connect to a graphical or serial console, and see resource usage statistics
+for existing VMs on local or remote machines. Uses libvirt as the backend
+management API.
 
 %prep
 %setup -q
@@ -76,11 +99,15 @@ API.
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 %build
 %configure
 make %{?_smp_mflags}
-
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -166,11 +193,14 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Thu Oct  2 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-5.fc9
-- Fix polkit policy file check (rhbz #464069)
-
-* Fri May  9 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-4.fc9
-- Default disk images to /var/lib/libvirt/images
+* Mon Dec  1 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-1.fc9
+- Update to 0.6.0 release with additional fixes from rawhide/F10
+- Add libvirt storage management support
+- Basic support for remote guest installation
+- Merge VM console and details windows
+- Poll avahi for libvirtd advertisement
+- Hypervisor autoconnect option
+- Add sound emulation when creating new guests
 
 * Thu Apr  3 2008 Daniel P. Berrange <berrange@redhat.com> - 0.5.4-3.fc9
 - Updated sr, de, fi, it, pl translations
