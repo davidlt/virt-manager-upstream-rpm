@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 5%{_extra_release}
+Release: 6%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -193,6 +193,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Dec 04 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 0.6.0-6
+- Rebuild for Python 2.6
+
 * Mon Dec  1 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-5.fc10
 - Fix spec for building on F9
 - Update 'New VM' virt descriptions to be less black and white (bz 470563)
