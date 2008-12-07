@@ -44,7 +44,7 @@ Requires: gnome-keyring >= 0.4.9
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: gnome-python2-gnomevfs >= 2.15.4
-%if "%{fedora}" <= "9"
+%if 0%{?fedora} <= 9
 Requires: gnome-python2
 %else
 Requires: gnome-python2-gnome
