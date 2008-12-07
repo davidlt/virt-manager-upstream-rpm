@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 4%{_extra_release}
+Release: 5%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -44,7 +44,7 @@ Requires: gnome-keyring >= 0.4.9
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: gnome-python2-gnomevfs >= 2.15.4
-%if "%{fedora}" <= "9"
+%if 0%{?fedora} <= 9
 Requires: gnome-python2
 %else
 Requires: gnome-python2-gnome
@@ -193,6 +193,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sun Dec  7 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-5.fc10
+- Fix a spelling error in virt descriptions
+- Fix gnome-python2-gnome requires regression (bz 474521)
+
 * Mon Dec  1 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-4.fc10
 - Fix spec for building on F9
 - Update 'New VM' virt descriptions to be less black and white (bz 470563)
