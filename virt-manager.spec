@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.0
-Release: 6%{_extra_release}
+Release: 7%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -26,6 +26,7 @@ Patch6: %{name}-%{version}-multiple-sound-dev.patch
 Patch7: %{name}-%{version}-vol-copy-popup.patch
 Patch8: %{name}-%{version}-connect-variable-typo.patch
 Patch9: %{name}-%{version}-fix-virt-type-desc.patch
+Patch10: %{name}-%{version}-ignore-sighup.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -104,6 +105,7 @@ management API.
 %patch7 -p1
 %patch8 -p1
 %patch9 -p1
+%patch10 -p1
 
 %build
 %configure
@@ -193,6 +195,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Jan 20 2009 Mark McLoughlin <markmc@redhat.com> - 0.6.0-7
+- Add patch to ignore fix crash on force-poweroff with serial console (#470548)
+
 * Thu Dec 04 2008 Ignacio Vazquez-Abrams <ivazqueznet+rpm@gmail.com> - 0.6.0-6
 - Rebuild for Python 2.6
 

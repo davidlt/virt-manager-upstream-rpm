@@ -1,0 +1,28 @@
+# HG changeset patch
+# User "Cole Robinson <crobinso@redhat.com>"
+# Date 1228753553 18000
+# Node ID fb3a203a72d7d0cedf0a499df3950a9187c282c5
+# Parent  d402778935079ead0d1e049efa026dd8d4bd5a51
+Ignore SIGHUP if we fork off, otherwise a dropped serial console kills the whole app. (bz 470548)
+
+diff -r d40277893507 -r fb3a203a72d7 src/virt-manager.py.in
+--- a/src/virt-manager.py.in	Mon Dec 08 11:14:54 2008 -0500
++++ b/src/virt-manager.py.in	Mon Dec 08 11:25:53 2008 -0500
+@@ -31,6 +31,7 @@
+ import logging.handlers
+ import threading
+ import traceback
++import signal
+ from optparse import OptionParser, OptionValueError
+ 
+ # These are substituted into code based on --prefix given to configure
+@@ -282,6 +283,9 @@
+         drop_tty()
+         drop_stdio()
+ 
++        # Ignore SIGHUP, otherwise a serial console closing drops the whole app
++        signal.signal(signal.SIGHUP, signal.SIG_IGN)
++
+     from virtManager.engine import vmmEngine
+     from virtManager.remote import vmmRemote
+ 
