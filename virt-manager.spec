@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.6.0
-Release: 7%{_extra_release}
+Version: 0.6.1
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,16 +17,6 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source1: %{name}.pam
 Source2: %{name}.console
-Patch1: %{name}-%{version}-polkit-root.patch
-Patch2: %{name}-%{version}-conn-details-sensitivity.patch
-Patch3: %{name}-%{version}-populate-hostinfo-early.patch
-Patch4: %{name}-%{version}-update-potfiles.patch
-Patch5: %{name}-%{version}-update-translations.patch
-Patch6: %{name}-%{version}-multiple-sound-dev.patch
-Patch7: %{name}-%{version}-vol-copy-popup.patch
-Patch8: %{name}-%{version}-connect-variable-typo.patch
-Patch9: %{name}-%{version}-fix-virt-type-desc.patch
-Patch10: %{name}-%{version}-ignore-sighup.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -53,7 +43,7 @@ Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.400.0
+Requires: python-virtinst >= 0.400.1
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -96,16 +86,6 @@ management API.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
 
 %build
 %configure
@@ -195,6 +175,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Jan 26 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-1
+- Update to 0.6.1 release
+- Disk and Network VM stats reporting
+- VM Migration support
+- Support adding sound devices to existing VMs
+- Allow specifying device model when adding a network device to an existing VM
+
 * Tue Jan 20 2009 Mark McLoughlin <markmc@redhat.com> - 0.6.0-7
 - Add patch to ignore fix crash on force-poweroff with serial console (#470548)
 
