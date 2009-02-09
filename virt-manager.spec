@@ -8,15 +8,13 @@
 
 Name: virt-manager
 Version: 0.6.1
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Source1: %{name}.pam
-Source2: %{name}.console
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -50,8 +48,6 @@ Requires: pygtk2-libglade
 Requires: librsvg2
 # Earlier vte had broken python binding module
 Requires: vte >= 0.12.2
-# For the consolehelper PAM stuff
-Requires: usermode
 # For online help
 Requires: scrollkeeper
 # For console widget
@@ -97,15 +93,6 @@ make install  DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
 
-# Adjust for console-helper magic
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-mv $RPM_BUILD_ROOT%{_bindir}/%{name} $RPM_BUILD_ROOT%{_sbindir}/%{name}
-ln -s ../bin/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
-cp %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/%{name}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps
-cp %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps/%{name}
-
 %find_lang %{name}
 
 %clean
@@ -143,8 +130,6 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
-%config(noreplace) %{_sysconfdir}/pam.d/%{name}
-%{_sysconfdir}/security/console.apps/%{name}
 %{_bindir}/%{name}
 %{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
@@ -175,6 +160,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Feb  9 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-2
+- Kill off consolehelper (PolicyKit is sufficient)
+
 * Mon Jan 26 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-1
 - Update to 0.6.1 release
 - Disk and Network VM stats reporting
