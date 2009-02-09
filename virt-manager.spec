@@ -131,7 +131,6 @@ fi
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
 %{_bindir}/%{name}
-%{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
 %dir %{_libdir}/%{name}/
 %{_libdir}/%{name}/*
