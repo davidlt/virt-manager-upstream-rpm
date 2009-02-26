@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.1
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -159,6 +159,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.1-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
+
 * Mon Feb  9 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-2
 - Kill off consolehelper (PolicyKit is sufficient)
 
