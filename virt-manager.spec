@@ -7,7 +7,7 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.6.0
+Version: 0.6.1
 Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
@@ -15,17 +15,9 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Source1: %{name}.pam
-Source2: %{name}.console
-Patch1: %{name}-%{version}-polkit-root.patch
-Patch2: %{name}-%{version}-conn-details-sensitivity.patch
-Patch3: %{name}-%{version}-populate-hostinfo-early.patch
-Patch4: %{name}-%{version}-update-potfiles.patch
-Patch5: %{name}-%{version}-update-translations.patch
-Patch6: %{name}-%{version}-multiple-sound-dev.patch
-Patch7: %{name}-%{version}-vol-copy-popup.patch
-Patch8: %{name}-%{version}-connect-variable-typo.patch
-Patch9: %{name}-%{version}-fix-virt-type-desc.patch
+Patch1: %{name}-%{version}-update-polish.patch
+Patch2: %{name}-%{version}-fix-cadl.patch
+Patch3: %{name}-%{version}-fix-stats-prefs.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -59,14 +51,16 @@ Requires: pygtk2-libglade
 Requires: librsvg2
 # Earlier vte had broken python binding module
 Requires: vte >= 0.12.2
-# For the consolehelper PAM stuff
-Requires: usermode
 # For online help
 Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.4
 # For local authentication against PolicyKit
+%if 0%{?fedora} >= 11
+Requires: PolicyKit-authentication-agent
+%else if 0%{?fedora} >= 9
 Requires: PolicyKit-gnome
+%endif
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -98,12 +92,6 @@ management API.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
 
 %build
 %configure
@@ -114,15 +102,6 @@ rm -rf $RPM_BUILD_ROOT
 make install  DESTDIR=$RPM_BUILD_ROOT
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
-
-# Adjust for console-helper magic
-mkdir -p $RPM_BUILD_ROOT%{_sbindir}
-mv $RPM_BUILD_ROOT%{_bindir}/%{name} $RPM_BUILD_ROOT%{_sbindir}/%{name}
-ln -s ../bin/consolehelper $RPM_BUILD_ROOT%{_bindir}/%{name}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/pam.d
-cp %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/pam.d/%{name}
-mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps
-cp %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/security/console.apps/%{name}
 
 %find_lang %{name}
 
@@ -161,10 +140,7 @@ fi
 %defattr(-,root,root,-)
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
-%config(noreplace) %{_sysconfdir}/pam.d/%{name}
-%{_sysconfdir}/security/console.apps/%{name}
 %{_bindir}/%{name}
-%{_sbindir}/%{name}
 %{_libexecdir}/%{name}-launch
 %dir %{_libdir}/%{name}/
 %{_libdir}/%{name}/*
@@ -193,6 +169,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Mar  4 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-1.fc9
+- Update to 0.6.1 release
+- Disk and Network VM stats reporting
+- VM Migration support
+- Support adding sound devices to existing VMs
+- Allow specifying device model when adding a network device to an existing VM
+
 * Mon Dec  1 2008 Cole Robinson <crobinso@redhat.com> - 0.6.0-1.fc9
 - Update to 0.6.0 release with additional fixes from rawhide/F10
 - Add libvirt storage management support
