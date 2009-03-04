@@ -8,13 +8,16 @@
 
 Name: virt-manager
 Version: 0.6.1
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+Patch1: %{name}-%{version}-update-polish.patch
+Patch2: %{name}-%{version}-fix-cadl.patch
+Patch3: %{name}-%{version}-fix-stats-prefs.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -53,7 +56,11 @@ Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.4
 # For local authentication against PolicyKit
+%if 0%{?fedora} >= 11
+Requires: PolicyKit-authentication-agent
+%else if 0%{?fedora} >= 9
 Requires: PolicyKit-gnome
+%endif
 
 BuildRequires: pygtk2-devel
 BuildRequires: gtk2-devel
@@ -82,6 +89,9 @@ management API.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %configure
@@ -159,6 +169,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Mar  4 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-4.fc11
+- Update polish translation (bz 263301)
+- Fix sending ctrl-alt-del to guest
+- Fix cpu + mem stats options to remember preference.
+
 * Wed Feb 25 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.6.1-3
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_11_Mass_Rebuild
 
