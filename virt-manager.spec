@@ -7,24 +7,21 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.6.1
-Release: 4%{_extra_release}
+Version: 0.7.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Patch1: %{name}-%{version}-update-polish.patch
-Patch2: %{name}-%{version}-fix-cadl.patch
-Patch3: %{name}-%{version}-fix-stats-prefs.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.4.5
+Requires: libvirt-python >= 0.6.1
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 Requires: dbus-x11
@@ -44,7 +41,7 @@ Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.400.1
+Requires: python-virtinst >= 0.400.3
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -89,9 +86,6 @@ management API.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
 %configure
@@ -169,6 +163,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Mar 10 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-1.fc11
+- Update to release 0.7.0
+- Redesigned 'New Virtual Machine' wizard
+- Option to remove storage when deleting a virtual machine.
+- File browser for libvirt storage pools and volumes
+- Physical device assignment (PCI, USB) for existing virtual machines.
+
 * Wed Mar  4 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-4.fc11
 - Update polish translation (bz 263301)
 - Fix sending ctrl-alt-del to guest
