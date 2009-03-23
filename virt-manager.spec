@@ -8,13 +8,15 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+Patch1: %{name}-%{version}-old-xen-compat.patch
+Patch2: %{name}-%{version}-vm-migrate-list.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -55,7 +57,8 @@ Requires: gtk-vnc-python >= 0.3.4
 # For local authentication against PolicyKit
 %if 0%{?fedora} >= 11
 Requires: PolicyKit-authentication-agent
-%else if 0%{?fedora} >= 9
+%endif
+%if 0%{?fedora} >= 9 && 0%{?fedora} < 11
 Requires: PolicyKit-gnome
 %endif
 
@@ -86,6 +89,8 @@ management API.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
 
 %build
 %configure
@@ -163,6 +168,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Mar 23 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-2.fc11
+- Back compat fixes for connecting to older xen installations (bz 489885)
+- Don't show harmless NoneType error when launching new VM details window
+
 * Tue Mar 10 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-1.fc11
 - Update to release 0.7.0
 - Redesigned 'New Virtual Machine' wizard
