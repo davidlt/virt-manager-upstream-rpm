@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,10 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Patch1: %{name}-%{version}-old-xen-compat.patch
 Patch2: %{name}-%{version}-vm-migrate-list.patch
+Patch3: %{name}-%{version}-fix-button-ordering.patch
+Patch4: %{name}-%{version}-fix-vcpu-cap.patch
+Patch5: %{name}-%{version}-delete-dup-conn.patch
+Patch6: %{name}-%{version}-update-translations.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -91,6 +95,10 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %configure
@@ -168,6 +176,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Apr 09 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-3.fc11
+- Fix incorrect max vcpu setting in New VM wizard (bz 490466)
+- Fix some OK/Cancel button ordering issues (bz 490207)
+- Use openAuth when duplicating a connection when deleting a VM
+- Updated translations (bz 493795)
+
 * Mon Mar 23 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-2.fc11
 - Back compat fixes for connecting to older xen installations (bz 489885)
 - Don't show harmless NoneType error when launching new VM details window
