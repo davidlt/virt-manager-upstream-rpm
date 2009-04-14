@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -176,6 +176,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Apr 14 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-4.fc11
+- More translation updates
+
 * Thu Apr 09 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-3.fc11
 - Fix incorrect max vcpu setting in New VM wizard (bz 490466)
 - Fix some OK/Cancel button ordering issues (bz 490207)
