@@ -1,0 +1,354 @@
+# HG changeset patch
+# User "Daniel P. Berrange <berrange@redhat.com>"
+# Date 1241720553 -3600
+# Node ID 5b61bd10a66b91d40ad5652a8f39b14273175292
+# Parent  6082392f2279e21a66482c58e230c2fc695eb66e
+Extend VNC auth handling to cope with fetching a username too & record username in gconf
+
+diff -r 6082392f2279 -r 5b61bd10a66b src/virtManager/config.py
+--- a/src/virtManager/config.py	Wed May 06 16:47:10 2009 +0100
++++ b/src/virtManager/config.py	Thu May 07 19:22:33 2009 +0100
+@@ -23,6 +23,7 @@
+ 
+ import gtk.gdk
+ import libvirt
++import logging
+ 
+ from virtManager.keyring import vmmKeyring
+ from virtManager.secret import vmmSecret
+@@ -299,6 +300,7 @@
+ 
+     def has_keyring(self):
+         if self.keyring == None:
++            logging.warning("Initializing keyring")
+             self.keyring = vmmKeyring()
+         return self.keyring.is_available()
+ 
+@@ -314,26 +316,30 @@
+ 
+     def get_console_password(self, vm):
+         _id = self.conf.get_int(self.conf_dir + "/console/passwords/" + vm.get_uuid())
++        username = self.conf.get_string(self.conf_dir + "/console/usernames/" + vm.get_uuid())
++
++        if username is None:
++            username = ""
+ 
+         if _id != None:
+             if not(self.has_keyring()):
+-                return ""
++                return ("", "")
+ 
+             secret = self.keyring.get_secret(_id)
+             if secret != None and secret.get_name() == self.get_secret_name(vm):
+                 if not(secret.has_attribute("hvuri")):
+-                    return ""
++                    return ("", "")
+                 if secret.get_attribute("hvuri") != vm.get_connection().get_uri():
+-                    return ""
++                    return ("", "")
+                 if not(secret.has_attribute("uuid")):
+-                    return ""
++                    return ("", "")
+                 if secret.get_attribute("uuid") != vm.get_uuid():
+-                    return ""
++                    return ("", "")
+ 
+-                return secret.get_secret()
+-        return ""
++                return (secret.get_secret(), username)
++        return ("", username)
+ 
+-    def set_console_password(self, vm, password):
++    def set_console_password(self, vm, password, username=""):
+         if not(self.has_keyring()):
+             return
+ 
+@@ -346,6 +352,7 @@
+         _id = self.keyring.add_secret(secret)
+         if _id != None:
+             self.conf.set_int(self.conf_dir + "/console/passwords/" + vm.get_uuid(), _id)
++            self.conf.set_string(self.conf_dir + "/console/usernames/" + vm.get_uuid(), username)
+ 
+     def get_url_list_length(self):
+         length = self.conf.get_int(self.conf_dir + "/urls/url-list-length")
+diff -r 6082392f2279 -r 5b61bd10a66b src/virtManager/details.py
+--- a/src/virtManager/details.py	Wed May 06 16:47:10 2009 +0100
++++ b/src/virtManager/details.py	Thu May 07 19:22:33 2009 +0100
+@@ -500,7 +500,7 @@
+         self.update_scaling()
+ 
+     def auth_login(self, ignore):
+-        self.set_password()
++        self.set_credentials()
+         self.activate_viewer_page()
+ 
+     def toggle_toolbar(self, src):
+@@ -1302,23 +1302,44 @@
+                      traceback.format_exc (stacktrace))
+             logging.error(details)
+ 
+-    def set_password(self, src=None):
+-        txt = self.window.get_widget("console-auth-password")
+-        self.vncViewer.set_credential(gtkvnc.CREDENTIAL_PASSWORD,
+-                                      txt.get_text())
++    def set_credentials(self, src=None):
++        passwd = self.window.get_widget("console-auth-password")
++        if passwd.flags() & gtk.VISIBLE:
++            self.vncViewer.set_credential(gtkvnc.CREDENTIAL_PASSWORD,
++                                          passwd.get_text())
++        username = self.window.get_widget("console-auth-username")
++        if username.flags() & gtk.VISIBLE:
++            self.vncViewer.set_credential(gtkvnc.CREDENTIAL_USERNAME,
++                                          username.get_text())
++
++        if self.window.get_widget("console-auth-remember").get_active():
++            self.config.set_console_password(self.vm, passwd.get_text(), username.get_text())
+ 
+     def _vnc_auth_credential(self, src, credList):
+         for i in range(len(credList)):
+-            logging.debug("Got credential request %s", str(credList[i]))
+-            if credList[i] == gtkvnc.CREDENTIAL_PASSWORD:
+-                self.activate_auth_page()
+-            elif credList[i] == gtkvnc.CREDENTIAL_CLIENTNAME:
+-                self.vncViewer.set_credential(credList[i], "libvirt-vnc")
+-            else:
+-                # Force it to stop re-trying
++            if credList[i] not in (gtkvnc.CREDENTIAL_PASSWORD, gtkvnc.CREDENTIAL_USERNAME, gtkvnc.CREDENTIAL_CLIENTNAME):
++                self.err.show_err(summary=_("Unable to provide requested credentials to the VNC server"),
++                                  details=_("The credential type %s is not supported") % (str(credList[i])),
++                                  title=_("Unable to authenticate"),
++                                  async=True)
+                 self.vncViewerRetriesScheduled = 10
+                 self.vncViewer.close()
+                 self.activate_unavailable_page(_("Unsupported console authentication type"))
++                return
++
++        withUsername = False
++        withPassword = False
++        for i in range(len(credList)):
++            logging.debug("Got credential request %s", str(credList[i]))
++            if credList[i] == gtkvnc.CREDENTIAL_PASSWORD:
++                withPassword = True
++            elif credList[i] == gtkvnc.CREDENTIAL_USERNAME:
++                withUsername = True
++            elif credList[i] == gtkvnc.CREDENTIAL_CLIENTNAME:
++                self.vncViewer.set_credential(credList[i], "libvirt-vnc")
++
++        if withUsername or withPassword:
++            self.activate_auth_page(withPassword, withUsername)
+ 
+     def activate_unavailable_page(self, msg):
+         self.window.get_widget("console-pages").set_current_page(PAGE_UNAVAILABLE)
+@@ -1329,20 +1350,41 @@
+         self.window.get_widget("console-pages").set_current_page(PAGE_SCREENSHOT)
+         self.window.get_widget("details-menu-vm-screenshot").set_sensitive(True)
+ 
+-    def activate_auth_page(self):
+-        pw = self.config.get_console_password(self.vm)
++    def activate_auth_page(self, withPassword=True, withUsername=False):
++        (pw, username) = self.config.get_console_password(self.vm)
+         self.window.get_widget("details-menu-vm-screenshot").set_sensitive(False)
++
++        if withPassword:
++            self.window.get_widget("console-auth-password").show()
++            self.window.get_widget("label-auth-password").show()
++        else:
++            self.window.get_widget("console-auth-password").hide()
++            self.window.get_widget("label-auth-password").hide()
++
++        if withUsername:
++            self.window.get_widget("console-auth-username").show()
++            self.window.get_widget("label-auth-username").show()
++        else:
++            self.window.get_widget("console-auth-username").hide()
++            self.window.get_widget("label-auth-username").hide()
++
++        self.window.get_widget("console-auth-username").set_text(username)
+         self.window.get_widget("console-auth-password").set_text(pw)
+-        self.window.get_widget("console-auth-password").grab_focus()
++
+         if self.config.has_keyring():
+             self.window.get_widget("console-auth-remember").set_sensitive(True)
+-            if pw != None and pw != "":
++            if pw != "" or username != "":
+                 self.window.get_widget("console-auth-remember").set_active(True)
+             else:
+                 self.window.get_widget("console-auth-remember").set_active(False)
+         else:
+             self.window.get_widget("console-auth-remember").set_sensitive(False)
+         self.window.get_widget("console-pages").set_current_page(PAGE_AUTHENTICATE)
++        if withUsername:
++            self.window.get_widget("console-auth-username").grab_focus()
++        else:
++            self.window.get_widget("console-auth-password").grab_focus()
++
+ 
+     def activate_viewer_page(self):
+         self.window.get_widget("console-pages").set_current_page(PAGE_VNCVIEWER)
+diff -r 6082392f2279 -r 5b61bd10a66b src/virtManager/keyring.py
+--- a/src/virtManager/keyring.py	Wed May 06 16:47:10 2009 +0100
++++ b/src/virtManager/keyring.py	Thu May 07 19:22:33 2009 +0100
+@@ -38,6 +38,8 @@
+                 if not("default" in gnomekeyring.list_keyring_names_sync()):
+                     gnomekeyring.create_sync("default", None)
+                 self.keyring = gnomekeyring.get_default_keyring_sync()
++                if self.keyring == None:
++                    logging.warning("Failed to create default keyring")
+             except:
+                 logging.warning(("Keyring unavailable: '%s'") % (str((sys.exc_info())[0]) + " "  + str((sys.exc_info())[1])))
+                 self.keyring = None
+@@ -61,6 +63,7 @@
+ 
+             return _id
+         except:
++            logging.warning(("Failed to add secret: '%s'") % (str((sys.exc_info())[0]) + " "  + str((sys.exc_info())[1])))
+             return None
+ 
+     def get_secret(self, _id):
+diff -r 6082392f2279 -r 5b61bd10a66b src/vmm-details.glade
+--- a/src/vmm-details.glade	Wed May 06 16:47:10 2009 +0100
++++ b/src/vmm-details.glade	Thu May 07 19:22:33 2009 +0100
+@@ -553,7 +553,7 @@
+                   <widget class="GtkTable" id="console-auth">
+                     <property name="visible">True</property>
+                     <property name="border_width">3</property>
+-                    <property name="n_rows">2</property>
++                    <property name="n_rows">3</property>
+                     <property name="n_columns">3</property>
+                     <property name="column_spacing">3</property>
+                     <property name="row_spacing">3</property>
+@@ -564,6 +564,80 @@
+                       <placeholder/>
+                     </child>
+                     <child>
++                      <placeholder/>
++                    </child>
++                    <child>
++                      <widget class="GtkLabel" id="label-auth-password">
++                        <property name="visible">True</property>
++                        <property name="xalign">0</property>
++                        <property name="label" translatable="yes">Password:</property>
++                      </widget>
++                      <packing>
++                        <property name="top_attach">1</property>
++                        <property name="bottom_attach">2</property>
++                        <property name="x_options">GTK_FILL</property>
++                        <property name="y_options"></property>
++                      </packing>
++                    </child>
++                    <child>
++                      <widget class="GtkEntry" id="console-auth-password">
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="visibility">False</property>
++                        <property name="invisible_char">*</property>
++                      </widget>
++                      <packing>
++                        <property name="left_attach">1</property>
++                        <property name="right_attach">2</property>
++                        <property name="top_attach">1</property>
++                        <property name="bottom_attach">2</property>
++                        <property name="y_options"></property>
++                      </packing>
++                    </child>
++                    <child>
++                      <widget class="GtkCheckButton" id="console-auth-remember">
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="label" translatable="yes">Save this password in your keyring</property>
++                        <property name="use_underline">True</property>
++                        <property name="yalign">0</property>
++                        <property name="response_id">0</property>
++                        <property name="draw_indicator">True</property>
++                      </widget>
++                      <packing>
++                        <property name="left_attach">1</property>
++                        <property name="right_attach">2</property>
++                        <property name="top_attach">2</property>
++                        <property name="bottom_attach">3</property>
++                        <property name="x_options">GTK_FILL</property>
++                        <property name="y_options"></property>
++                      </packing>
++                    </child>
++                    <child>
++                      <widget class="GtkLabel" id="label-auth-username">
++                        <property name="visible">True</property>
++                        <property name="xalign">0</property>
++                        <property name="label" translatable="yes">Username:</property>
++                      </widget>
++                      <packing>
++                        <property name="x_options">GTK_FILL</property>
++                        <property name="y_options"></property>
++                      </packing>
++                    </child>
++                    <child>
++                      <widget class="GtkEntry" id="console-auth-username">
++                        <property name="visible">True</property>
++                        <property name="can_focus">True</property>
++                        <property name="invisible_char">*</property>
++                        <signal name="activate" handler="on_console_auth_password_activate"/>
++                      </widget>
++                      <packing>
++                        <property name="left_attach">1</property>
++                        <property name="right_attach">2</property>
++                        <property name="y_options"></property>
++                      </packing>
++                    </child>
++                    <child>
+                       <widget class="GtkButton" id="console-auth-login">
+                         <property name="visible">True</property>
+                         <property name="can_focus">True</property>
+@@ -608,53 +682,12 @@
+                       <packing>
+                         <property name="left_attach">2</property>
+                         <property name="right_attach">3</property>
+-                        <property name="x_options">GTK_FILL</property>
+-                        <property name="y_options"></property>
+-                      </packing>
+-                    </child>
+-                    <child>
+-                      <widget class="GtkEntry" id="console-auth-password">
+-                        <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
+-                        <property name="visibility">False</property>
+-                        <property name="invisible_char">*</property>
+-                        <signal name="activate" handler="on_console_auth_password_activate"/>
+-                      </widget>
+-                      <packing>
+-                        <property name="left_attach">1</property>
+-                        <property name="right_attach">2</property>
+-                        <property name="y_options"></property>
+-                      </packing>
+-                    </child>
+-                    <child>
+-                      <widget class="GtkCheckButton" id="console-auth-remember">
+-                        <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
+-                        <property name="label" translatable="yes">Save this password in your keyring</property>
+-                        <property name="use_underline">True</property>
+-                        <property name="response_id">0</property>
+-                        <property name="draw_indicator">True</property>
+-                      </widget>
+-                      <packing>
+-                        <property name="left_attach">1</property>
+-                        <property name="right_attach">2</property>
+                         <property name="top_attach">1</property>
+                         <property name="bottom_attach">2</property>
+                         <property name="x_options">GTK_FILL</property>
+                         <property name="y_options"></property>
+                       </packing>
+                     </child>
+-                    <child>
+-                      <widget class="GtkLabel" id="label436">
+-                        <property name="visible">True</property>
+-                        <property name="xalign">0</property>
+-                        <property name="label" translatable="yes">Password:</property>
+-                      </widget>
+-                      <packing>
+-                        <property name="x_options">GTK_FILL</property>
+-                        <property name="y_options"></property>
+-                      </packing>
+-                    </child>
+                   </widget>
+                   <packing>
+                     <property name="position">2</property>

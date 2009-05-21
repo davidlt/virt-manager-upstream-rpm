@@ -1,0 +1,43 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1242062294 14400
+# Node ID c299f80bbc9f484f27b5ba5415800f52e0b5275c
+# Parent  da615f51dcfbe0b89aa4c9c1243c2d9f3426cd16
+Fix changing 'arch' in VM create wizard.
+
+Previously it never did anything :(
+
+diff -r da615f51dcfb -r c299f80bbc9f src/virtManager/create.py
+--- a/src/virtManager/create.py	Mon May 11 12:24:15 2009 -0400
++++ b/src/virtManager/create.py	Mon May 11 13:18:14 2009 -0400
+@@ -698,7 +698,7 @@
+ 
+         net_list.set_active(default)
+ 
+-    def change_caps(self, gtype=None, dtype=None):
++    def change_caps(self, gtype=None, dtype=None, arch=None):
+ 
+         if gtype == None:
+             # If none specified, prefer HVM. This way, the default install
+@@ -714,7 +714,8 @@
+                                                             caps=self.caps,
+                                                             os_type = gtype,
+                                                             type = dtype,
+-                                                            accelerated=True)
++                                                            accelerated=True,
++                                                            arch=arch)
+ 
+         if (self.capsguest and self.capsdomain and
+             (newg.arch == self.capsguest.arch and
+@@ -938,6 +939,11 @@
+         if idx < 0:
+             return
+ 
++        arch = src.get_model()[idx][0]
++        self.change_caps(self.capsguest.os_type,
++                         self.capsdomain.hypervisor_type,
++                         arch)
++
+     def url_box_changed(self, ignore):
+         # If the url_entry has focus, don't fire detect_media_os, it means
+         # the user is probably typing

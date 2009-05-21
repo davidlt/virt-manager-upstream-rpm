@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 4%{_extra_release}
+Release: 5%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -21,6 +21,12 @@ Patch3: %{name}-%{version}-fix-button-ordering.patch
 Patch4: %{name}-%{version}-fix-vcpu-cap.patch
 Patch5: %{name}-%{version}-delete-dup-conn.patch
 Patch6: %{name}-%{version}-update-translations.patch
+Patch7: %{name}-%{version}-operating-typo.patch
+Patch8: %{name}-%{version}-update-translations-for-operating-typo.patch
+Patch9: %{name}-%{version}-fix-window-resize.patch
+Patch10: %{name}-%{version}-vnc-auth-get-username.patch
+Patch11: %{name}-%{version}-handle-arch-config.patch
+Patch12: %{name}-%{version}-log-capabilities-at-startup.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -99,6 +105,12 @@ management API.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
 
 %build
 %configure
@@ -176,6 +188,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu May 21 2009 Mark McLoughlin <markmc@redhat.com> - 0.7.0-5.fc12
+- Fix 'opertaing' typo in 'New VM' dialog (#495128)
+- Allow details window to resize again (#491683)
+- Handle collecting username for vnc authentication (#499589)
+- Actually handle arch config when creating a VM (#499145)
+- Log libvirt capabilities at startup to aid debugging (#500337)
+
 * Tue Apr 14 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-4.fc11
 - More translation updates
 
