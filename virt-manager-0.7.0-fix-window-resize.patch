@@ -1,0 +1,19 @@
+# HG changeset patch
+# User "Daniel P. Berrange <berrange@redhat.com>"
+# Date 1241624815 -3600
+# Node ID dcae615e91996e3caae5a9026c48d2cc5e82b555
+# Parent  3cc05aaac68819ae7eef54fa858134f85ef7772f
+Fix console window resize
+
+diff -r 3cc05aaac688 -r dcae615e9199 src/vmm-details.glade
+--- a/src/vmm-details.glade	Mon Apr 27 09:33:56 2009 -0400
++++ b/src/vmm-details.glade	Wed May 06 16:46:55 2009 +0100
+@@ -3,8 +3,6 @@
+ <!--*- mode: xml -*-->
+ <glade-interface>
+   <widget class="GtkWindow" id="vmm-details">
+-    <property name="width_request">800</property>
+-    <property name="height_request">600</property>
+     <property name="title" translatable="yes">Virtual Machine</property>
+     <property name="default_width">800</property>
+     <property name="default_height">600</property>
