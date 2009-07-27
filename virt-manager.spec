@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 5%{_extra_release}
+Release: 6%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -188,6 +188,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
+
 * Thu May 21 2009 Mark McLoughlin <markmc@redhat.com> - 0.7.0-5.fc12
 - Fix 'opertaing' typo in 'New VM' dialog (#495128)
 - Allow details window to resize again (#491683)
