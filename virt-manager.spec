@@ -7,33 +7,22 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.7.0
-Release: 6%{_extra_release}
+Version: 0.8.0
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Patch1: %{name}-%{version}-old-xen-compat.patch
-Patch2: %{name}-%{version}-vm-migrate-list.patch
-Patch3: %{name}-%{version}-fix-button-ordering.patch
-Patch4: %{name}-%{version}-fix-vcpu-cap.patch
-Patch5: %{name}-%{version}-delete-dup-conn.patch
-Patch6: %{name}-%{version}-update-translations.patch
-Patch7: %{name}-%{version}-operating-typo.patch
-Patch8: %{name}-%{version}-update-translations-for-operating-typo.patch
-Patch9: %{name}-%{version}-fix-window-resize.patch
-Patch10: %{name}-%{version}-vnc-auth-get-username.patch
-Patch11: %{name}-%{version}-handle-arch-config.patch
-Patch12: %{name}-%{version}-log-capabilities-at-startup.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildArch: noarch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
 # Absolutely require this version or newer
-Requires: libvirt-python >= 0.6.1
+Requires: libvirt-python >= 0.7.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 Requires: dbus-x11
@@ -53,7 +42,7 @@ Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.400.3
+Requires: python-virtinst >= 0.500.0
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -63,7 +52,7 @@ Requires: vte >= 0.12.2
 # For online help
 Requires: scrollkeeper
 # For console widget
-Requires: gtk-vnc-python >= 0.3.4
+Requires: gtk-vnc-python >= 0.3.8
 # For local authentication against PolicyKit
 %if 0%{?fedora} >= 11
 Requires: PolicyKit-authentication-agent
@@ -72,14 +61,6 @@ Requires: PolicyKit-authentication-agent
 Requires: PolicyKit-gnome
 %endif
 
-BuildRequires: pygtk2-devel
-BuildRequires: gtk2-devel
-BuildRequires: pygobject2-devel
-BuildRequires: glib2-devel
-BuildRequires: python-devel
-BuildRequires: pango-devel
-BuildRequires: atk-devel
-BuildRequires: cairo-devel
 BuildRequires: gettext
 BuildRequires: scrollkeeper
 BuildRequires: intltool
@@ -99,29 +80,15 @@ management API.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 
 %build
 %configure
 make %{?_smp_mflags}
 
+
 %install
 rm -rf $RPM_BUILD_ROOT
 make install  DESTDIR=$RPM_BUILD_ROOT
-rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.a
-rm -f $RPM_BUILD_ROOT%{_libdir}/%{name}/sparkline.la
-
 %find_lang %{name}
 
 %clean
@@ -161,8 +128,6 @@ fi
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
 %{_bindir}/%{name}
 %{_libexecdir}/%{name}-launch
-%dir %{_libdir}/%{name}/
-%{_libdir}/%{name}/*
 
 %{_mandir}/man1/%{name}.1*
 
@@ -188,6 +153,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Jul 28 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-1.fc12
+- Update to release 0.8.0
+- New 'Clone VM' Wizard
+- Improved UI, including an overhaul of the main 'manager' view
+- System tray icon for easy VM access (start, stop, view console/details)
+- Wizard for adding serial, parallel, and video devices to existing VMs.
+
 * Sun Jul 26 2009 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.7.0-6
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_12_Mass_Rebuild
 
