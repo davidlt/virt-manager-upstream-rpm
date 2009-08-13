@@ -55,7 +55,7 @@ Requires: scrollkeeper
 Requires: gtk-vnc-python >= 0.3.8
 # For local authentication against PolicyKit
 # Fedora 12 has no need for a client agent.
-%if 0%{?fedora} = 11
+%if 0%{?fedora} == 11
 Requires: PolicyKit-authentication-agent
 %endif
 %if 0%{?fedora} >= 9 && 0%{?fedora} < 11
