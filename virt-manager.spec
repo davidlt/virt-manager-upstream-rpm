@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -54,7 +54,8 @@ Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.8
 # For local authentication against PolicyKit
-%if 0%{?fedora} >= 11
+# Fedora 12 has no need for a client agent.
+%if 0%{?fedora} = 11
 Requires: PolicyKit-authentication-agent
 %endif
 %if 0%{?fedora} >= 9 && 0%{?fedora} < 11
@@ -153,6 +154,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Aug 13 2009 Daniel P. Berrange <berrange@redhat.com> - 0.8.0-2.fc12
+- Remove obsolete dep on policykit agent
+
 * Tue Jul 28 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-1.fc12
 - Update to release 0.8.0
 - New 'Clone VM' Wizard
