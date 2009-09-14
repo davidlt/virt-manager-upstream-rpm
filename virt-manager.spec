@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.1
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -51,7 +51,7 @@ Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.400.0
+Requires: python-virtinst >= 0.400.3
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -179,6 +179,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Sep 14 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-3.fc10
+- Depend on virtinst 0.400.3 (bz 493256)
+
 * Sun Sep 13 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-2.fc10
 - Fix migration for qemu/kvm guests (bz 517548)
 - Back compat fixes for connecting to older xen installations (bz 489885)
