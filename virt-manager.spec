@@ -22,6 +22,8 @@ Patch3: %{name}-%{version}-fix-stats-prefs.patch
 Patch4: %{name}-%{version}-migrate-fixes.patch
 # Back compat fixes for connecting to older xen installations (bz 489885)
 Patch5: %{name}-%{version}-rhel-fixes.patch
+# Add pylint script for sanity testing the build
+Patch6: %{name}-%{version}-pylint-script.patch
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -99,6 +101,7 @@ management API.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 %build
 %configure
