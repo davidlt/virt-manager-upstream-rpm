@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,6 +17,16 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
+# Fix disk XML mangling via connect/eject cdrom (bz 516116)
+Patch1: %{name}-%{version}-cdrom-eject-driver.patch
+# Fix delete button sensitivity (bz 518536)
+Patch2: %{name}-%{version}-no-delete-active.patch
+# Fix populating text box from storage browser in 'New VM' (bz 517263)
+Patch3: %{name}-%{version}-newvm-storage-cb.patch
+# Fix a traceback in an 'Add Hardware' error path (bz 517286)
+Patch4: %{name}-%{version}-addhw-errmsg-typo.patch
+# Fixes for pylint script to return nicer results on F11/F12
+Patch5: %{name}-%{version}-pylint-tweak.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -81,6 +91,11 @@ management API.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %configure
@@ -154,6 +169,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Sep 14 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-3.fc12
+- Fix disk XML mangling via connect/eject cdrom (bz 516116)
+- Fix delete button sensitivity (bz 518536)
+- Fix populating text box from storage browser in 'New VM' (bz 517263)
+- Fix a traceback in an 'Add Hardware' error path (bz 517286)
+
 * Thu Aug 13 2009 Daniel P. Berrange <berrange@redhat.com> - 0.8.0-2.fc12
 - Remove obsolete dep on policykit agent
 

@@ -1,0 +1,72 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1252939197 14400
+# Node ID 486cd6791c3926420786d30401a690884acdf653
+# Parent  043ca66e19aabcdb89b8bbe76ef5ded8b0c0fc54
+Fix populating text box with storage browser selection in 'New VM' (bz 517263)
+
+We were only properly setting the 'finish' callback for the first time the
+storage browser was launched. All subsequent runs would not enter anything
+in the associated text box.
+
+diff -r 043ca66e19aa -r 486cd6791c39 src/virtManager/addhardware.py
+--- a/src/virtManager/addhardware.py	Mon Sep 14 10:14:41 2009 -0400
++++ b/src/virtManager/addhardware.py	Mon Sep 14 10:39:57 2009 -0400
+@@ -80,7 +80,6 @@
+                                   _("An unexpected error occurred"))
+ 
+         self.storage_browser = None
+-        self._browse_cb_id = None
+ 
+         self._dev = None
+ 
+@@ -911,10 +910,8 @@
+         conn = self.vm.get_connection()
+         if self.storage_browser == None:
+             self.storage_browser = vmmStorageBrowser(self.config, conn, False)
+-        if self._browse_cb_id:
+-            self.storage_browser.disconnect(self._browse_cb_id)
+ 
+-        self._browse_cb_id = self.storage_browser.connect("storage-browse-finish", set_storage_cb)
++        self.storage_browser.set_finish_cb(set_storage_cb)
+         self.storage_browser.local_args = { "dialog_name": dialog_name,
+                                             "confirm_func": confirm_func,
+                                             "browse_reason":
+diff -r 043ca66e19aa -r 486cd6791c39 src/virtManager/create.py
+--- a/src/virtManager/create.py	Mon Sep 14 10:14:41 2009 -0400
++++ b/src/virtManager/create.py	Mon Sep 14 10:39:57 2009 -0400
+@@ -1644,8 +1644,9 @@
+         if self.storage_browser == None:
+             self.storage_browser = vmmStorageBrowser(self.config, self.conn,
+                                                      is_media)
+-            self.storage_browser.connect("storage-browse-finish",
+-                                         callback)
++
++        self.storage_browser.set_finish_cb(callback)
++
+         if is_media:
+             reason = self.config.CONFIG_DIR_MEDIA
+         else:
+diff -r 043ca66e19aa -r 486cd6791c39 src/virtManager/storagebrowse.py
+--- a/src/virtManager/storagebrowse.py	Mon Sep 14 10:14:41 2009 -0400
++++ b/src/virtManager/storagebrowse.py	Mon Sep 14 10:39:57 2009 -0400
+@@ -47,6 +47,7 @@
+         self.config = config
+         self.conn = conn
+         self.conn_signal_ids = []
++        self.finish_cb_id = None
+ 
+         self.topwin = self.window.get_widget("vmm-storage-browse")
+         self.err = vmmErrorDialog(self.topwin,
+@@ -89,6 +90,11 @@
+             self.addvol.close()
+         return 1
+ 
++    def set_finish_cb(self, callback):
++        if self.finish_cb_id:
++            self.disconnect(self.finish_cb_id)
++        self.finish_cb_id = self.connect("storage-browse-finish", callback)
++
+     def set_initial_state(self):
+         pool_list = self.window.get_widget("pool-list")
+         virtManager.host.init_pool_list(pool_list, self.pool_selected)

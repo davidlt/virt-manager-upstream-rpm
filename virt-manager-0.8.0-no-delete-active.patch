@@ -1,0 +1,20 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1251728389 14400
+# Node ID b70858b9f8c6f9fea21f6e66a10e7b9498f11e5e
+# Parent  0bdea2b6c30e3b9ac7ca7b35f957598e66fd8c36
+Don't allow deleting an active VM (bz 518536)
+
+diff -r 0bdea2b6c30e -r b70858b9f8c6 src/virtManager/manager.py
+--- a/src/virtManager/manager.py	Mon Aug 31 10:07:06 2009 -0400
++++ b/src/virtManager/manager.py	Mon Aug 31 10:19:49 2009 -0400
+@@ -684,7 +684,8 @@
+         show_open = bool(vm)
+         show_details = bool(vm)
+         host_details = bool(vm or conn)
+-        delete = bool((vm and vm.is_runable()) or conn)
++        delete = bool((vm and vm.is_runable()) or
++                      (not vm and conn))
+         show_run = bool(vm and vm.is_runable())
+         is_paused = bool(vm and vm.is_paused())
+         if is_paused:

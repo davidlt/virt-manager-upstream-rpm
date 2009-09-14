@@ -1,0 +1,18 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1252937681 14400
+# Node ID 043ca66e19aabcdb89b8bbe76ef5ded8b0c0fc54
+# Parent  d34def55dbd78e2ad5f099d6a38c1f358c798555
+Try to avoid 'maximum recursion depth' errors from pylint script.
+
+diff -r d34def55dbd7 -r 043ca66e19aa tests/pylint-virt-manager.sh
+--- a/tests/pylint-virt-manager.sh	Mon Aug 31 10:45:59 2009 -0400
++++ b/tests/pylint-virt-manager.sh	Mon Sep 14 10:14:41 2009 -0400
+@@ -95,6 +95,7 @@
+         -ve "$BUILTIN_TYPE" \
+         -ve "$ERROR_VBOX" \
+         -ve "$UNABLE_IMPORT" \
++        -ve "$MAX_RECURSION" \
+         -ve "$EXCEPTHOOK" | \
+ $AWK '\
+ # Strip out any "*** Module name" lines if we dont list any errors for them
