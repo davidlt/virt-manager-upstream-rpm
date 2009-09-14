@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.6.1
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -18,6 +18,11 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 Patch1: %{name}-%{version}-update-polish.patch
 Patch2: %{name}-%{version}-fix-cadl.patch
 Patch3: %{name}-%{version}-fix-stats-prefs.patch
+# Fix migration for qemu/kvm guests (bz 517548)
+Patch4: %{name}-%{version}-migrate-fixes.patch
+# Back compat fixes for connecting to older xen installations (bz 489885)
+Patch5: %{name}-%{version}-rhel-fixes.patch
+
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -92,6 +97,8 @@ management API.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %configure
@@ -169,6 +176,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sun Sep 13 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-2.fc10
+- Fix migration for qemu/kvm guests (bz 517548)
+- Back compat fixes for connecting to older xen installations (bz 489885)
+
 * Wed Mar  4 2009 Cole Robinson <crobinso@redhat.com> - 0.6.1-1.fc10
 - Update to 0.6.1 release
 - Disk and Network VM stats reporting
