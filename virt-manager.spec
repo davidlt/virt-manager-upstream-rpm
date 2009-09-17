@@ -31,11 +31,11 @@ Patch4: %{name}-%{version}-addhw-errmsg-typo.patch
 # Fixes for pylint script to return nicer results on F11/F12
 Patch5: %{name}-%{version}-pylint-tweak.patch
 # Don't close libvirt connection for non-fatal errors (bz 522168)
-Patch6: /home/boston/crobinso/virt-manager-0.8.0-conn-close-exception.patch
+Patch6: %{name}-%{version}-conn-close-exception.patch
 # Manager UI tweaks
-Patch7: /home/boston/crobinso/virt-manager-0.8.0-manager-ui-tweaks.patch
+Patch7: %{name}-%{version}-manager-ui-tweaks.patch
 # Generate better errors is disk/net stats polling fails
-Patch8: /home/boston/crobinso/virt-manager-0.8.0-stats-logging.patch
+Patch8: %{name}-%{version}-stats-logging.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
