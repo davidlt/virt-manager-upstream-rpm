@@ -1,0 +1,60 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1253131314 14400
+# Node ID 9242a7fe76b16c6505bdd3d3d328ae8f0c56da10
+# Parent  6aa2dc9ada0c43e19680af5b922cd643e35602d0
+Better logging and error avoidance with net/disk stats routines.
+
+diff -r 6aa2dc9ada0c -r 9242a7fe76b1 src/virtManager/domain.py
+--- a/src/virtManager/domain.py	Wed Sep 16 16:00:47 2009 -0400
++++ b/src/virtManager/domain.py	Wed Sep 16 16:01:54 2009 -0400
+@@ -337,8 +337,12 @@
+             return rx, tx
+ 
+         for netdev in self.get_network_devices(refresh_if_necc=False):
++            dev = netdev[4]
++            if not dev:
++                continue
++
+             try:
+-                io = self.vm.interfaceStats(netdev[4])
++                io = self.vm.interfaceStats(dev)
+                 if io:
+                     rx += io[0]
+                     tx += io[4]
+@@ -347,7 +351,9 @@
+                     logging.debug("Net stats not supported: %s" % err)
+                     self._stats_net_supported = False
+                 else:
+-                    logging.error("Error reading net stats: %s" % err)
++                    logging.error("Error reading net stats for "
++                                  "'%s' dev '%s': %s" %
++                                  (self.get_name(), dev, err))
+         return rx, tx
+ 
+     def _sample_disk_io_dummy(self):
+@@ -360,8 +366,12 @@
+             return rd, wr
+ 
+         for disk in self.get_disk_devices(refresh_if_necc=False):
++            dev = disk[2]
++            if not dev:
++                continue
++
+             try:
+-                io = self.vm.blockStats(disk[2])
++                io = self.vm.blockStats(dev)
+                 if io:
+                     rd += io[1]
+                     wr += io[3]
+@@ -370,7 +380,9 @@
+                     logging.debug("Disk stats not supported: %s" % err)
+                     self._stats_disk_supported = False
+                 else:
+-                    logging.error("Error reading disk stats: %s" % err)
++                    logging.error("Error reading disk stats for "
++                                  "'%s' dev '%s': %s" %
++                                  (self.get_name(), dev, err))
+         return rd, wr
+ 
+     def _get_cur_rate(self, what):

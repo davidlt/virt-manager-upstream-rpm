@@ -8,13 +8,16 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 3%{_extra_release}
+Release: 4%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+Source1: state_paused.png
+Source2: state_running.png
+Source3: state_shutoff.png
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 # Fix disk XML mangling via connect/eject cdrom (bz 516116)
@@ -27,6 +30,12 @@ Patch3: %{name}-%{version}-newvm-storage-cb.patch
 Patch4: %{name}-%{version}-addhw-errmsg-typo.patch
 # Fixes for pylint script to return nicer results on F11/F12
 Patch5: %{name}-%{version}-pylint-tweak.patch
+# Don't close libvirt connection for non-fatal errors (bz 522168)
+Patch6: /home/boston/crobinso/virt-manager-0.8.0-conn-close-exception.patch
+# Manager UI tweaks
+Patch7: /home/boston/crobinso/virt-manager-0.8.0-manager-ui-tweaks.patch
+# Generate better errors is disk/net stats polling fails
+Patch8: /home/boston/crobinso/virt-manager-0.8.0-stats-logging.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -91,11 +100,17 @@ management API.
 
 %prep
 %setup -q
+cp %{SOURCE1} pixmaps
+cp %{SOURCE2} pixmaps
+cp %{SOURCE3} pixmaps
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
 
 %build
 %configure
@@ -169,6 +184,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Sep 17 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-4.fc12
+- Don't close libvirt connection for non-fatal errors (bz 522168)
+- Manager UI tweaks
+- Generate better errors if disk/net stats polling fails
+
 * Mon Sep 14 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-3.fc12
 - Fix disk XML mangling via connect/eject cdrom (bz 516116)
 - Fix delete button sensitivity (bz 518536)
