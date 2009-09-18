@@ -1,0 +1,12 @@
+diff -rup virt-manager-0.7.0/po/cs.po new/po/cs.po
+--- virt-manager-0.7.0/po/cs.po	2009-09-17 15:24:54.852374000 -0400
++++ new/po/cs.po	2009-09-17 15:22:11.927742000 -0400
+@@ -1809,7 +1809,7 @@ msgstr "Vyžadován typ hardware"
+ 
+ #: ../src/vmm-add-hardware.glade.h:46
+ msgid "Hardware type:"
+-msgstr "Tzp hardware"
++msgstr "Typ hardware"
+ 
+ #: ../src/vmm-add-hardware.glade.h:47 ../src/vmm-details.glade.h:44
+ msgid "Keymap:"

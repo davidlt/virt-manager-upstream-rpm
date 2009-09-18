@@ -1,0 +1,320 @@
+Only in old/src/virtManager: create.py.orig
+Only in old/src/virtManager: delete.py.orig
+diff -rup old/src/virtManager/details.py virt-manager-0.7.0/src/virtManager/details.py
+--- old/src/virtManager/details.py	2009-09-17 17:31:58.267831000 -0400
++++ virt-manager-0.7.0/src/virtManager/details.py	2009-09-17 17:45:36.638881000 -0400
+@@ -1502,7 +1502,27 @@ class vmmDetails(gobject.GObject):
+     def config_vcpus_apply(self, src):
+         vcpus = self.window.get_widget("config-vcpus").get_adjustment().value
+         logging.info("Setting vcpus for " + self.vm.get_uuid() + " to " + str(vcpus))
+-        self.vm.set_vcpu_count(vcpus)
++        hotplug_err = False
++
++        try:
++            if self.vm.is_active():
++                self.vm.hotplug_vcpus(vcpus)
++        except Exception, e:
++            logging.debug("VCPU hotplug failed: %s" % str(e))
++            hotplug_err = True
++
++        # Change persistent config
++        try:
++            self.vm.define_vcpus(vcpus)
++        except Exception, e:
++            self.err.show_err(_("Error changing vcpu value: %s" % str(e)),
++                              "".join(traceback.format_exc()))
++            return False
++
++        if hotplug_err:
++            self.err.show_info(_("These changes will take effect after the "
++                                 "next guest reboot. "))
++
+         self.window.get_widget("config-vcpus-apply").set_sensitive(False)
+ 
+     def config_get_maxmem(self):
+@@ -1538,44 +1558,38 @@ class vmmDetails(gobject.GObject):
+ 
+     def config_memory_apply(self, src):
+         self.refresh_config_memory()
+-        exc = None
++        hotplug_err = False
++
+         curmem = None
+         maxmem = self.config_get_maxmem()
+         if self.window.get_widget("config-memory").get_property("sensitive"):
+             curmem = self.config_get_memory()
+ 
+-        logging.info("Setting max-memory for " + self.vm.get_name() +
+-                     " to " + str(maxmem))
+-
+-        actual_cur = self.vm.get_memory()
+-        if curmem is not None:
+-            logging.info("Setting memory for " + self.vm.get_name() +
+-                         " to " + str(curmem))
+-            if (maxmem * 1024) < actual_cur:
+-                # Set current first to avoid error
+-                try:
+-                    self.vm.set_memory(curmem * 1024)
+-                    self.vm.set_max_memory(maxmem * 1024)
+-                except Exception, e:
+-                    exc = e
+-            else:
+-                try:
+-                    self.vm.set_max_memory(maxmem * 1024)
+-                    self.vm.set_memory(curmem * 1024)
+-                except Exception, e:
+-                    exc = e
++        if curmem:
++            curmem = int(curmem) * 1024
++        if maxmem:
++            maxmem = int(maxmem) * 1024
+ 
+-        else:
+-            try:
+-                self.vm.set_max_memory(maxmem * 1024)
+-            except Exception, e:
+-                exc = e
++        try:
++            if self.vm.is_active():
++                self.vm.hotplug_both_mem(curmem, maxmem)
++        except Exception, e:
++            logging.debug("Memory hotplug failed: %s" % str(e))
++            hotplug_err = True
+ 
+-        if exc:
++        # Change persistent config
++        try:
++            self.vm.define_both_mem(curmem, maxmem)
++        except Exception, e:
+             self.err.show_err(_("Error changing memory values: %s" % str(e)),
+                               "".join(traceback.format_exc()))
+-        else:
+-            self.window.get_widget("config-memory-apply").set_sensitive(False)
++            return
++
++        if hotplug_err:
++            self.err.show_info(_("These changes will take effect after the "
++                                 "next guest reboot. "))
++
++        self.window.get_widget("config-memory-apply").set_sensitive(False)
+ 
+     def config_boot_options_changed(self, src):
+         self.window.get_widget("config-boot-options-apply").set_sensitive(True)
+Only in old/src/virtManager: details.py.orig
+diff -rup old/src/virtManager/domain.py virt-manager-0.7.0/src/virtManager/domain.py
+--- old/src/virtManager/domain.py	2009-09-17 17:31:58.276831000 -0400
++++ virt-manager-0.7.0/src/virtManager/domain.py	2009-09-17 17:47:15.693255000 -0400
+@@ -23,6 +23,7 @@ import libvirt
+ import libxml2
+ import os
+ import logging
++import difflib
+ 
+ from virtManager import util
+ import virtinst.util as vutil
+@@ -113,6 +114,16 @@ class vmmDomain(gobject.GObject):
+             self.refresh_inactive_xml()
+         return self._orig_inactive_xml
+ 
++    def get_xml_to_define(self):
++        # FIXME: This isn't sufficient, since we pull stuff like disk targets
++        #        from the active XML. This all needs proper fixing in the long
++        #        term.
++        if self.is_active():
++            return self.get_inactive_xml()
++        else:
++            self.update_xml()
++            return self.get_xml()
++
+     def refresh_inactive_xml(self):
+         flags = (libvirt.VIR_DOMAIN_XML_INACTIVE |
+                  libvirt.VIR_DOMAIN_XML_SECURE)
+@@ -124,6 +135,36 @@ class vmmDomain(gobject.GObject):
+ 
+         self._orig_inactive_xml = self.vm.XMLDesc(flags)
+ 
++    def redefine(self, xml_func, *args):
++        """
++        Helper function for altering a redefining VM xml
++
++        @param xml_func: Function to alter the running XML. Takes the
++                         original XML as its first argument.
++        @param args: Extra arguments to pass to xml_func
++        """
++        origxml = self.get_xml_to_define()
++        # Sanitize origxml to be similar to what we will get back
++        origxml = util.xml_parse_wrapper(origxml, lambda d, c: d.serialize())
++
++        newxml = xml_func(origxml, *args)
++
++        if origxml == newxml:
++            logging.debug("Redefinition requested, but new xml was not"
++                          " different")
++            return
++
++        diff = "".join(difflib.unified_diff(origxml.splitlines(1),
++                                            newxml.splitlines(1),
++                                            fromfile="Original XML",
++                                            tofile="New XML"))
++        logging.debug("Redefining '%s' with XML diff:\n%s",
++                      self.get_name(), diff)
++        self.get_connection().define_domain(newxml)
++
++        # Invalidate cached XML
++        self.invalidate_xml()
++
+     def release_handle(self):
+         del(self.vm)
+         self.vm = None
+@@ -1126,16 +1167,6 @@ class vmmDomain(gobject.GObject):
+             if doc != None:
+                 doc.freeDoc()
+ 
+-    def get_xml_to_define(self):
+-        # FIXME: This isn't sufficient, since we pull stuff like disk targets
+-        #        from the active XML. This all needs proper fixing in the long
+-        #        term.
+-        if self.is_active():
+-            return self.get_inactive_xml()
+-        else:
+-            self.update_xml()
+-            return self.get_xml()
+-
+     def attach_device(self, xml):
+         """Hotplug device to running guest"""
+         if self.is_active():
+@@ -1232,23 +1263,80 @@ class vmmDomain(gobject.GObject):
+                 doc.freeDoc()
+         self._change_cdrom(result, dev_id_info)
+ 
+-    def set_vcpu_count(self, vcpus):
++    def hotplug_vcpu(self, vcpus):
++        self.vm.setVcpus()
++
++    def hotplug_vcpus(self, vcpus):
+         vcpus = int(vcpus)
+-        self.vm.setVcpus(vcpus)
++        if vcpus != self.vcpu_count():
++            self.vm.setVcpus(vcpus)
++
++    def define_vcpus(self, vcpus):
++        vcpus = int(vcpus)
++
++        def set_node(doc, ctx, val, xpath):
++            node = ctx.xpathEval(xpath)
++            node = (node and node[0] or None)
++
++            if node:
++                node.setContent(str(val))
++            return doc.serialize()
++
++        def change_vcpu_xml(xml, vcpus):
++            return util.xml_parse_wrapper(xml, set_node, vcpus,
++                                          "/domain/vcpu[1]")
++
++        self.redefine(change_vcpu_xml, vcpus)
++
++    def hotplug_memory(self, memory):
++        if memory != self.get_memory():
++            self.vm.setMemory(memory)
++
++    def hotplug_maxmem(self, maxmem):
++        if maxmem != self.maximum_memory():
++            self.vm.setMaxMemory(maxmem)
++
++    def hotplug_both_mem(self, memory, maxmem):
++        logging.info("Hotplugging curmem=%s maxmem=%s for VM '%s'" %
++                     (memory, maxmem, self.get_name()))
++
++        if self.is_active():
++            actual_cur = self.get_memory()
++            if memory:
++                if maxmem < actual_cur:
++                    # Set current first to avoid error
++                    self.hotplug_memory(memory)
++                    self.hotplug_maxmem(maxmem)
++                else:
++                    self.hotplug_maxmem(maxmem)
++                    self.hotplug_memory(memory)
++            else:
++                self.hotplug_maxmem(maxmem)
++
++    def define_both_mem(self, memory, maxmem):
++        # Make sure we correctly define the XML with new values, since
++        # setMem and setMaxMem don't (or, aren't supposed to) affect
++        # the persistent config
++        self.invalidate_xml()
++
++        def set_mem_node(doc, ctx, memval, xpath):
++            node = ctx.xpathEval(xpath)
++            node = (node and node[0] or None)
++
++            if node:
++                node.setContent(str(memval))
++            return doc.serialize()
++
++        def change_mem_xml(xml, memory, maxmem):
++            if memory:
++                xml = util.xml_parse_wrapper(xml, set_mem_node, memory,
++                                             "/domain/currentMemory[1]")
++            if maxmem:
++                xml = util.xml_parse_wrapper(xml, set_mem_node, maxmem,
++                                             "/domain/memory[1]")
++            return xml
+ 
+-    def set_memory(self, memory):
+-        memory = int(memory)
+-        # capture updated information due to failing to get proper maxmem setting
+-        # if both current & max allocation are set simultaneously
+-        maxmem = self.vm.info()
+-        if (memory > maxmem[1]):
+-            logging.warning("Requested memory " + str(memory) + " over maximum " + str(self.maximum_memory()))
+-            memory = self.maximum_memory()
+-        self.vm.setMemory(memory)
+-
+-    def set_max_memory(self, memory):
+-        memory = int(memory)
+-        self.vm.setMaxMemory(memory)
++        self.redefine(change_mem_xml, memory, maxmem)
+ 
+     def get_autostart(self):
+         return self.vm.autostart()
+Only in old/src/virtManager: domain.py.orig
+diff -rup old/src/virtManager/util.py virt-manager-0.7.0/src/virtManager/util.py
+--- old/src/virtManager/util.py	2009-09-17 17:52:15.948670000 -0400
++++ virt-manager-0.7.0/src/virtManager/util.py	2009-09-17 17:52:58.963375000 -0400
+@@ -140,3 +140,23 @@ def dup_conn(config, conn, libconn=None)
+     newconn.connectThreadEvent.wait()
+ 
+     return newconn.vmm
++
++def xml_parse_wrapper(xml, parse_func, *args, **kwargs):
++    """
++    Parse the passed xml string into an xpath context, which is passed
++    to parse_func, along with any extra arguments.
++    """
++
++    doc = None
++    ctx = None
++    ret = None
++    try:
++        doc = libxml2.parseDoc(xml)
++        ctx = doc.xpathNewContext()
++        ret = parse_func(doc, ctx, *args, **kwargs)
++    finally:
++        if ctx != None:
++            ctx.xpathFreeContext()
++        if doc != None:
++            doc.freeDoc()
++    return ret
+diff -rup old/src/virtManager/util.py virt-manager-0.7.0/src/virtManager/util.py
+--- old/src/virtManager/util.py	2009-09-17 17:55:17.930744000 -0400
++++ virt-manager-0.7.0/src/virtManager/util.py	2009-09-17 17:55:31.355655000 -0400
+@@ -21,6 +21,7 @@
+ import logging
+ import gtk
+ 
++import libxml2
+ import libvirt
+ 
+ import virtManager

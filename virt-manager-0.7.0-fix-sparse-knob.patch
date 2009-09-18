@@ -1,0 +1,31 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1245180678 14400
+# Node ID bd26943d4dadf3be993c44ff8401c6426fd94488
+# Parent  f9ad1d0c29d08bbb0ed94df9878d666904d018a2
+Correctly handle non sparse request in VM wizard. (Mark McLoughlin)
+
+We currently have it backwards, so a sparse request actually asks for
+nonsparse. We didn't see this much, since until recently virtinst wasn't
+allowing nonsparse volume allocation.
+
+diff -r f9ad1d0c29d0 -r bd26943d4dad src/virtManager/create.py
+--- a/src/virtManager/create.py	Thu Jun 04 16:28:40 2009 -0400
++++ b/src/virtManager/create.py	Tue Jun 16 15:31:18 2009 -0400
+@@ -820,14 +820,14 @@
+     def get_storage_info(self):
+         path = None
+         size = self.window.get_widget("config-storage-size").get_value()
+-        nosparse = self.window.get_widget("config-storage-nosparse").get_active()
++        sparse = not self.window.get_widget("config-storage-nosparse").get_active()
+         if self.window.get_widget("config-storage-create").get_active():
+             path = self.get_default_path(self.guest.name)
+             logging.debug("Default storage path is: %s" % path)
+         else:
+             path = self.window.get_widget("config-storage-entry").get_text()
+ 
+-        return (path, size, nosparse)
++        return (path, size, sparse)
+ 
+     def get_default_path(self, name):
+         path = ""

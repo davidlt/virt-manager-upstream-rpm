@@ -1,0 +1,179 @@
+diff -rup old/src/virtManager/choosecd.py virt-manager-0.7.0/src/virtManager/choosecd.py
+--- old/src/virtManager/choosecd.py	2009-09-17 17:12:16.317469000 -0400
++++ virt-manager-0.7.0/src/virtManager/choosecd.py	2009-09-17 17:12:26.626644000 -0400
+@@ -23,8 +23,8 @@ import logging
+ 
+ import virtinst
+ 
+-from virtManager import util
+ from virtManager.opticalhelper import vmmOpticalDriveHelper
++from virtManager.storagebrowse import vmmStorageBrowser
+ from virtManager.error import vmmErrorDialog
+ 
+ class vmmChooseCD(gobject.GObject):
+@@ -39,10 +39,13 @@ class vmmChooseCD(gobject.GObject):
+                                   0, gtk.MESSAGE_ERROR, gtk.BUTTONS_CLOSE,
+                                   _("Unexpected Error"),
+                                   _("An unexpected error occurred"))
++        self.topwin = self.window.get_widget("vmm-choose-cd")
++        self.topwin.hide()
++
+         self.config = config
+-        self.window.get_widget("vmm-choose-cd").hide()
+         self.dev_id_info = dev_id_info
+         self.conn = connection
++        self.storage_browser = None
+ 
+         self.window.signal_autoconnect({
+             "on_media_toggled": self.media_toggled,
+@@ -130,9 +133,7 @@ class vmmChooseCD(gobject.GObject):
+         pass
+ 
+     def browse_fv_iso_location(self, ignore1=None, ignore2=None):
+-        filename = self._browse_file(_("Locate ISO Image"))
+-        if filename != None:
+-            self.window.get_widget("iso-path").set_text(filename)
++        self._browse_file(_("Locate ISO Image"))
+ 
+     def populate_opt_media(self):
+         try:
+@@ -143,9 +144,17 @@ class vmmChooseCD(gobject.GObject):
+             logging.error("Unable to create optical-helper widget: '%s'", e)
+             self.window.get_widget("physical-media").set_sensitive(False)
+ 
+-    def _browse_file(self, dialog_name, folder=None, _type=None):
+-        return util.browse_local(self.window.get_widget("vmm-choose-cd"),
+-                                 dialog_name, folder, _type)
++    def set_storage_path(self, src, path):
++        self.window.get_widget("iso-path").set_text(path)
+ 
++    def _browse_file(self, dialog_name):
++        if self.storage_browser == None:
++            self.storage_browser = vmmStorageBrowser(self.config, self.conn)
++                                                     #self.topwin)
++            self.storage_browser.connect("storage-browse-finish",
++                                         self.set_storage_path)
++        self.storage_browser.local_args = { "dialog_name": dialog_name }
++        self.storage_browser.show(self.conn)
++        return None
+ 
+ gobject.type_register(vmmChooseCD)
+diff -rup old/src/virtManager/create.py virt-manager-0.7.0/src/virtManager/create.py
+--- old/src/virtManager/create.py	2009-09-17 17:12:16.371469000 -0400
++++ virt-manager-0.7.0/src/virtManager/create.py	2009-09-17 17:14:56.395189000 -0400
+@@ -997,18 +997,16 @@ class vmmCreate(gobject.GObject):
+             nodetect_label.show()
+ 
+     def browse_iso(self, ignore1=None, ignore2=None):
+-        f = self._browse_file(_("Locate ISO Image"), is_media=True)
+-        if f != None:
+-            self.window.get_widget("install-local-entry").set_text(f)
++        self._browse_file(_("Locate ISO Image"),
++                          self.set_iso_storage_path)
+         self.window.get_widget("install-local-entry").activate()
+ 
+     def toggle_enable_storage(self, src):
+         self.window.get_widget("config-storage-box").set_sensitive(src.get_active())
+ 
+     def browse_storage(self, ignore1):
+-        f = self._browse_file(_("Locate existing storage"))
+-        if f != None:
+-            self.window.get_widget("config-storage-entry").set_text(f)
++        self._browse_file(_("Locate existing storage"),
++                          self.set_disk_storage_path)
+ 
+     def toggle_storage_select(self, src):
+         act = src.get_active()
+@@ -1017,13 +1015,11 @@ class vmmCreate(gobject.GObject):
+     def toggle_macaddr(self, src):
+         self.window.get_widget("config-macaddr").set_sensitive(src.get_active())
+ 
+-    def set_storage_path(self, src, path):
+-        notebook = self.window.get_widget("create-pages")
+-        curpage = notebook.get_current_page()
+-        if curpage == PAGE_INSTALL:
+-            self.window.get_widget("install-local-entry").set_text(path)
+-        elif curpage == PAGE_STORAGE:
+-            self.window.get_widget("config-storage-entry").set_text(path)
++    def set_iso_storage_path(self, ignore, path):
++        self.window.get_widget("install-local-entry").set_text(path)
++
++    def set_disk_storage_path(self, ignore, path):
++        self.window.get_widget("config-storage-entry").set_text(path)
+ 
+     # Navigation methods
+     def set_install_page(self):
+@@ -1655,20 +1651,14 @@ class vmmCreate(gobject.GObject):
+             logging.exception("Error detecting distro.")
+             self.detectedDistro = (None, None)
+ 
+-    def _browse_file(self, dialog_name, folder=None, is_media=False):
+-
+-        if self.conn.is_remote() or not is_media:
+-            if self.storage_browser == None:
+-                self.storage_browser = vmmStorageBrowser(self.config,
+-                                                         self.conn)
+-                self.storage_browser.connect("storage-browse-finish",
+-                                             self.set_storage_path)
+-            self.storage_browser.local_args = { "dialog_name": dialog_name,
+-                                                "start_folder": folder}
+-            self.storage_browser.show(self.conn)
+-            return None
+-
+-        return util.browse_local(self.topwin, dialog_name, folder)
++    def _browse_file(self, dialog_name, callback, folder=None):
++        if self.storage_browser == None:
++            self.storage_browser = vmmStorageBrowser(self.config, self.conn)
++
++        self.storage_browser.set_finish_cb(callback)
++        self.storage_browser.local_args = { "dialog_name": dialog_name,
++                                            "start_folder": folder}
++        self.storage_browser.show(self.conn)
+ 
+     def show_help(self, ignore):
+         # No help available yet.
+diff -rup old/src/virtManager/create.py.orig virt-manager-0.7.0/src/virtManager/create.py.orig
+--- old/src/virtManager/create.py.orig	2009-09-17 17:12:16.548472000 -0400
++++ virt-manager-0.7.0/src/virtManager/create.py.orig	2009-09-17 17:12:26.597639000 -0400
+@@ -822,14 +822,14 @@ class vmmCreate(gobject.GObject):
+     def get_storage_info(self):
+         path = None
+         size = self.window.get_widget("config-storage-size").get_value()
+-        nosparse = self.window.get_widget("config-storage-nosparse").get_active()
++        sparse = not self.window.get_widget("config-storage-nosparse").get_active()
+         if self.window.get_widget("config-storage-create").get_active():
+             path = self.get_default_path(self.guest.name)
+             logging.debug("Default storage path is: %s" % path)
+         else:
+             path = self.window.get_widget("config-storage-entry").get_text()
+ 
+-        return (path, size, nosparse)
++        return (path, size, sparse)
+ 
+     def get_default_path(self, name):
+         path = ""
+Only in virt-manager-0.7.0/src/virtManager: create.py.rej
+Only in virt-manager-0.7.0/src/virtManager: .create.py.rej.swp
+diff -rup old/src/virtManager/storagebrowse.py virt-manager-0.7.0/src/virtManager/storagebrowse.py
+--- old/src/virtManager/storagebrowse.py	2009-09-17 17:12:16.503470000 -0400
++++ virt-manager-0.7.0/src/virtManager/storagebrowse.py	2009-09-17 17:12:26.650639000 -0400
+@@ -47,6 +47,7 @@ class vmmStorageBrowser(gobject.GObject)
+         self.config = config
+         self.conn = conn
+         self.conn_signal_ids = []
++        self.finish_cb_id = None
+ 
+         self.topwin = self.window.get_widget("vmm-storage-browse")
+         self.err = vmmErrorDialog(self.topwin,
+@@ -83,6 +84,11 @@ class vmmStorageBrowser(gobject.GObject)
+             self.addvol.close()
+         return 1
+ 
++    def set_finish_cb(self, callback):
++        if self.finish_cb_id:
++            self.disconnect(self.finish_cb_id)
++        self.finish_cb_id = self.connect("storage-browse-finish", callback)
++
+     def set_initial_state(self):
+         pool_list = self.window.get_widget("pool-list")
+         virtManager.host.init_pool_list(pool_list, self.pool_selected)

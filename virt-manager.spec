@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 5%{_extra_release}
+Release: 6%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -27,6 +27,20 @@ Patch9: %{name}-%{version}-fix-window-resize.patch
 Patch10: %{name}-%{version}-vnc-auth-get-username.patch
 Patch11: %{name}-%{version}-handle-arch-config.patch
 Patch12: %{name}-%{version}-log-capabilities-at-startup.patch
+# Fix migration for qemu/kvm guests (bz 517548)
+Patch13: %{name}-%{version}-migrate-fixes.patch
+# Fix sparse allocation confusion (bz 504605)
+Patch14: %{name}-%{version}-fix-sparse-knob.patch
+# Czech translation typo (bz 504385)
+Patch15: %{name}-%{version}-czech-typo.patch
+# Use storage browser for iso installs (bz 504326)
+Patch16: %{name}-%{version}-iso-storage-browser.patch
+# Fix max/current memory spin button interaction (bz 503786)
+Patch17: %{name}-%{version}-fix-memory-interaction.patch
+# Make memory and vcpu changes unconditionally persistent (bz 503784)
+Patch18: %{name}-%{version}-vcpu-mem-persistent.patch
+# Add pylint script
+Patch19: %{name}-%{version}-pylint-script.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -111,6 +125,13 @@ management API.
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
+%patch19 -p1
 
 %build
 %configure
@@ -188,6 +209,14 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Fri Sep 18 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-6.fc11
+- Fix migration for qemu/kvm guests (bz 517548)
+- Fix sparse allocation confusion (bz 504605)
+- Czech translation typo (bz 504385)
+- Use storage browser for iso installs (bz 504326)
+- Fix max/current memory spin button interaction (bz 503786)
+- Make memory and vcpu changes unconditionally persistent (bz 503784)
+
 * Thu May 21 2009 Mark McLoughlin <markmc@redhat.com> - 0.7.0-5.fc11
 - Fix 'opertaing' typo in 'New VM' dialog (#495128)
 - Allow details window to resize again (#491683)

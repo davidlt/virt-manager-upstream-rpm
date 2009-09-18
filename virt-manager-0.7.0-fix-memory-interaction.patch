@@ -1,0 +1,264 @@
+diff -rup old/src/virtManager/details.py virt-manager-0.7.0/src/virtManager/details.py
+--- old/src/virtManager/details.py	2009-09-17 17:23:42.640307000 -0400
++++ virt-manager-0.7.0/src/virtManager/details.py	2009-09-17 17:24:09.098148000 -0400
+@@ -960,11 +960,12 @@ class vmmDetails(gobject.GObject):
+         curmem = self.window.get_widget("config-memory").get_adjustment()
+         maxmem = self.window.get_widget("config-maxmem").get_adjustment()
+ 
+-
+         if self.window.get_widget("config-memory-apply").get_property("sensitive"):
+-            if curmem.value > maxmem.value:
+-                curmem.value = maxmem.value
+-            curmem.upper = maxmem.value
++            memval = self.config_get_memory()
++            maxval = self.config_get_maxmem()
++            if maxval < memval:
++                maxmem.value = memval
++            maxmem.lower = memval
+         else:
+             curmem.value = int(round(self.vm.get_memory()/1024.0))
+             maxmem.value = int(round(self.vm.maximum_memory()/1024.0))
+@@ -1504,54 +1505,74 @@ class vmmDetails(gobject.GObject):
+         self.vm.set_vcpu_count(vcpus)
+         self.window.get_widget("config-vcpus-apply").set_sensitive(False)
+ 
+-    def config_memory_changed(self, src):
+-        self.window.get_widget("config-memory-apply").set_sensitive(True)
++    def config_get_maxmem(self):
++        maxadj = self.window.get_widget("config-maxmem").get_adjustment()
++        txtmax = self.window.get_widget("config-maxmem").get_text()
++        try:
++            maxmem = int(txtmax)
++        except:
++            maxmem = maxadj.value
++        return maxmem
++
++    def config_get_memory(self):
++        memadj = self.window.get_widget("config-memory").get_adjustment()
++        txtmem = self.window.get_widget("config-memory").get_text()
++        try:
++            mem = int(txtmem)
++        except:
++            mem = memadj.value
++        return mem
+ 
+     def config_maxmem_changed(self, src):
+         self.window.get_widget("config-memory-apply").set_sensitive(True)
+-        memory = self.window.get_widget("config-maxmem").get_adjustment().value
+-        memadj = self.window.get_widget("config-memory").get_adjustment()
+-        memadj.upper = memory
+-        if memadj.value > memory:
+-            memadj.value = memory
++
++    def config_memory_changed(self, src):
++        self.window.get_widget("config-memory-apply").set_sensitive(True)
++
++        maxadj = self.window.get_widget("config-maxmem").get_adjustment()
++
++        mem = self.config_get_memory()
++        if maxadj.value < mem:
++            maxadj.value = mem
++        maxadj.lower = mem
+ 
+     def config_memory_apply(self, src):
+         self.refresh_config_memory()
+         exc = None
+         curmem = None
+-        maxmem = self.window.get_widget("config-maxmem").get_adjustment()
++        maxmem = self.config_get_maxmem()
+         if self.window.get_widget("config-memory").get_property("sensitive"):
+-            curmem = self.window.get_widget("config-memory").get_adjustment()
++            curmem = self.config_get_memory()
+ 
+-        logging.info("Setting max-memory for " + self.vm.get_name() + \
+-                     " to " + str(maxmem.value))
++        logging.info("Setting max-memory for " + self.vm.get_name() +
++                     " to " + str(maxmem))
+ 
+         actual_cur = self.vm.get_memory()
+         if curmem is not None:
+-            logging.info("Setting memory for " + self.vm.get_name() + \
+-                         " to " + str(curmem.value))
+-            if (maxmem.value * 1024) < actual_cur:
++            logging.info("Setting memory for " + self.vm.get_name() +
++                         " to " + str(curmem))
++            if (maxmem * 1024) < actual_cur:
+                 # Set current first to avoid error
+                 try:
+-                    self.vm.set_memory(curmem.value * 1024)
+-                    self.vm.set_max_memory(maxmem.value * 1024)
++                    self.vm.set_memory(curmem * 1024)
++                    self.vm.set_max_memory(maxmem * 1024)
+                 except Exception, e:
+                     exc = e
+             else:
+                 try:
+-                    self.vm.set_max_memory(maxmem.value * 1024)
+-                    self.vm.set_memory(curmem.value * 1024)
++                    self.vm.set_max_memory(maxmem * 1024)
++                    self.vm.set_memory(curmem * 1024)
+                 except Exception, e:
+                     exc = e
+ 
+         else:
+             try:
+-                self.vm.set_max_memory(maxmem.value * 1024)
++                self.vm.set_max_memory(maxmem * 1024)
+             except Exception, e:
+                 exc = e
+ 
+         if exc:
+-            self.err.show_err(_("Error changing memory values: %s" % str(e)),\
++            self.err.show_err(_("Error changing memory values: %s" % str(e)),
+                               "".join(traceback.format_exc()))
+         else:
+             self.window.get_widget("config-memory-apply").set_sensitive(False)
+diff -rup old/src/virtManager/details.py.orig virt-manager-0.7.0/src/virtManager/details.py.orig
+--- old/src/virtManager/details.py.orig	2009-09-17 17:23:42.778305000 -0400
++++ virt-manager-0.7.0/src/virtManager/details.py.orig	2009-09-17 17:24:08.925149000 -0400
+@@ -501,7 +501,7 @@ class vmmDetails(gobject.GObject):
+         self.update_scaling()
+ 
+     def auth_login(self, ignore):
+-        self.set_password()
++        self.set_credentials()
+         self.activate_viewer_page()
+ 
+     def toggle_toolbar(self, src):
+@@ -1309,23 +1309,44 @@ class vmmDetails(gobject.GObject):
+                      traceback.format_exc (stacktrace))
+             logging.error(details)
+ 
+-    def set_password(self, src=None):
+-        txt = self.window.get_widget("console-auth-password")
+-        self.vncViewer.set_credential(gtkvnc.CREDENTIAL_PASSWORD,
+-                                      txt.get_text())
++    def set_credentials(self, src=None):
++        passwd = self.window.get_widget("console-auth-password")
++        if passwd.flags() & gtk.VISIBLE:
++            self.vncViewer.set_credential(gtkvnc.CREDENTIAL_PASSWORD,
++                                          passwd.get_text())
++        username = self.window.get_widget("console-auth-username")
++        if username.flags() & gtk.VISIBLE:
++            self.vncViewer.set_credential(gtkvnc.CREDENTIAL_USERNAME,
++                                          username.get_text())
++
++        if self.window.get_widget("console-auth-remember").get_active():
++            self.config.set_console_password(self.vm, passwd.get_text(), username.get_text())
+ 
+     def _vnc_auth_credential(self, src, credList):
+         for i in range(len(credList)):
++            if credList[i] not in (gtkvnc.CREDENTIAL_PASSWORD, gtkvnc.CREDENTIAL_USERNAME, gtkvnc.CREDENTIAL_CLIENTNAME):
++                self.err.show_err(summary=_("Unable to provide requested credentials to the VNC server"),
++                                  details=_("The credential type %s is not supported") % (str(credList[i])),
++                                  title=_("Unable to authenticate"),
++                                  async=True)
++                self.vncViewerRetriesScheduled = 10
++                self.vncViewer.close()
++                self.activate_unavailable_page(_("Unsupported console authentication type"))
++                return
++
++        withUsername = False
++        withPassword = False
++        for i in range(len(credList)):
+             logging.debug("Got credential request %s", str(credList[i]))
+             if credList[i] == gtkvnc.CREDENTIAL_PASSWORD:
+-                self.activate_auth_page()
++                withPassword = True
++            elif credList[i] == gtkvnc.CREDENTIAL_USERNAME:
++                withUsername = True
+             elif credList[i] == gtkvnc.CREDENTIAL_CLIENTNAME:
+                 self.vncViewer.set_credential(credList[i], "libvirt-vnc")
+-            else:
+-                # Force it to stop re-trying
+-                self.vncViewerRetriesScheduled = 10
+-                self.vncViewer.close()
+-                self.activate_unavailable_page(_("Unsupported console authentication type"))
++
++        if withUsername or withPassword:
++            self.activate_auth_page(withPassword, withUsername)
+ 
+     def activate_unavailable_page(self, msg):
+         self.window.get_widget("console-pages").set_current_page(PAGE_UNAVAILABLE)
+@@ -1336,20 +1357,41 @@ class vmmDetails(gobject.GObject):
+         self.window.get_widget("console-pages").set_current_page(PAGE_SCREENSHOT)
+         self.window.get_widget("details-menu-vm-screenshot").set_sensitive(True)
+ 
+-    def activate_auth_page(self):
+-        pw = self.config.get_console_password(self.vm)
++    def activate_auth_page(self, withPassword=True, withUsername=False):
++        (pw, username) = self.config.get_console_password(self.vm)
+         self.window.get_widget("details-menu-vm-screenshot").set_sensitive(False)
++
++        if withPassword:
++            self.window.get_widget("console-auth-password").show()
++            self.window.get_widget("label-auth-password").show()
++        else:
++            self.window.get_widget("console-auth-password").hide()
++            self.window.get_widget("label-auth-password").hide()
++
++        if withUsername:
++            self.window.get_widget("console-auth-username").show()
++            self.window.get_widget("label-auth-username").show()
++        else:
++            self.window.get_widget("console-auth-username").hide()
++            self.window.get_widget("label-auth-username").hide()
++
++        self.window.get_widget("console-auth-username").set_text(username)
+         self.window.get_widget("console-auth-password").set_text(pw)
+-        self.window.get_widget("console-auth-password").grab_focus()
++
+         if self.config.has_keyring():
+             self.window.get_widget("console-auth-remember").set_sensitive(True)
+-            if pw != None and pw != "":
++            if pw != "" or username != "":
+                 self.window.get_widget("console-auth-remember").set_active(True)
+             else:
+                 self.window.get_widget("console-auth-remember").set_active(False)
+         else:
+             self.window.get_widget("console-auth-remember").set_sensitive(False)
+         self.window.get_widget("console-pages").set_current_page(PAGE_AUTHENTICATE)
++        if withUsername:
++            self.window.get_widget("console-auth-username").grab_focus()
++        else:
++            self.window.get_widget("console-auth-password").grab_focus()
++
+ 
+     def activate_viewer_page(self):
+         self.window.get_widget("console-pages").set_current_page(PAGE_VNCVIEWER)
+diff -rup old/src/vmm-details.glade virt-manager-0.7.0/src/vmm-details.glade
+--- old/src/vmm-details.glade	2009-09-17 17:23:42.448302000 -0400
++++ virt-manager-0.7.0/src/vmm-details.glade	2009-09-17 17:25:42.970347000 -0400
+@@ -1436,7 +1436,6 @@ I/O:</property>
+                               </widget>
+                               <packing>
+                                 <property name="position">2</property>
+-                                <property name="tab_expand">True</property>
+                               </packing>
+                             </child>
+                             <child>
+@@ -1572,8 +1571,8 @@ I/O:</property>
+                                                       <widget class="GtkSpinButton" id="config-memory">
+                                                         <property name="visible">True</property>
+                                                         <property name="can_focus">True</property>
+-                                                        <property name="adjustment">50 50 32000 5 10 0</property>
+-                                                        <property name="climb_rate">1</property>
++                                                        <property name="adjustment">50 50 32000 1 25 0</property>
++                                                        <property name="climb_rate">2</property>
+                                                         <property name="numeric">True</property>
+                                                         <property name="update_policy">GTK_UPDATE_IF_VALID</property>
+                                                         <accessibility>
+@@ -1610,8 +1609,8 @@ I/O:</property>
+                                                       <widget class="GtkSpinButton" id="config-maxmem">
+                                                         <property name="visible">True</property>
+                                                         <property name="can_focus">True</property>
+-                                                        <property name="adjustment">50 50 32000 5 10 0</property>
+-                                                        <property name="climb_rate">1</property>
++                                                        <property name="adjustment">50 50 32000 1 25 0</property>
++                                                        <property name="climb_rate">2</property>
+                                                         <property name="numeric">True</property>
+                                                         <property name="update_policy">GTK_UPDATE_IF_VALID</property>
+                                                         <accessibility>
+Only in virt-manager-0.7.0/src: vmm-details.glade.orig
+Only in virt-manager-0.7.0/src: vmm-details.glade.rej
+Only in virt-manager-0.7.0/src: .vmm-details.glade.rej.swp
