@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 4%{_extra_release}
+Release: 5%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -36,6 +36,10 @@ Patch6: %{name}-%{version}-conn-close-exception.patch
 Patch7: %{name}-%{version}-manager-ui-tweaks.patch
 # Generate better errors is disk/net stats polling fails
 Patch8: %{name}-%{version}-stats-logging.patch
+# Refresh host disk space in create wizard (bz 502777)
+Patch9: %{name}-%{version}-refresh-disk-space.patch
+# Offer to fix disk permission issues (bz 517379)
+Patch10: %{name}-%{version}-fix-path-perms.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -61,7 +65,7 @@ Requires: gnome-python2-gnome
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.0
+Requires: python-virtinst >= 0.500.0-4
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -111,6 +115,8 @@ cp %{SOURCE3} pixmaps
 %patch6 -p1
 %patch7 -p1
 %patch8 -p1
+%patch9 -p1
+%patch10 -p1
 
 %build
 %configure
@@ -184,6 +190,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Sep 24 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-5.fc12
+- Refresh host disk space in create wizard (bz 502777)
+- Offer to fix disk permission issues (bz 517379)
+
 * Thu Sep 17 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-4.fc12
 - Don't close libvirt connection for non-fatal errors (bz 522168)
 - Manager UI tweaks

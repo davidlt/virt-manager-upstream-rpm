@@ -1,0 +1,349 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1253738576 14400
+# Node ID e7ee75a8f1353f2c42df93b5090b05fbdf89720a
+# Parent  292a065aad7e4e5e5d50a71337efab2361378313
+Add dialog-with-checkbox helper functions.
+
+Useful for things like "Don't show this again'.
+
+diff -r 292a065aad7e -r e7ee75a8f135 src/virtManager/error.py
+--- a/src/virtManager/error.py	Wed Sep 23 11:49:35 2009 -0400
++++ b/src/virtManager/error.py	Wed Sep 23 16:42:56 2009 -0400
+@@ -131,3 +131,61 @@
+     def ok_cancel(self, text1, text2=None):
+         return self._show_warning(gtk.BUTTONS_OK_CANCEL, text1, text2)
+ 
++    def warn_chkbox(self, text1, text2=None, chktext=None):
++        chkbox = vmmCheckDialog(self.parent, gtk.MESSAGE_WARNING)
++        return chkbox.show_chkbox(text1, text2, chktext)
++
++    def err_chkbox(self, text1, text2=None, chktext=None):
++        chkbox = vmmCheckDialog(self.parent, gtk.MESSAGE_ERROR)
++        return chkbox.show_chkbox(text1, text2, chktext)
++
++class vmmCheckDialog (gtk.MessageDialog):
++    def __init__ (self, parent=None, typ=gtk.MESSAGE_INFO):
++        if typ == gtk.MESSAGE_WARNING:
++            buttons = gtk.BUTTONS_OK_CANCEL
++        else:
++            buttons = gtk.BUTTONS_OK
++
++        gtk.MessageDialog.__init__ (self, parent, 0, typ, buttons)
++
++        self.connect("response", self.response_cb)
++        self.connect("delete-event", self.hide_on_delete)
++        self.set_title("")
++
++        self.chk_vbox = gtk.VBox(False, False)
++        self.chk_vbox.set_spacing(0)
++
++        self.chk_align = gtk.Alignment()
++        self.chk_align.set_padding(0, 0, 62, 0)
++        self.chk_align.add(self.chk_vbox)
++
++        self.chk_align.show_all()
++        self.vbox.pack_start(self.chk_align)
++
++    def response_cb(self, src, ignore):
++        src.hide()
++
++    def show_chkbox(self, text1, text2=None, chktext=None):
++        chkbox = None
++        res = None
++        chkres = None
++
++        self.hide()
++        for c in self.chk_vbox.get_children():
++            self.chk_vbox.remove(c)
++
++        self.set_property("text", text1)
++
++        if text2:
++            self.format_secondary_text(text2)
++
++        if chktext:
++            chkbox = gtk.CheckButton(chktext)
++            self.chk_vbox.add(chkbox)
++            chkbox.show()
++
++        res = self.run() in [ gtk.RESPONSE_YES, gtk.RESPONSE_OK ]
++        if chktext:
++            res = [res, chkbox.get_active()]
++
++        return res
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1253738620 14400
+# Node ID f5f3ff4f8942d631234f8e008d806bd502c58bc3
+# Parent  e7ee75a8f1353f2c42df93b5090b05fbdf89720a
+connection: Add is_qemu_system helper.
+
+diff -r e7ee75a8f135 -r f5f3ff4f8942 src/virtManager/connection.py
+--- a/src/virtManager/connection.py	Wed Sep 23 16:42:56 2009 -0400
++++ b/src/virtManager/connection.py	Wed Sep 23 16:43:40 2009 -0400
+@@ -201,6 +201,13 @@
+     def is_nodedev_capable(self):
+         return virtinst.NodeDeviceParser.is_nodedev_capable(self.vmm)
+ 
++    def is_qemu_system(self):
++        (scheme, ignore, ignore,
++         path, ignore, ignore) = virtinst.util.uri_split(self.uri)
++        if path == "/system" and scheme.startswith("qemu"):
++            return True
++        return False
++
+     def is_qemu_session(self):
+         (scheme, ignore, ignore,
+          path, ignore, ignore) = virtinst.util.uri_split(self.uri)
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1253806909 14400
+# Node ID cfcd19d057ddc973a129e7816cd4ea39f0d4365a
+# Parent  f5f3ff4f8942d631234f8e008d806bd502c58bc3
+create: Don't prompt with same dialog multiple times.
+
+diff -r f5f3ff4f8942 -r cfcd19d057dd src/virtManager/create.py
+--- a/src/virtManager/create.py	Wed Sep 23 16:43:40 2009 -0400
++++ b/src/virtManager/create.py	Thu Sep 24 11:41:49 2009 -0400
+@@ -1122,7 +1122,7 @@
+             if pagenum == PAGE_NAME:
+                 return self.validate_name_page()
+             elif pagenum == PAGE_INSTALL:
+-                return self.validate_install_page()
++                return self.validate_install_page(revalidate=False)
+             elif pagenum == PAGE_MEM:
+                 return self.validate_mem_page()
+             elif pagenum == PAGE_STORAGE:
+@@ -1135,7 +1135,7 @@
+                     return False
+                 elif not self.validate_mem_page():
+                     return False
+-                return self.validate_storage_page()
++                return self.validate_storage_page(revalidate=False)
+ 
+             elif pagenum == PAGE_FINISH:
+                 # Since we allow the user to change to change HV type + arch
+@@ -1169,7 +1169,7 @@
+ 
+         return True
+ 
+-    def validate_install_page(self):
++    def validate_install_page(self, revalidate=True):
+         instmethod = self.get_config_install_page()
+         installer = None
+         location = None
+@@ -1270,7 +1270,7 @@
+ 
+         return True
+ 
+-    def validate_storage_page(self):
++    def validate_storage_page(self, revalidate=True):
+         use_storage = self.window.get_widget("enable-storage").get_active()
+ 
+         self.guest.disks = []
+@@ -1296,19 +1296,21 @@
+             return self.verr(_("Storage parameter error."), str(e))
+ 
+         isfatal, errmsg = disk.is_size_conflict()
+-        if not isfatal and errmsg:
++        if not revalidate and not isfatal and errmsg:
+             # Fatal errors are reported when setting 'size'
+             res = self.err.ok_cancel(_("Not Enough Free Space"), errmsg)
+             if not res:
+                 return False
+ 
+         # Disk collision
+-        if disk.is_conflict_disk(self.guest.conn):
+-            return self.err.yes_no(_('Disk "%s" is already in use by another '
+-                                     'guest!' % disk.path),
+-                                   _("Do you really want to use the disk?"))
+-        else:
+-            return True
++        if not revalidate and disk.is_conflict_disk(self.guest.conn):
++            res = self.err.yes_no(_('Disk "%s" is already in use by another '
++                                    'guest!' % disk.path),
++                                  _("Do you really want to use the disk?"))
++            if not res:
++                return False
++
++        return True
+ 
+     def validate_final_page(self):
+         nettype, devname, macaddr = self.get_config_network_info()
+diff -r 343b42ebee5b src/virtManager/addhardware.py
+--- a/src/virtManager/addhardware.py	Thu Sep 24 11:41:49 2009 -0400
++++ b/src/virtManager/addhardware.py	Thu Sep 24 11:44:49 2009 -0400
+@@ -31,6 +31,7 @@
+ import virtinst
+ from virtinst import VirtualCharDevice, VirtualDevice, VirtualVideoDevice
+ 
++import virtManager.create
+ import virtManager.util as vmmutil
+ from virtManager.asyncjob import vmmAsyncJob
+ from virtManager.error import vmmErrorDialog
+@@ -1054,6 +1055,7 @@
+                 return self.err.val_err(_("Hardware Type Required"), \
+                                         _("You must specify what type of hardware to add."))
+             self._dev = None
++
+         elif page_num == PAGE_DISK:
+             path = self.get_config_disk_image()
+             if path == None or len(path) == 0:
+@@ -1102,6 +1104,11 @@
+                                       _("Do you really want to use the disk?"))
+                 return res
+ 
++            # Make sure qemu can access path
++            virtManager.create.check_path_search_for_qemu(self,
++                                                          self.vm.connection,
++                                                          self._dev.path)
++
+         elif page_num == PAGE_NETWORK:
+             net = self.get_config_network()
+             if self.window.get_widget("net-type-network").get_active():
+diff -r 343b42ebee5b src/virtManager/choosecd.py
+--- a/src/virtManager/choosecd.py	Thu Sep 24 11:41:49 2009 -0400
++++ b/src/virtManager/choosecd.py	Thu Sep 24 11:44:49 2009 -0400
+@@ -24,6 +24,7 @@
+ import virtinst
+ 
+ import virtManager.opticalhelper
++import virtManager.create
+ from virtManager.storagebrowse import vmmStorageBrowser
+ from virtManager.error import vmmErrorDialog
+ 
+@@ -108,6 +109,10 @@
+         except Exception, e:
+             return self.err.val_err(_("Invalid Media Path"), str(e))
+ 
++        # Make sure qemu can access the path
++        virtManager.create.check_path_search_for_qemu(self, self.conn,
++                                                      disk.path)
++
+         self.emit("cdrom-chosen", disk.type, disk.path, self.dev_id_info)
+         self.cancel()
+ 
+diff -r 343b42ebee5b src/virtManager/config.py
+--- a/src/virtManager/config.py	Thu Sep 24 11:41:49 2009 -0400
++++ b/src/virtManager/config.py	Thu Sep 24 11:44:49 2009 -0400
+@@ -558,3 +558,15 @@
+         else:
+             return os.getcwd()
+ 
++    def add_perms_fix_ignore(self, pathlist):
++        current_list = self.get_perms_fix_ignore() or []
++        for path in pathlist:
++            if path in current_list:
++                continue
++            current_list.append(path)
++        self.conf.set_list(self.conf_dir + "/paths/perms_fix_ignore",
++                           gconf.VALUE_STRING,
++                           current_list)
++    def get_perms_fix_ignore(self):
++        return self.conf.get_list(self.conf_dir + "/paths/perms_fix_ignore",
++                                  gconf.VALUE_STRING)
+diff -r 343b42ebee5b src/virtManager/create.py
+--- a/src/virtManager/create.py	Thu Sep 24 11:41:49 2009 -0400
++++ b/src/virtManager/create.py	Thu Sep 24 11:44:49 2009 -0400
+@@ -30,6 +30,7 @@
+ 
+ import virtinst
+ from virtinst import VirtualNetworkInterface
++from virtinst import VirtualDisk
+ 
+ import virtManager.opticalhelper
+ from virtManager import util
+@@ -53,6 +54,54 @@
+ INSTALL_PAGE_URL = 1
+ INSTALL_PAGE_PXE = 2
+ 
++def check_path_search_for_qemu(vmm_obj, conn, path):
++    if conn.is_remote() or not conn.is_qemu_system():
++        return
++
++    user = "qemu"
++
++    skip_paths = vmm_obj.config.get_perms_fix_ignore()
++    broken_paths = VirtualDisk.check_path_search_for_user(conn.vmm, path, user)
++    for p in broken_paths:
++        if p in skip_paths:
++            broken_paths.remove(p)
++
++    if not broken_paths:
++        return
++
++    logging.debug("No search access for dirs: %s" % broken_paths)
++    resp, chkres = vmm_obj.err.warn_chkbox(
++                    _("The emulator may not have search permissions "
++                      "for the path '%s'.") % path,
++                    _("Do you want to correct this now?"),
++                    _("Don't ask about these directories again."))
++
++    if chkres:
++        vmm_obj.config.add_perms_fix_ignore(broken_paths)
++    if not resp:
++        return
++
++    logging.debug("Attempting to correct permission issues.")
++    errors = VirtualDisk.fix_path_search_for_user(conn.vmm, path, user)
++    if not errors:
++        return
++
++    errmsg = _("Errors were encountered changing permissions for the "
++               "following directories:")
++    details = ""
++    for path, error in errors.items():
++        if path not in broken_paths:
++            continue
++        details += "%s : %s\n" % (path, error)
++
++    logging.debug("Permission errors:\n%s" % details)
++
++    ignore, chkres = vmm_obj.err.err_chkbox(errmsg, details,
++                         _("Don't ask about these directories again."))
++
++    if chkres:
++        vmm_obj.config.add_perms_fix_ignore(errors.keys())
++
+ class vmmCreate(gobject.GObject):
+     __gsignals__ = {
+         "action-show-console": (gobject.SIGNAL_RUN_FIRST,
+@@ -1245,6 +1294,11 @@
+             return self.err.val_err(_("Error setting OS information."),
+                                     str(e))
+ 
++        if instmethod == INSTALL_PAGE_ISO and not revalidate:
++            # Check if 'qemu' user can access disk
++            check_path_search_for_qemu(self, self.conn,
++                                       self.guest.installer.location)
++
+         # Validation passed, store the install path (if there is one) in
+         # gconf
+         self.get_config_local_media(store_media=True)
+@@ -1286,10 +1340,10 @@
+             if not diskpath:
+                 return self.verr(_("A storage path must be specified."))
+ 
+-            disk = virtinst.VirtualDisk(conn = self.conn.vmm,
+-                                        path = diskpath,
+-                                        size = disksize,
+-                                        sparse = sparse)
++            disk = VirtualDisk(conn = self.conn.vmm,
++                               path = diskpath,
++                               size = disksize,
++                               sparse = sparse)
+ 
+             self.guest.disks.append(disk)
+         except Exception, e:
+@@ -1310,6 +1364,10 @@
+             if not res:
+                 return False
+ 
++        if not revalidate:
++            # Check if 'qemu' user can access disk
++            check_path_search_for_qemu(self, self.conn, disk.path)
++
+         return True
+ 
+     def validate_final_page(self):
