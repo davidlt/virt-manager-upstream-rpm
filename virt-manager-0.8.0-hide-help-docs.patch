@@ -1,0 +1,152 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1254248737 14400
+# Node ID 65951459abe9efb9fc5f58a243ddcfd49deba0a5
+# Parent  59f3d7a2ec289145c41437b7f12bcd730e17f340
+Hide access to help docs: they are out of date to the point of uselessness.
+
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/addhardware.py
+--- a/src/virtManager/addhardware.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/addhardware.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -115,6 +115,9 @@
+             "char_telnet_focus_in": (self.update_doc, "protocol"),
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("create-help").hide()
++
+         self.set_initial_state()
+ 
+     def update_doc(self, ignore1, ignore2, param):
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/clone.py
+--- a/src/virtManager/clone.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/clone.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -129,6 +129,9 @@
+             "on_clone_help_clicked" : self.show_help,
+         })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("clone-help").hide()
++
+         self.set_initial_state()
+ 
+     def show(self):
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/createnet.py
+--- a/src/virtManager/createnet.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/createnet.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -68,6 +68,9 @@
+             "on_create_help_clicked": self.show_help,
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("create-help").hide()
++
+         self.set_initial_state()
+ 
+     def show(self):
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/createpool.py
+--- a/src/virtManager/createpool.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/createpool.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -88,6 +88,9 @@
+             "on_pool_build_focus_in_event": (self.update_build_doc)
+         })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("pool-help").hide()
++
+         self.set_initial_state()
+ 
+     def show(self):
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/createvol.py
+--- a/src/virtManager/createvol.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/createvol.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -72,6 +72,10 @@
+         format_list.add_attribute(text2, 'text', 1)
+         self.window.get_widget("vol-info-view").modify_bg(gtk.STATE_NORMAL,
+                                                           gtk.gdk.color_parse("grey"))
++
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("pool-help").hide()
++
+         self.reset_state()
+ 
+ 
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/details.py
+--- a/src/virtManager/details.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/details.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -313,6 +313,9 @@
+             "on_security_model_changed": self.security_model_changed,
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("help1").hide()
++
+         self.vm.connect("status-changed", self.update_widget_states)
+         self.vm.connect("resources-sampled", self.refresh_resources)
+         self.vm.connect("config-changed", self.refresh_vm_info)
+@@ -575,7 +578,7 @@
+         if self.is_visible():
+             self.topwin.present()
+             return
+-        self.topwin.show_all()
++        self.topwin.show()
+         self.topwin.present()
+ 
+         self.engine.increment_window_counter()
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/host.py
+--- a/src/virtManager/host.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/host.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -169,6 +169,9 @@
+             "on_config_autoconnect_toggled": self.toggle_autoconnect,
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("help1").hide()
++
+         self.conn.connect("resources-sampled", self.refresh_resources)
+         self.reset_state()
+ 
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/manager.py
+--- a/src/virtManager/manager.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/manager.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -188,6 +188,7 @@
+             filename = self.config.get_icon_dir() + "/%s" % iconfile
+             pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(filename, l, w)
+             image = gtk.image_new_from_pixbuf(pixbuf)
++            image.show_all()
+             self.window.get_widget(widget).set_icon_widget(image)
+ 
+         set_toolbar_image("vm-new", "vm_new_wizard.png", 28, 28)
+@@ -356,6 +357,9 @@
+             "on_menu_help_activate": self.show_help,
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("menu_help").hide()
++
+         self.vm_selected(None)
+         self.window.get_widget("vm-list").get_selection().connect("changed", self.vm_selected)
+ 
+@@ -391,7 +395,8 @@
+         if self.is_visible():
+             win.present()
+             return
+-        win.show_all()
++        win.show()
++        win.present()
+         self.engine.increment_window_counter()
+ 
+         if self.startup_error:
+diff -r 59f3d7a2ec28 -r 65951459abe9 src/virtManager/preferences.py
+--- a/src/virtManager/preferences.py	Tue Sep 29 14:02:28 2009 -0400
++++ b/src/virtManager/preferences.py	Tue Sep 29 14:25:37 2009 -0400
+@@ -75,6 +75,9 @@
+             "on_prefs_stats_enable_net_toggled": self.change_net_poll,
+             })
+ 
++        # XXX: Help docs useless/out of date
++        self.window.get_widget("prefs-help").hide()
++
+     def close(self, ignore1=None, ignore2=None):
+         self.topwin.hide()
+         return 1
