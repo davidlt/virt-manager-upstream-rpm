@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 5%{_extra_release}
+Release: 6%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -40,6 +40,14 @@ Patch8: %{name}-%{version}-stats-logging.patch
 Patch9: %{name}-%{version}-refresh-disk-space.patch
 # Offer to fix disk permission issues (bz 517379)
 Patch10: %{name}-%{version}-fix-path-perms.patch
+# Fix VCPU hotplug
+Patch11: %{name}-%{version}-fix-vcpu-hotplug.patch
+# Remove access to outdated docs (bz 522823, bz 524805)
+Patch12: %{name}-%{version}-hide-help-docs.patch
+# Update VM state text in manager view (bz 526182)
+Patch13: %{name}-%{version}-update-vm-state.patch
+# Update translations (bz 493795)
+Patch14: %{name}-%{version}-update-translations.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -117,6 +125,10 @@ cp %{SOURCE3} pixmaps
 %patch8 -p1
 %patch9 -p1
 %patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
 
 %build
 %configure
@@ -190,6 +202,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Sep 29 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-6.fc12
+- Fix VCPU hotplug
+- Remove access to outdated docs (bz 522823, bz 524805)
+- Update VM state text in manager view (bz 526182)
+- Update translations (bz 493795)
+
 * Thu Sep 24 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-5.fc12
 - Refresh host disk space in create wizard (bz 502777)
 - Offer to fix disk permission issues (bz 517379)
