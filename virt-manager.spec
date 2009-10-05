@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 6%{_extra_release}
+Release: 7%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -48,6 +48,14 @@ Patch12: %{name}-%{version}-hide-help-docs.patch
 Patch13: %{name}-%{version}-update-vm-state.patch
 # Update translations (bz 493795)
 Patch14: %{name}-%{version}-update-translations.patch
+# More translations (bz 493795)
+Patch15: %{name}-%{version}-more-translations.patch
+# Don't allow creating a volume without a name (bz 526111)
+Patch16: %{name}-%{version}-createvol-name.patch
+# Don't allow volume allocation > capacity (bz 526077)
+Patch17: %{name}-%{version}-createvol-alloc.patch
+# Add tooltips for toolbar buttons (bz 524083)
+Patch18: %{name}-%{version}-toolbar-tooltips.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -129,6 +137,10 @@ cp %{SOURCE3} pixmaps
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+%patch18 -p1
 
 %build
 %configure
@@ -202,6 +214,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Oct 05 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-7.fc12
+- More translations (bz 493795)
+- Don't allow creating a volume without a name (bz 526111)
+- Don't allow volume allocation > capacity (bz 526077)
+- Add tooltips for toolbar buttons (bz 524083)
+
 * Tue Sep 29 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-6.fc12
 - Fix VCPU hotplug
 - Remove access to outdated docs (bz 522823, bz 524805)

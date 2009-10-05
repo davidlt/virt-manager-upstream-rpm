@@ -1,0 +1,48 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1254756879 14400
+# Node ID c0cffb13680c120ceff22386754104f66bb01d25
+# Parent  67d5721a535f204db27f532e59f491f562c8ff18
+create-vol: Don't allow creating vol without a name entered
+
+diff -r 67d5721a535f -r c0cffb13680c src/virtManager/createvol.py
+--- a/src/virtManager/createvol.py	Mon Oct 05 10:06:29 2009 -0400
++++ b/src/virtManager/createvol.py	Mon Oct 05 11:34:39 2009 -0400
+@@ -62,6 +62,7 @@
+             "on_vmm_create_vol_delete_event" : self.close,
+             "on_vol_cancel_clicked"  : self.close,
+             "on_vol_create_clicked"  : self.finish,
++            "on_vol_name_changed"    : self.vol_name_changed,
+         })
+ 
+         format_list = self.window.get_widget("vol-format")
+@@ -99,6 +100,7 @@
+ 
+     def reset_state(self):
+         self.window.get_widget("vol-name").set_text("")
++        self.window.get_widget("vol-create").set_sensitive(False)
+         self.populate_vol_format()
+         self.populate_vol_suffix()
+ 
+@@ -138,6 +140,10 @@
+             suffix = ".img"
+         self.window.get_widget("vol-name-suffix").set_text(suffix)
+ 
++    def vol_name_changed(self, src):
++        text = src.get_text()
++        self.window.get_widget("vol-create").set_sensitive(bool(text))
++
+     def finish(self, src):
+         # validate input
+         try:
+diff -rup new/src/vmm-create-vol.glade virt-manager-0.8.0/src/vmm-create-vol.glade
+--- new/src/vmm-create-vol.glade	2009-10-05 13:15:48.335564000 -0400
++++ virt-manager-0.8.0/src/vmm-create-vol.glade	2009-10-05 13:16:48.288704000 -0400
+@@ -96,6 +96,7 @@
+                               <widget class="GtkEntry" id="vol-name">
+                                 <property name="visible">True</property>
+                                 <property name="can_focus">True</property>
++                                <signal name="changed" handler="on_vol_name_changed"/>
+                               </widget>
+                             </child>
+                             <child>

@@ -1,0 +1,101 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1254762221 14400
+# Node ID 7df46187c156c7697b9b93e46e3b391a19c4fbb2
+# Parent  97c40c4fb29f7b1b1aadcebd42781f0d471d4697
+Add tooltips for toolbar buttons in manager and details.
+
+diff -r 97c40c4fb29f -r 7df46187c156 src/vmm-details.glade
+--- a/src/vmm-details.glade	Mon Oct 05 11:50:10 2009 -0400
++++ b/src/vmm-details.glade	Mon Oct 05 13:03:41 2009 -0400
+@@ -430,6 +430,7 @@
+                 <child>
+                   <widget class="GtkRadioToolButton" id="control-vm-console">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Show the graphical console</property>
+                     <property name="label" translatable="yes">Console</property>
+                     <property name="icon_name">icon_console</property>
+                     <property name="active">True</property>
+@@ -443,6 +444,7 @@
+                 <child>
+                   <widget class="GtkRadioToolButton" id="control-vm-details">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Show virtual hardware details</property>
+                     <property name="label" translatable="yes">Details</property>
+                     <property name="stock_id">gtk-info</property>
+                     <property name="group">control-vm-console</property>
+@@ -465,6 +467,7 @@
+                 <child>
+                   <widget class="GtkToolButton" id="control-run">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Power on the virtual machine</property>
+                     <property name="is_important">True</property>
+                     <property name="label" translatable="yes">Run</property>
+                     <property name="use_underline">True</property>
+@@ -479,6 +482,7 @@
+                 <child>
+                   <widget class="GtkToggleToolButton" id="control-pause">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Pause the virtual machine</property>
+                     <property name="is_important">True</property>
+                     <property name="label" translatable="yes">Pause</property>
+                     <property name="use_underline">True</property>
+@@ -493,6 +497,7 @@
+                 <child>
+                   <widget class="GtkMenuToolButton" id="control-shutdown">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Shutdown the virtual machine</property>
+                     <property name="is_important">True</property>
+                     <property name="label" translatable="yes">Shut Down</property>
+                     <property name="use_underline">True</property>
+@@ -514,6 +519,7 @@
+                 <child>
+                   <widget class="GtkToggleToolButton" id="control-fullscreen">
+                     <property name="visible">True</property>
++                    <property name="tooltip" translatable="yes">Switch to fullscreen view</property>
+                     <property name="stock_id">gtk-fullscreen</property>
+                     <signal name="toggled" handler="on_control_fullscreen_toggled"/>
+                   </widget>
+diff -r 97c40c4fb29f -r 7df46187c156 src/vmm-manager.glade
+--- a/src/vmm-manager.glade	Mon Oct 05 11:50:10 2009 -0400
++++ b/src/vmm-manager.glade	Mon Oct 05 13:03:41 2009 -0400
+@@ -229,6 +229,7 @@
+                     <child>
+                       <widget class="GtkToolButton" id="vm-new">
+                         <property name="visible">True</property>
++                        <property name="tooltip" translatable="yes">Create a new virtual machine</property>
+                         <property name="label" translatable="yes">_New</property>
+                         <property name="use_underline">True</property>
+                         <property name="icon_name">vm_new_large</property>
+@@ -251,6 +252,7 @@
+                     <child>
+                       <widget class="GtkToolButton" id="vm-open">
+                         <property name="visible">True</property>
++                        <property name="tooltip" translatable="yes">Show the virtual machine's details</property>
+                         <property name="label" translatable="yes">_Open</property>
+                         <property name="use_underline">True</property>
+                         <property name="icon_name">icon_console</property>
+@@ -264,6 +266,7 @@
+                     <child>
+                       <widget class="GtkToolButton" id="vm-run">
+                         <property name="visible">True</property>
++                        <property name="tooltip" translatable="yes">Power on the virtual machine</property>
+                         <property name="label" translatable="yes">_Run</property>
+                         <property name="use_underline">True</property>
+                         <property name="stock_id">gtk-media-play</property>
+@@ -277,6 +280,7 @@
+                     <child>
+                       <widget class="GtkToggleToolButton" id="vm-pause">
+                         <property name="visible">True</property>
++                        <property name="tooltip" translatable="yes">Pause the virtual machine</property>
+                         <property name="label" translatable="yes">_Pause</property>
+                         <property name="use_underline">True</property>
+                         <property name="stock_id">gtk-media-pause</property>
+@@ -290,6 +294,7 @@
+                     <child>
+                       <widget class="GtkMenuToolButton" id="vm-shutdown">
+                         <property name="visible">True</property>
++                        <property name="tooltip" translatable="yes">Shutdown the virtual machine</property>
+                         <property name="label" translatable="yes">_Shutdown</property>
+                         <property name="use_underline">True</property>
+                         <signal name="clicked" handler="on_vm_shutdown_clicked"/>
