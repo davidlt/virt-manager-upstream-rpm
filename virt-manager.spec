@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.0
-Release: 6%{_extra_release}
+Release: 7%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -48,6 +48,8 @@ Patch12: %{name}-%{version}-hide-help-docs.patch
 Patch13: %{name}-%{version}-update-vm-state.patch
 # Update translations (bz 493795)
 Patch14: %{name}-%{version}-update-translations.patch
+# More translations (bz 493795)
+Patch15: %{name}-%{version}-more-translations.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -129,6 +131,7 @@ cp %{SOURCE3} pixmaps
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
+%patch15 -p1
 
 %build
 %configure
@@ -202,6 +205,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Oct 05 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-7.fc13
+- More translations (bz 493795)
+
 * Tue Sep 29 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-6.fc13
 - Fix VCPU hotplug
 - Remove access to outdated docs (bz 522823, bz 524805)
