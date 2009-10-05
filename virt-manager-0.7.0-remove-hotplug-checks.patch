@@ -1,0 +1,81 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1236966695 14400
+# Node ID 9530fb06ad66cd517ab305c3a4bf426ef69439ed
+# Parent  7ab8a12b3527d97bc92acca7e6e6ff3fbdd9746b
+Remove mem/cpu hotplug checks.
+
+We can't reliably determine whether it's supported or not, so just leave
+the error reporting up to libvirt.
+
+diff -r 7ab8a12b3527 -r 9530fb06ad66 src/virtManager/details.py
+--- a/src/virtManager/details.py	Fri Mar 13 13:13:24 2009 -0400
++++ b/src/virtManager/details.py	Fri Mar 13 13:51:35 2009 -0400
+@@ -749,15 +749,9 @@
+         if status in [ libvirt.VIR_DOMAIN_SHUTOFF, libvirt.VIR_DOMAIN_CRASHED ] and not self.vm.is_read_only():
+             self.window.get_widget("control-run").set_sensitive(True)
+             self.window.get_widget("details-menu-run").set_sensitive(True)
+-            self.window.get_widget("config-vcpus").set_sensitive(True)
+-            self.window.get_widget("config-memory").set_sensitive(True)
+-            self.window.get_widget("config-maxmem").set_sensitive(True)
+         else:
+             self.window.get_widget("control-run").set_sensitive(False)
+             self.window.get_widget("details-menu-run").set_sensitive(False)
+-            self.window.get_widget("config-vcpus").set_sensitive(self.vm.is_vcpu_hotplug_capable())
+-            self.window.get_widget("config-memory").set_sensitive(self.vm.is_memory_hotplug_capable())
+-            self.window.get_widget("config-maxmem").set_sensitive(True)
+ 
+         if status in [libvirt.VIR_DOMAIN_SHUTDOWN, libvirt.VIR_DOMAIN_SHUTOFF,
+                       libvirt.VIR_DOMAIN_CRASHED ] or vm.is_read_only():
+@@ -775,11 +769,12 @@
+             self.window.get_widget("details-menu-shutdown").set_sensitive(True)
+             self.window.get_widget("details-menu-save").set_sensitive(True)
+ 
+-        # Currently, the condition that "Migrate" become insensitive is only "readonly".
+-        if vm.is_read_only():
+-            self.window.get_widget("details-menu-migrate").set_sensitive(False)
+-        else:
+-            self.window.get_widget("details-menu-migrate").set_sensitive(True)
++        ro = vm.is_read_only()
++        self.window.get_widget("config-vcpus").set_sensitive(not ro)
++        self.window.get_widget("config-memory").set_sensitive(not ro)
++        self.window.get_widget("config-maxmem").set_sensitive(not ro)
++        self.window.get_widget("details-menu-migrate").set_sensitive(not ro)
++        if not ro:
+             self.set_migrate_menu()
+ 
+         if status in [ libvirt.VIR_DOMAIN_SHUTOFF ,libvirt.VIR_DOMAIN_CRASHED ]:
+diff -r 7ab8a12b3527 -r 9530fb06ad66 src/virtManager/domain.py
+--- a/src/virtManager/domain.py	Fri Mar 13 13:13:24 2009 -0400
++++ b/src/virtManager/domain.py	Fri Mar 13 13:51:35 2009 -0400
+@@ -181,30 +181,6 @@
+         # FIXME: This should be static, not parse xml everytime
+         return vutil.get_xml_path(self.get_xml(), "/domain/@type")
+ 
+-    def is_vcpu_hotplug_capable(self):
+-        # Read only connections aren't allowed to change it
+-        if self.connection.is_read_only():
+-            return False
+-        # Running paravirt guests can change it, or any inactive guest
+-        if self.vm.OSType() == "linux" \
+-           or self.status() not in [libvirt.VIR_DOMAIN_RUNNING,\
+-                                    libvirt.VIR_DOMAIN_PAUSED]:
+-            return True
+-        # Everyone else is out of luck
+-        return False
+-
+-    def is_memory_hotplug_capable(self):
+-        # Read only connections aren't allowed to change it
+-        if self.connection.is_read_only():
+-            return False
+-        # Running paravirt guests can change it, or any inactive guest
+-        if self.vm.OSType() == "linux" \
+-           or self.status() not in [libvirt.VIR_DOMAIN_RUNNING,\
+-                                    libvirt.VIR_DOMAIN_PAUSED]:
+-            return True
+-        # Everyone else is out of luck
+-        return False
+-
+     def _normalize_status(self, status):
+         if status == libvirt.VIR_DOMAIN_NOSTATE:
+             return libvirt.VIR_DOMAIN_RUNNING

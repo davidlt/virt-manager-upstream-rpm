@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 6%{_extra_release}
+Release: 7%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -41,6 +41,10 @@ Patch17: %{name}-%{version}-fix-memory-interaction.patch
 Patch18: %{name}-%{version}-vcpu-mem-persistent.patch
 # Add pylint script
 Patch19: %{name}-%{version}-pylint-script.patch
+# Fix typo in vcpu hotplug
+Patch20: %{name}-%{version}-fix-vcpu-hotplug.patch
+# Allow memory hotplug for KVM (bz 524297)
+Patch21: %{name}-%{version}-remove-hotplug-checks.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -132,6 +136,8 @@ management API.
 %patch17 -p1
 %patch18 -p1
 %patch19 -p1
+%patch20 -p1
+%patch21 -p1
 
 %build
 %configure
@@ -209,6 +215,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Oct 05 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-7.fc11
+- Fix typo in vcpu hotplug
+- Allow memory hotplug for KVM (bz 524297)
+
 * Fri Sep 18 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-6.fc11
 - Fix migration for qemu/kvm guests (bz 517548)
 - Fix sparse allocation confusion (bz 504605)
