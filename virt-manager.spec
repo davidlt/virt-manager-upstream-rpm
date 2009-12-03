@@ -7,55 +7,20 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.0
-Release: 7%{_extra_release}
+Version: 0.8.1
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Source1: state_paused.png
-Source2: state_running.png
-Source3: state_shutoff.png
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
-# Fix disk XML mangling via connect/eject cdrom (bz 516116)
-Patch1: %{name}-%{version}-cdrom-eject-driver.patch
-# Fix delete button sensitivity (bz 518536)
-Patch2: %{name}-%{version}-no-delete-active.patch
-# Fix populating text box from storage browser in 'New VM' (bz 517263)
-Patch3: %{name}-%{version}-newvm-storage-cb.patch
-# Fix a traceback in an 'Add Hardware' error path (bz 517286)
-Patch4: %{name}-%{version}-addhw-errmsg-typo.patch
-# Fixes for pylint script to return nicer results on F11/F12
-Patch5: %{name}-%{version}-pylint-tweak.patch
-# Don't close libvirt connection for non-fatal errors (bz 522168)
-Patch6: %{name}-%{version}-conn-close-exception.patch
-# Manager UI tweaks
-Patch7: %{name}-%{version}-manager-ui-tweaks.patch
-# Generate better errors is disk/net stats polling fails
-Patch8: %{name}-%{version}-stats-logging.patch
-# Refresh host disk space in create wizard (bz 502777)
-Patch9: %{name}-%{version}-refresh-disk-space.patch
-# Offer to fix disk permission issues (bz 517379)
-Patch10: %{name}-%{version}-fix-path-perms.patch
-# Fix VCPU hotplug
-Patch11: %{name}-%{version}-fix-vcpu-hotplug.patch
-# Remove access to outdated docs (bz 522823, bz 524805)
-Patch12: %{name}-%{version}-hide-help-docs.patch
-# Update VM state text in manager view (bz 526182)
-Patch13: %{name}-%{version}-update-vm-state.patch
-# Update translations (bz 493795)
-Patch14: %{name}-%{version}-update-translations.patch
-# More translations (bz 493795)
-Patch15: %{name}-%{version}-more-translations.patch
-# Don't allow creating a volume without a name (bz 526111)
-Patch16: %{name}-%{version}-createvol-name.patch
-# Don't allow volume allocation > capacity (bz 526077)
-Patch17: %{name}-%{version}-createvol-alloc.patch
-# Add tooltips for toolbar buttons (bz 524083)
-Patch18: %{name}-%{version}-toolbar-tooltips.patch
+# Check QEMU permissions against the qemu user
+Patch1: %{name}-%{version}-perms-qemu-user.patch
+# Prefer HAL for device enumeration, to avoid possible regressions
+Patch2: %{name}-%{version}-prefer-hal.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -72,12 +37,6 @@ Requires: gnome-keyring >= 0.4.9
 # will work just fine - keyring functionality will simply be
 # disabled
 Requires: gnome-python2-gnomekeyring >= 2.15.4
-Requires: gnome-python2-gnomevfs >= 2.15.4
-%if 0%{?fedora} <= 9
-Requires: gnome-python2
-%else
-Requires: gnome-python2-gnome
-%endif
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
@@ -120,27 +79,8 @@ management API.
 
 %prep
 %setup -q
-cp %{SOURCE1} pixmaps
-cp %{SOURCE2} pixmaps
-cp %{SOURCE3} pixmaps
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-%patch17 -p1
-%patch18 -p1
 
 %build
 %configure
@@ -214,6 +154,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Dec  3 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-1.fc12
+- Update to release 0.8.1
+- VM Migration wizard, exposing various migration options
+- Enumerate CDROM and bridge devices on remote connections
+- Support storage pool source enumeration for LVM, NFS, and SCSI
+
 * Mon Oct 05 2009 Cole Robinson <crobinso@redhat.com> - 0.8.0-7.fc12
 - More translations (bz 493795)
 - Don't allow creating a volume without a name (bz 526111)
