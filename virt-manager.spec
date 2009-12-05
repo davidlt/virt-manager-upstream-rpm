@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.1
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -40,7 +40,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.0-4
+Requires: python-virtinst >= 0.500.1
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -154,6 +154,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sat Dec  5 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-2.fc13
+- Set proper version Requires: for python-virtinst
+
 * Thu Dec  3 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-1.fc12
 - Update to release 0.8.1
 - VM Migration wizard, exposing various migration options
