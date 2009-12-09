@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.1
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -21,6 +21,8 @@ BuildArch: noarch
 Patch1: %{name}-%{version}-perms-qemu-user.patch
 # Prefer HAL for device enumeration, to avoid possible regressions
 Patch2: %{name}-%{version}-prefer-hal.patch
+# Select manager row on right click, regressed with 0.8.1
+Patch3: %{name}-%{version}-select-right-click.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -40,7 +42,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.1
+Requires: python-virtinst >= 0.500.1-2
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -81,6 +83,7 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 %build
 %configure
@@ -154,6 +157,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Dec 09 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-3.fc12
+- Select manager row on right click, regressed with 0.8.1
+
 * Sat Dec  5 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-2.fc13
 - Set proper version Requires: for python-virtinst
 
