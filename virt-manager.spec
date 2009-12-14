@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.1
-Release: 3%{_extra_release}
+Version: 0.8.2
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -19,8 +19,6 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 # Check QEMU permissions against the qemu user
 Patch1: %{name}-%{version}-perms-qemu-user.patch
-# Select manager row on right click, regressed with 0.8.1
-Patch2: %{name}-%{version}-select-right-click.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -80,7 +78,6 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1
 
 %build
 %configure
@@ -154,6 +151,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Dec 14 2009 Cole Robinson <crobinso@redhat.com> - 0.8.2-1.fc13
+- Update to 0.8.2 release
+- Fix first virt-manager run on a new install
+- Enable floppy media eject/connect
+
 * Wed Dec 09 2009 Cole Robinson <crobinso@redhat.com> - 0.8.1-3.fc13
 - Select manager row on right click, regressed with 0.8.1
 
