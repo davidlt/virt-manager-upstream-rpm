@@ -1,6 +1,6 @@
-diff -rup new/src/virtManager/connection.py new2/src/virtManager/connection.py
---- new/src/virtManager/connection.py	2009-12-03 17:14:57.324966000 -0500
-+++ new2/src/virtManager/connection.py	2009-12-03 17:16:34.904055000 -0500
+diff -rup virt-manager-0.8.2/src/virtManager/connection.py new/src/virtManager/connection.py
+--- virt-manager-0.8.2/src/virtManager/connection.py	2009-12-14 17:32:35.000000000 -0500
++++ new/src/virtManager/connection.py	2009-12-14 18:56:03.000000000 -0500
 @@ -170,7 +170,8 @@ class vmmConnection(gobject.GObject):
          """
          Determine how we will be polling for net devices (HAL or libvirt)
@@ -14,9 +14,9 @@ diff -rup new/src/virtManager/connection.py new2/src/virtManager/connection.py
 @@ -207,7 +208,7 @@ class vmmConnection(gobject.GObject):
                  logging.debug("Using HAL for netdev enumeration")
  
-     def _init_optical(self):
+     def _init_mediadev(self):
 -        if self.is_nodedev_capable():
 +        if self.is_remote() and self.is_nodedev_capable():
              try:
-                 self.connect("nodedev-added", self._nodedev_optical_added)
-                 self.connect("nodedev-removed", self._nodedev_optical_removed)
+                 self.connect("nodedev-added", self._nodedev_mediadev_added)
+                 self.connect("nodedev-removed", self._nodedev_mediadev_removed)
