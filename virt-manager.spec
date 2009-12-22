@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.7.0
-Release: 7%{_extra_release}
+Release: 8%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -45,6 +45,10 @@ Patch19: %{name}-%{version}-pylint-script.patch
 Patch20: %{name}-%{version}-fix-vcpu-hotplug.patch
 # Allow memory hotplug for KVM (bz 524297)
 Patch21: %{name}-%{version}-remove-hotplug-checks.patch
+# Don't show storage browser behind CD dialog (bz 529217)
+Patch22: %{name}-%{version}-choosecd-storage-modal.patch
+# Revert to previous VNC size after leaving fullscreen (bz 503150)
+Patch23: %{name}-%{version}-fullscreen-prev-size.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 # These two are just the oldest version tested
@@ -138,6 +142,8 @@ management API.
 %patch19 -p1
 %patch20 -p1
 %patch21 -p1
+%patch22 -p1
+%patch23 -p1
 
 %build
 %configure
@@ -215,6 +221,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Dec 22 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-8.fc11
+- Don't show storage browser behind CD dialog (bz 529217)
+- Revert to previous VNC size after leaving fullscreen (bz 503150)
+
 * Mon Oct 05 2009 Cole Robinson <crobinso@redhat.com> - 0.7.0-7.fc11
 - Fix typo in vcpu hotplug
 - Allow memory hotplug for KVM (bz 524297)

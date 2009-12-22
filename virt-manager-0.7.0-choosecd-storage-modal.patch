@@ -1,0 +1,11 @@
+diff -rup virt-manager-0.7.0/src/vmm-storage-browse.glade new/src/vmm-storage-browse.glade
+--- virt-manager-0.7.0/src/vmm-storage-browse.glade	2009-03-09 23:38:37.000000000 -0400
++++ new/src/vmm-storage-browse.glade	2009-12-22 11:08:54.418514000 -0500
+@@ -9,6 +9,7 @@
+     <property name="default_width">750</property>
+     <property name="default_height">500</property>
+     <property name="destroy_with_parent">True</property>
++    <property name="type_hint">dialog</property>
+     <signal name="delete_event" handler="on_vmm_storage_browse_delete_event"/>
+     <child>
+       <widget class="GtkAlignment" id="alignment1">

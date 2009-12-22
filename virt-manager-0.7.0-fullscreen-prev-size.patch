@@ -1,0 +1,19 @@
+diff -rup virt-manager-0.7.0/src/virtManager/details.py new/src/virtManager/details.py
+--- virt-manager-0.7.0/src/virtManager/details.py	2009-12-22 11:55:23.996901000 -0500
++++ new/src/virtManager/details.py	2009-12-22 12:05:51.490114000 -0500
+@@ -469,14 +469,7 @@ class vmmDetails(gobject.GObject):
+         self.window.get_widget("control-fullscreen").set_active(src.get_active())
+         if src.get_active():
+ 
+-            # if scaling is enabled make sure we fit onto the root window
+-            if self.vncViewer.get_scaling():
+-                ignore, h = self.window.get_widget("menubar3").size_request()
+-                rootw = src.get_screen().get_width()
+-                rooth = src.get_screen().get_height() - h
+-                self.vncViewer.set_size_request(rootw, rooth)
+-            else:
+-                self.vncViewer.set_size_request(-1, -1)
++            self.vncViewer.set_size_request(-1, -1)
+ 
+             self.window.get_widget("vmm-details").fullscreen()
+             if self.config.get_console_keygrab() == 1:
