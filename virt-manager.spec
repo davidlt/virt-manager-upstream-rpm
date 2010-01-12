@@ -154,7 +154,7 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Tue Jan 12 2009 Cole Robinson <crobinso@redhat.com> - 0.8.2-2.fc12
+* Tue Jan 12 2010 Cole Robinson <crobinso@redhat.com> - 0.8.2-2.fc12
 - Build with actual upstream tarball (not manually built dist)
 
 * Mon Dec 14 2009 Cole Robinson <crobinso@redhat.com> - 0.8.2-1.fc12
