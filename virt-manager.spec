@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.2
-Release: 2%{_extra_release}
+Version: 0.8.3
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -38,7 +38,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.1-2
+Requires: python-virtinst >= 0.500.2
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -151,6 +151,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Feb  8 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-1.fc13
+- Update to 0.8.3 release
+- Manage network interfaces: start, stop, view, provision bridges, bonds, etc.
+- Option to 'customize VM before install'.
+
 * Tue Jan 12 2010 Cole Robinson <crobinso@redhat.com> - 0.8.2-2.fc13
 - Build with actual upstream tarball (not manually built dist)
 
