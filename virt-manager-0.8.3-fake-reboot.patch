@@ -1,0 +1,173 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1268858510 14400
+# Node ID fc1360e7ded9029e6b5ad3e9eadc0f694f5d5b52
+# Parent  91818a16657ccc11abe20179691ce7ca2127d05a
+Attempt to 'fake' reboot if it isn't supported
+
+We do this by attempting vm.shutdown(), followed by a vm.start() when
+the vm actually stops. Any manual 'shutdown' or 'destroy' call will undo
+the reboot command, similar to how xen acts (on RHEL5 at least).
+
+diff -r 91818a16657c -r fc1360e7ded9 src/virtManager/domain.py
+--- a/src/virtManager/domain.py	Wed Mar 17 08:49:06 2010 +0000
++++ b/src/virtManager/domain.py	Wed Mar 17 16:41:50 2010 -0400
+@@ -1231,7 +1233,47 @@
+     def disk_write_rate(self):
+         return self._get_record_helper("diskWrRate")
+ 
++    def _unregister_reboot_listener(self):
++        if self.reboot_listener == None:
++            return
++
++        try:
++            self.disconnect(self.reboot_listener)
++            self.reboot_listener = None
++        except:
++            pass
++
++    def manual_reboot(self):
++        # Attempt a manual reboot via 'shutdown' followed by startup
++        def reboot_listener(vm, ignore1, self):
++            if vm.is_crashed():
++                # Abandon reboot plans
++                self.reboot_listener = None
++                return True
++
++            if not vm.is_shutoff():
++                # Not shutoff, continue waiting
++                return
++
++            try:
++                logging.debug("Fake reboot detected shutdown. Restarting VM")
++                vm.startup()
++            except:
++                logging.exception("Fake reboot startup failed")
++
++            self.reboot_listener = None
++            return True
++
++        self._unregister_reboot_listener()
++
++        # Request a shutdown
++        self.shutdown()
++
++        self.reboot_listener = util.connect_opt_out(self, "status-changed",
++                                                    reboot_listener, self)
++
+     def shutdown(self):
++        self._unregister_reboot_listener()
+         self._backend.shutdown()
+         self._update_status()
+ 
+@@ -1265,7 +1307,9 @@
+         self._update_status()
+ 
+     def destroy(self):
++        self._unregister_reboot_listener()
+         self._backend.destroy()
++        self._update_status()
+ 
+     def interfaceStats(self, device):
+         return self._backend.interfaceStats(device)
+diff -r 91818a16657c -r fc1360e7ded9 src/virtManager/engine.py
+--- a/src/virtManager/engine.py	Wed Mar 17 08:49:06 2010 +0000
++++ b/src/virtManager/engine.py	Wed Mar 17 16:41:50 2010 -0400
+@@ -834,10 +834,30 @@
+             self.config.set_confirm_poweroff(not skip_prompt)
+ 
+         logging.debug("Rebooting vm '%s'." % vm.get_name())
++        no_support = False
++        reboot_err = None
+         try:
+             vm.reboot()
+-        except Exception, e:
+-            self.err.show_err(_("Error shutting down domain: %s" % str(e)),
++        except Exception, reboot_err:
++            no_support = virtinst.support.is_error_nosupport(reboot_err)
++            if not no_support:
++                self.err.show_err(_("Error rebooting domain: %s" %
++                                  str(reboot_err)),
++                                  "".join(traceback.format_exc()))
++
++        if not no_support:
++            return
++
++        # Reboot isn't supported. Let's try to emulate it
++        logging.debug("Hypervisor doesn't support reboot, let's fake it")
++        try:
++            vm.manual_reboot()
++        except:
++            logging.exception("Could not fake a reboot")
++
++            # Raise the original error message
++            self.err.show_err(_("Error rebooting domain: %s" %
++                              str(reboot_err)),
+                               "".join(traceback.format_exc()))
+ 
+     def migrate_domain(self, uri, uuid):
+diff -rup old/src/virtManager/domain.py virt-manager-0.8.3/src/virtManager/domain.py
+--- old/src/virtManager/domain.py	2010-03-21 22:10:03.000000000 -0400
++++ virt-manager-0.8.3/src/virtManager/domain.py	2010-03-21 22:10:41.000000000 -0400
+@@ -1145,6 +1145,8 @@ class vmmDomain(vmmDomainBase):
+         self.toggle_sample_network_traffic()
+         self.toggle_sample_disk_io()
+ 
++        self.reboot_listener = None
++
+         # Determine available XML flags (older libvirt versions will error
+         # out if passed SECURE_XML, INACTIVE_XML, etc)
+         self._set_dom_flags()
+diff -r c9d3c8dec04f -r 976f202f5dbd src/virtManager/util.py
+--- a/src/virtManager/util.py	Sat Feb 27 10:42:43 2010 -0500
++++ b/src/virtManager/util.py	Sun Feb 28 19:40:06 2010 -0500
+@@ -240,6 +240,33 @@
+ 
+     return label
+ 
++def connect_once(obj, signal, func, *args):
++    id_list = []
++
++    def wrap_func(*wrapargs):
++        if id_list:
++            obj.disconnect(id_list[0])
++
++        return func(*wrapargs)
++
++    conn_id = obj.connect(signal, wrap_func, *args)
++    id_list.append(conn_id)
++
++    return conn_id
++
++def connect_opt_out(obj, signal, func, *args):
++    id_list = []
++
++    def wrap_func(*wrapargs):
++        ret = func(*wrapargs)
++        if ret and id_list:
++            obj.disconnect(id_list[0])
++
++    conn_id = obj.connect(signal, wrap_func, *args)
++    id_list.append(conn_id)
++
++    return conn_id
++
+ def idle_emit(self, signal, *args):
+     """
+     Safe wrapper for using 'self.emit' with gobject.idle_add
+diff -rup virt-manager-0.8.3/src/virtManager/domain.py new/src/virtManager/domain.py
+--- virt-manager-0.8.3/src/virtManager/domain.py	2010-03-22 10:57:56.526155000 -0400
++++ new/src/virtManager/domain.py	2010-03-22 11:05:35.723429000 -0400
+@@ -1025,6 +1025,12 @@ class vmmDomainBase(gobject.GObject):
+     def disk_io_vector_limit(self, limit):
+         return self.in_out_vector_limit(self.disk_io_vector(), limit)
+ 
++    def is_shutoff(self):
++        return self.status() == libvirt.VIR_DOMAIN_SHUTOFF
++
++    def is_crashed(self):
++        return self.status() == libvirt.VIR_DOMAIN_CRASHED
++
+     def is_stoppable(self):
+         return self.status() in [libvirt.VIR_DOMAIN_RUNNING,
+                                  libvirt.VIR_DOMAIN_PAUSED]
