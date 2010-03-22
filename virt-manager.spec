@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.3
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -19,6 +19,16 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 # Check QEMU permissions against the qemu user
 Patch1: %{name}-%{version}-perms-qemu-user.patch
+# Fix using a manual 'default' pool (bz 557020)
+Patch2: %{name}-%{version}-manual-default-pool.patch
+# Don't force grab focus when app is run (bz 548430)
+Patch3: %{name}-%{version}-stop-focus-grab.patch
+# Check packagekit for KVM and libvirtd (bz 513494)
+Patch4: %{name}-%{version}-check-packagekit.patch
+# Fake a reboot implementation if libvirt doesn't support it (bz 532216)
+Patch5: %{name}-%{version}-fake-reboot.patch
+# Mark some strings as translatable (bz 572645)
+Patch6: %{name}-%{version}-mark-translatable-strings.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -78,6 +88,11 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %configure
@@ -151,6 +166,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Mar 22 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-2.fc14
+- Fix using a manual 'default' pool (bz 557020)
+- Don't force grab focus when app is run (bz 548430)
+- Check packagekit for KVM and libvirtd (bz 513494)
+- Fake a reboot implementation if libvirt doesn't support it (bz 532216)
+- Mark some strings as translatable (bz 572645)
+
 * Mon Feb  8 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-1.fc13
 - Update to 0.8.3 release
 - Manage network interfaces: start, stop, view, provision bridges, bonds, etc.

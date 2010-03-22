@@ -1,0 +1,52 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1266002236 18000
+# Node ID 831fa7210e0467ddd9039cc9f372f11b2b22c5b5
+# Parent  9fb5880026535f6e373d3487ab31069eeae51489
+create: Allow using a manually created 'default' pool
+
+diff -r 9fb588002653 -r 831fa7210e04 src/virtManager/create.py
+--- a/src/virtManager/create.py	Fri Feb 12 14:01:59 2010 -0500
++++ b/src/virtManager/create.py	Fri Feb 12 14:17:16 2010 -0500
+@@ -454,7 +454,6 @@
+         self.usepool = False
+         try:
+             if is_storage_capable:
+-                # FIXME: Emit 'pool-added' or something?
+                 util.build_default_pool(self.conn.vmm)
+                 self.usepool = True
+         except Exception, e:
+@@ -845,7 +844,6 @@
+                 return self.failed_guest.disks[0].path
+ 
+         if not self.usepool:
+-
+             # Use old generating method
+             d = self.config.get_default_image_dir(self.conn)
+             origf = os.path.join(d, name + ".img")
+@@ -860,12 +858,22 @@
+                 f = origf
+ 
+             path = f
++
+         else:
+-            pool = self.conn.vmm.storagePoolLookupByName(util.DEFAULT_POOL_NAME)
++            pool = None
++            for uuid in self.conn.list_pool_uuids():
++                p = self.conn.get_pool(uuid)
++                if p.get_name() == util.DEFAULT_POOL_NAME:
++                    pool = p
++
++            if not pool:
++                raise RuntimeError(_("Did not find pool '%s'") %
++                                   util.DEFAULT_POOL_NAME)
++
+             path = virtinst.Storage.StorageVolume.find_free_name(name,
+-                            pool_object=pool, suffix=".img")
++                            pool_object=pool.pool, suffix=".img")
+ 
+-            path = os.path.join(util.DEFAULT_POOL_PATH, path)
++            path = os.path.join(pool.get_target_path(), path)
+ 
+         return path
+ 
