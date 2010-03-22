@@ -1,0 +1,33 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1264526673 18000
+# Node ID 3fc51aee7be3c5d539ad9ed1f90afdcd43de8896
+# Parent  0ade95843eba86c51247645be001cc336fd99966
+engine: Make sure a libvirtd restart doesn't lock the app
+
+We were trying to close the connection without thread locking (and closing
+can emit a signal which updates the UI).
+
+diff -r 0ade95843eba -r 3fc51aee7be3 src/virtManager/engine.py
+--- a/src/virtManager/engine.py	Mon Jan 25 10:04:31 2010 -0500
++++ b/src/virtManager/engine.py	Tue Jan 26 12:24:33 2010 -0500
+@@ -211,8 +211,9 @@
+ 
+     def _tick(self):
+         for uri in self.connections.keys():
++            conn = self.connections[uri]["connection"]
+             try:
+-                self.connections[uri]["connection"].tick()
++                conn.tick()
+             except KeyboardInterrupt:
+                 raise
+             except libvirt.libvirtError, e:
+@@ -220,7 +221,7 @@
+                     logging.exception("Could not refresh connection %s." % uri)
+                     logging.debug("Closing connection since libvirtd "
+                                   "appears to have stopped.")
+-                    self.connections[uri]["connection"].close()
++                    gobject.idle_add(conn.close)
+                 else:
+                     raise
+         return 1

@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.2
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -21,6 +21,16 @@ BuildArch: noarch
 Patch1: %{name}-%{version}-perms-qemu-user.patch
 # Prefer HAL for device enumeration, to avoid possible regressions
 Patch2: %{name}-%{version}-prefer-hal.patch
+# Fix some german translation issues (bz 571200, bz 571231)
+Patch3: %{name}-%{version}-fix-german-trans.patch
+# Allow --sync CLI option
+Patch4: %{name}-%{version}-gtk-cli-options.patch
+# Fix using a manual 'default' pool (bz 557020)
+Patch5: %{name}-%{version}-manual-default-pool.patch
+# Fix crash if libvirtd is restarted (bz 555063)
+Patch6: %{name}-%{version}-libvirtd-restart-crash.patch
+# Don't force grab focus when app is run (bz 548430)
+Patch7: %{name}-%{version}-stop-focus-grab.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -81,6 +91,11 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 %build
 %configure
@@ -154,6 +169,13 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Sun Mar 21 2010 Cole Robinson <crobinso@redhat.com> - 0.8.2-3.fc12
+- Fix some german translation issues (bz 571200, bz 571231)
+- Allow --sync CLI option
+- Fix using a manual 'default' pool (bz 557020)
+- Fix crash if libvirtd is restarted (bz 555063)
+- Don't force grab focus when app is run (bz 548430)
+
 * Tue Jan 12 2010 Cole Robinson <crobinso@redhat.com> - 0.8.2-2.fc12
 - Build with actual upstream tarball (not manually built dist)
 

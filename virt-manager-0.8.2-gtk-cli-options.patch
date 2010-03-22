@@ -1,0 +1,33 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1265648061 18000
+# Node ID 876f708ad69b61507e09fb2ec0438d477bd6e25a
+# Parent  295646fddf4376f1425afde34df71a8095f125c7
+Abide gtk cmdline options
+
+By parsing opts later, GTK seems to auto parse and abide options like
+--sync.
+
+diff -r 295646fddf43 -r 876f708ad69b src/virt-manager.py.in
+--- a/src/virt-manager.py.in	Mon Feb 08 11:44:04 2010 -0500
++++ b/src/virt-manager.py.in	Mon Feb 08 11:54:21 2010 -0500
+@@ -284,9 +284,6 @@
+     setup_i18n()
+     setup_pypath()
+ 
+-    (options, ignore) = parse_commandline()
+-    setup_logging(options.debug)
+-
+     # Urgh, pygtk merely logs a warning when failing to open
+     # the X11 display connection, and lets everything carry
+     # on as if all were fine. Ultimately bad stuff happens,
+@@ -308,6 +305,9 @@
+         raise RuntimeError(_("Unable to initialize GTK: %s") % str(e))
+     warnings.resetwarnings()
+ 
++    (options, ignore) = parse_commandline()
++    setup_logging(options.debug)
++
+     # Make sure we have a sufficiently new virtinst version, since we are
+     # very closely tied to the lib
+     msg = ("virt-manager requires the python-virtinst library version " +

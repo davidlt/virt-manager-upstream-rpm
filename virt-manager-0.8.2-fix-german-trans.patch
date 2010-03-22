@@ -1,0 +1,28 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1269219273 14400
+# Node ID ba45868ba3d7928268d2cdc5cae0538337fd069c
+# Parent  c2cbba74520f8fdfe761ff3f839cb5fefe023d30
+Fix some german translations (Peter Bieringer)
+
+diff -r c2cbba74520f -r ba45868ba3d7 po/de.po
+--- a/po/de.po	Sun Mar 21 17:55:40 2010 -0400
++++ b/po/de.po	Sun Mar 21 20:54:33 2010 -0400
+@@ -912,7 +912,7 @@
+ 
+ #: ../src/virtManager/console.py:570
+ msgid "Graphical console is not yet active for guest"
+-msgstr "Grafische Konsole nocht nicht aktiv für Gastjetzt"
++msgstr "Grafische Konsole für Gast jetzt noch nicht aktiv"
+ 
+ #: ../src/virtManager/console.py:574
+ msgid "Connecting to graphical console for guest"
+@@ -1700,7 +1700,7 @@
+ 
+ #: ../src/virtManager/domain.py:1180
+ msgid "Shutoff"
+-msgstr "Ausschalten"
++msgstr "Ausgeschaltet"
+ 
+ #: ../src/virtManager/domain.py:1182
+ msgid "Crashed"
