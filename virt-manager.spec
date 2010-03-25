@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.3
-Release: 2%{_extra_release}
+Version: 0.8.4
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -20,15 +20,7 @@ BuildArch: noarch
 # Check QEMU permissions against the qemu user
 Patch1: %{name}-%{version}-perms-qemu-user.patch
 # Fix using a manual 'default' pool (bz 557020)
-Patch2: %{name}-%{version}-manual-default-pool.patch
-# Don't force grab focus when app is run (bz 548430)
-Patch3: %{name}-%{version}-stop-focus-grab.patch
-# Check packagekit for KVM and libvirtd (bz 513494)
-Patch4: %{name}-%{version}-check-packagekit.patch
-# Fake a reboot implementation if libvirt doesn't support it (bz 532216)
-Patch5: %{name}-%{version}-fake-reboot.patch
-# Mark some strings as translatable (bz 572645)
-Patch6: %{name}-%{version}-mark-translatable-strings.patch
+Patch2: %{name}-%{version}-packagekit-packages.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -48,7 +40,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.2
+Requires: python-virtinst >= 0.500.3
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -89,10 +81,6 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
 
 %build
 %configure
@@ -154,6 +142,11 @@ fi
 %{_datadir}/%{name}/pixmaps/*.png
 %{_datadir}/%{name}/pixmaps/*.svg
 
+%dir %{_datadir}/%{name}/pixmaps/hicolor/
+%dir %{_datadir}/%{name}/pixmaps/hicolor/*/
+%dir %{_datadir}/%{name}/pixmaps/hicolor/*/*/
+%{_datadir}/%{name}/pixmaps/hicolor/*/*/*.png
+
 %dir %{_datadir}/%{name}/virtManager/
 %{_datadir}/%{name}/virtManager/*.py
 %{_datadir}/%{name}/virtManager/*.pyc
@@ -166,6 +159,14 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Mar 24 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-1.fc14
+- Update to version 0.8.4
+- 'Import' install option, to create a VM around an existing OS image
+- Support multiple boot devices and boot order
+- Watchdog device support
+- Enable setting a human readable VM description.
+- Option to manually specifying a bridge name, if bridge isn't detected
+
 * Mon Mar 22 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-2.fc14
 - Fix using a manual 'default' pool (bz 557020)
 - Don't force grab focus when app is run (bz 548430)
