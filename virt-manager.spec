@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.3
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -29,6 +29,12 @@ Patch4: %{name}-%{version}-check-packagekit.patch
 Patch5: %{name}-%{version}-fake-reboot.patch
 # Mark some strings as translatable (bz 572645)
 Patch6: %{name}-%{version}-mark-translatable-strings.patch
+# Fix volume creation from 'New VM' wizard (bz 579039)
+Patch7: %{name}-%{version}-fix-vol-finish.patch
+# Fix firstrun app lock up when calling PackageKit
+Patch8: %{name}-%{version}-fix-pkit-deadlock.patch
+# Fix File->Add Connection (bz 580578)
+Patch9: %{name}-%{version}-fix-open-conn.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -93,6 +99,9 @@ management API.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 
 %build
 %configure
@@ -166,6 +175,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Apr 14 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-3.fc13
+- Fix volume creation from 'New VM' wizard (bz 579039)
+- Fix firstrun app lock up when calling PackageKit
+- Fix File->Add Connection (bz 580578)
+
 * Mon Mar 22 2010 Cole Robinson <crobinso@redhat.com> - 0.8.3-2.fc13
 - Fix using a manual 'default' pool (bz 557020)
 - Don't force grab focus when app is run (bz 548430)

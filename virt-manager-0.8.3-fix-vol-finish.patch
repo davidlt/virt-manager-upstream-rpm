@@ -1,0 +1,45 @@
+# HG changeset patch
+# User Cole Robinson <crobinso@redhat.com>
+# Date 1266846561 18000
+# Node ID 1eea5c799a3259099963d49980794d381a6b4d33
+# Parent  f7f39e05fafc254b55110c9668df00e034e9305b
+createvol: Sensitize 'Finish' if default name suggested
+
+diff -r f7f39e05fafc -r 1eea5c799a32 src/virtManager/createvol.py
+--- a/src/virtManager/createvol.py	Sun Feb 21 18:40:45 2010 +0000
++++ b/src/virtManager/createvol.py	Mon Feb 22 08:49:21 2010 -0500
+@@ -113,12 +113,16 @@
+             return ""
+ 
+         suffix = self.default_suffix()
++        ret = ""
+         try:
+-            return Storage.StorageVolume.find_free_name(self.name_hint,
++            ret = Storage.StorageVolume.find_free_name(self.name_hint,
+                                             pool_object=self.parent_pool.pool,
+                                             suffix=suffix)
++            ret = ret.rstrip(suffix)
+         except:
+-            return ""
++            pass
++
++        return ret
+ 
+     def default_suffix(self):
+         suffix = ""
+@@ -127,9 +131,13 @@
+         return suffix
+ 
+     def reset_state(self):
+-        self.window.get_widget("vol-name").set_text(self.default_vol_name())
++        default_name = self.default_vol_name()
++        self.window.get_widget("vol-name").set_text("")
++        self.window.get_widget("vol-create").set_sensitive(False)
++        if default_name:
++            self.window.get_widget("vol-name").set_text(default_name)
++
+         self.window.get_widget("vol-name").grab_focus()
+-        self.window.get_widget("vol-create").set_sensitive(False)
+         self.populate_vol_format()
+         self.populate_vol_suffix()
+ 

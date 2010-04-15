@@ -1,0 +1,12 @@
+diff -rup old/src/virtManager/manager.py virt-manager-0.8.3/src/virtManager/manager.py
+--- old/src/virtManager/manager.py	2010-04-14 13:01:23.776680000 -0400
++++ virt-manager-0.8.3/src/virtManager/manager.py	2010-04-14 13:02:45.615300000 -0400
+@@ -211,7 +211,7 @@ class vmmManager(gobject.GObject):
+                                         vmlist.get_model().get_iter_first())
+ 
+         # Queue up the default connection detector
+-        gobject.idle_add(self.engine.add_default_connection)
++        util.safe_idle_add(self.engine.add_default_connection)
+ 
+     ##################
+     # Common methods #
