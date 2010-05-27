@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.4
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -21,6 +21,24 @@ BuildArch: noarch
 Patch1: %{name}-%{version}-perms-qemu-user.patch
 # Fix using a manual 'default' pool (bz 557020)
 Patch2: %{name}-%{version}-packagekit-packages.patch
+# Only close connection on specific remote errors
+Patch3: %{name}-%{version}-close-remote-error.patch
+# Fix weird border in manager UI (bz 583728)
+Patch4: %{name}-%{version}-fix-border.patch
+# Fix broken icons
+Patch5: %{name}-%{version}-fix-icon-install.patch
+# Cancel post-install reboot if VM is forced off
+Patch6: %{name}-%{version}-install-force-off.patch
+# Fix traceback if customizing a livecd install (bz 583712)
+Patch7: %{name}-%{version}-livecd-customize.patch
+# Add pool refresh button
+Patch8: %{name}-%{version}-pool-refresh-button.patch
+# Properly autodetect VNC keymap (bz 586201)
+Patch9: %{name}-%{version}-vnc-auto-keymap.patch
+# Fix traceback when reconnecting to remote VNC console (bz 588254)
+Patch10: %{name}-%{version}-vnc-reconnect-traceback.patch
+# Fix remote VNC connection with zsh as default shell
+Patch11: %{name}-%{version}-vnc-zsh.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -81,6 +99,15 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
+%patch11 -p1
 
 %build
 %configure
@@ -159,6 +186,17 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu May 27 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-2.fc14
+- Only close connection on specific remote errors
+- Fix weird border in manager UI (bz 583728)
+- Fix broken icons
+- Cancel post-install reboot if VM is forced off
+- Fix traceback if customizing a livecd install (bz 583712)
+- Add pool refresh button
+- Properly autodetect VNC keymap (bz 586201)
+- Fix traceback when reconnecting to remote VNC console (bz 588254)
+- Fix remote VNC connection with zsh as default shell
+
 * Wed Mar 24 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-1.fc14
 - Update to version 0.8.4
 - 'Import' install option, to create a VM around an existing OS image
