@@ -169,6 +169,11 @@ fi
 %{_datadir}/%{name}/pixmaps/*.png
 %{_datadir}/%{name}/pixmaps/*.svg
 
+%dir %{_datadir}/%{name}/pixmaps/hicolor/
+%dir %{_datadir}/%{name}/pixmaps/hicolor/*/
+%dir %{_datadir}/%{name}/pixmaps/hicolor/*/*/
+%{_datadir}/%{name}/pixmaps/hicolor/*/*/*.png
+
 %dir %{_datadir}/%{name}/virtManager/
 %{_datadir}/%{name}/virtManager/*.py
 %{_datadir}/%{name}/virtManager/*.pyc
