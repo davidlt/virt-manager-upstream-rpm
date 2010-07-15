@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.4
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -39,6 +39,8 @@ Patch9: %{name}-%{version}-vnc-auto-keymap.patch
 Patch10: %{name}-%{version}-vnc-reconnect-traceback.patch
 # Fix remote VNC connection with zsh as default shell
 Patch11: %{name}-%{version}-vnc-zsh.patch
+# Really fix VNC keymap negotiation (bz 586201)
+Patch12: %{name}-%{version}-really-fix-keymap.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -108,6 +110,7 @@ management API.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 %build
 %configure
@@ -186,6 +189,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Jul 14 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-2.fc13
+- Really fix VNC keymap negotiation (bz 586201)
+
 * Thu May 27 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-1.fc13
 - Update to version 0.8.4
 - 'Import' install option, to create a VM around an existing OS image
