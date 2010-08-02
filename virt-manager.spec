@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.4
-Release: 2%{_extra_release}
+Release: 3%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -39,6 +39,9 @@ Patch9: %{name}-%{version}-vnc-auto-keymap.patch
 Patch10: %{name}-%{version}-vnc-reconnect-traceback.patch
 # Fix remote VNC connection with zsh as default shell
 Patch11: %{name}-%{version}-vnc-zsh.patch
+# Don't override the "ignore deprecation warnings" default, which lead to a
+# C-assertion failure of pygtk2 on startup under python 2.7 (bz 620216):
+Patch12: %{name}-%{version}-ignore-python27-deprecation-warnings.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -108,6 +111,7 @@ management API.
 %patch9 -p1
 %patch10 -p1
 %patch11 -p1
+%patch12 -p1
 
 %build
 %configure
@@ -186,6 +190,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Aug  2 2010 David Malcolm <dmalcolm@redhat.com> - 0.8.4-3.fc15
+- fix python 2.7 incompatibility (bz 620216)
+
 * Thu May 27 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-2.fc14
 - Only close connection on specific remote errors
 - Fix weird border in manager UI (bz 583728)
