@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.4
-Release: 3%{_extra_release}
+Version: 0.8.5
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -19,34 +19,17 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 # Check QEMU permissions against the qemu user
 Patch1: %{name}-%{version}-perms-qemu-user.patch
-# Fix using a manual 'default' pool (bz 557020)
+# Virt package names we should ask to install
 Patch2: %{name}-%{version}-packagekit-packages.patch
-# Only close connection on specific remote errors
-Patch3: %{name}-%{version}-close-remote-error.patch
-# Fix weird border in manager UI (bz 583728)
-Patch4: %{name}-%{version}-fix-border.patch
-# Fix broken icons
-Patch5: %{name}-%{version}-fix-icon-install.patch
-# Cancel post-install reboot if VM is forced off
-Patch6: %{name}-%{version}-install-force-off.patch
-# Fix traceback if customizing a livecd install (bz 583712)
-Patch7: %{name}-%{version}-livecd-customize.patch
-# Add pool refresh button
-Patch8: %{name}-%{version}-pool-refresh-button.patch
-# Properly autodetect VNC keymap (bz 586201)
-Patch9: %{name}-%{version}-vnc-auto-keymap.patch
-# Fix traceback when reconnecting to remote VNC console (bz 588254)
-Patch10: %{name}-%{version}-vnc-reconnect-traceback.patch
-# Fix remote VNC connection with zsh as default shell
-Patch11: %{name}-%{version}-vnc-zsh.patch
 # Don't override the "ignore deprecation warnings" default, which lead to a
 # C-assertion failure of pygtk2 on startup under python 2.7 (bz 620216):
-Patch12: %{name}-%{version}-ignore-python27-deprecation-warnings.patch
+Patch3: %{name}-%{version}-ignore-python27-deprecation-warnings.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
 Requires: gnome-python2-gconf >= 1.99.11-7
-# Absolutely require this version or newer
+# This version not strictly required: virt-manager should work with older,
+# however varying amounts of functionality will not be enabled.
 Requires: libvirt-python >= 0.7.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
@@ -60,8 +43,8 @@ Requires: gnome-keyring >= 0.4.9
 Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
-# Required to install Xen & QEMU guests
-Requires: python-virtinst >= 0.500.3
+# Absolutely require this version or later
+Requires: python-virtinst >= 0.500.4
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -103,15 +86,6 @@ management API.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
 
 %build
 %configure
@@ -140,12 +114,14 @@ gconftool-2 --makefile-install-rule \
 
 update-desktop-database %{_datadir}/applications
 
-if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q -o %{_datadir}/omf/%{name}; fi
+# Revive when we update help docs
+#if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q -o %{_datadir}/omf/%{name}; fi
 
 %postun
 update-desktop-database %{_datadir}/applications
 
-if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q; fi
+# Revive when we update help docs
+#if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q; fi
 
 %preun
 if [ "$1" -eq 0 ]; then
@@ -163,11 +139,9 @@ fi
 
 %{_mandir}/man1/%{name}.1*
 
-%dir %{_datadir}/%{name}/
+%dir %{_datadir}/%{name}
 %{_datadir}/%{name}/*.glade
-%{_datadir}/%{name}/*.py
-%{_datadir}/%{name}/*.pyc
-%{_datadir}/%{name}/*.pyo
+%{_datadir}/%{name}/*.py*
 
 %dir %{_datadir}/%{name}/pixmaps/
 %{_datadir}/%{name}/pixmaps/*.png
@@ -179,17 +153,22 @@ fi
 %{_datadir}/%{name}/pixmaps/hicolor/*/*/*.png
 
 %dir %{_datadir}/%{name}/virtManager/
-%{_datadir}/%{name}/virtManager/*.py
-%{_datadir}/%{name}/virtManager/*.pyc
-%{_datadir}/%{name}/virtManager/*.pyo
+%{_datadir}/%{name}/virtManager/*.py*
 
-%{_datadir}/omf/%{name}/
-%{_datadir}/gnome/help/%{name}/
+# Revive when we update help docs
+#%{_datadir}/omf/%{name}/
+#%{_datadir}/gnome/help/%{name}
 
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Aug 25 2010 Cole Robinson <crobinso@redhat.com> - 0.8.5-1
+- Update to 0.8.5
+- Improved save/restore support
+- Option to view and change disk cache mode
+- Configurable VNC keygrab sequence (Michal Novotny)
+
 * Mon Aug  2 2010 David Malcolm <dmalcolm@redhat.com> - 0.8.4-3.fc14
 - fix python 2.7 incompatibility (bz 620216)
 
