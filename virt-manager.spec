@@ -7,7 +7,7 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.5
+Version: 0.8.6
 Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
@@ -17,13 +17,8 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
-# Check QEMU permissions against the qemu user
-Patch1: %{name}-%{version}-perms-qemu-user.patch
-# Virt package names we should ask to install
-Patch2: %{name}-%{version}-packagekit-packages.patch
-# Don't override the "ignore deprecation warnings" default, which lead to a
-# C-assertion failure of pygtk2 on startup under python 2.7 (bz 620216):
-Patch3: %{name}-%{version}-ignore-python27-deprecation-warnings.patch
+# Don't autolaunch console for all running VMs
+Patch1: %{name}-%{version}-no-console-autolaunch.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -44,7 +39,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Absolutely require this version or later
-Requires: python-virtinst >= 0.500.4
+Requires: python-virtinst >= 0.500.5
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -56,13 +51,15 @@ Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.8
 # For local authentication against PolicyKit
-# Fedora 12 has no need for a client agent.
+# Fedora 12 has no need for a client agent
 %if 0%{?fedora} == 11
 Requires: PolicyKit-authentication-agent
 %endif
 %if 0%{?fedora} >= 9 && 0%{?fedora} < 11
 Requires: PolicyKit-gnome
 %endif
+# For spice widget
+Requires: spice-gtk-python
 
 BuildRequires: gettext
 BuildRequires: scrollkeeper
@@ -84,13 +81,14 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
-%configure
+%configure --without-tui \
+           --with-qemu-user=qemu \
+           --with-preferred-distros=fedora15 \
+           --with-libvirt-package-names=libvirt \
+           --with-kvm-packages=qemu-system-x86
 make %{?_smp_mflags}
-
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -163,6 +161,16 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Wed Feb  2 2010 Cole Robinson <crobinso@redhat.com> - 0.8.6-1.fc15
+- Update to 0.8.6
+- SPICE support (requires spice-gtk) (Marc-André Lureau)
+- Option to configure CPU model
+- Option to configure CPU topology
+- Save and migration cancellation (Wen Congyang)
+- Save and migration progress reporting
+- Option to enable bios boot menu
+- Option to configure direct kernel/initrd boot
+
 * Wed Aug 25 2010 Cole Robinson <crobinso@redhat.com> - 0.8.5-1.fc15
 - Update to 0.8.5
 - Improved save/restore support
