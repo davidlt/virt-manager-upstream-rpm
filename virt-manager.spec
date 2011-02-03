@@ -161,7 +161,7 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Wed Feb  2 2010 Cole Robinson <crobinso@redhat.com> - 0.8.6-1.fc15
+* Wed Feb  2 2011 Cole Robinson <crobinso@redhat.com> - 0.8.6-1.fc15
 - Update to 0.8.6
 - SPICE support (requires spice-gtk) (Marc-André Lureau)
 - Option to configure CPU model
