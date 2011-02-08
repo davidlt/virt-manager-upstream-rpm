@@ -8,7 +8,7 @@
 
 Name: virt-manager
 Version: 0.8.6
-Release: 1%{_extra_release}
+Release: 2%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -161,6 +161,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.6-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
 * Wed Feb  2 2011 Cole Robinson <crobinso@redhat.com> - 0.8.6-1.fc15
 - Update to 0.8.6
 - SPICE support (requires spice-gtk) (Marc-André Lureau)
