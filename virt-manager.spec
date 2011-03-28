@@ -7,8 +7,8 @@
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
 Name: virt-manager
-Version: 0.8.6
-Release: 2%{_extra_release}
+Version: 0.8.7
+Release: 1%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
@@ -17,8 +17,6 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
-# Don't autolaunch console for all running VMs
-Patch1: %{name}-%{version}-no-console-autolaunch.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -39,7 +37,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Absolutely require this version or later
-Requires: python-virtinst >= 0.500.5
+Requires: python-virtinst >= 0.500.6
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -80,7 +78,6 @@ management API.
 
 %prep
 %setup -q
-%patch1 -p1
 
 %build
 %configure --without-tui \
@@ -161,6 +158,15 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Mar 28 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-1.fc15
+- Rebased to version 0.8.7
+- Allow renaming an offline VM
+- Spice password support (Marc-André Lureau)
+- Allow editting NIC <virtualport> settings (Gerhard Stenzel)
+- Allow enabling/disabling individual CPU features
+- Allow easily changing graphics type between VNC/SPICE for existing VM
+- Allow easily changing network source device for existing VM
+
 * Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.6-2
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
 
