@@ -1,29 +1,40 @@
 # -*- rpm-spec -*-
 
+%define _package virt-manager
+%define _version 0.8.7
+%define _release 1
+%define virtinst_version 0.500.6
+
+%define qemu_user                  "qemu"
+%define preferred_distros          "fedora,rhel"
+%define kvm_packages               "qemu-system-x86"
+%define libvirt_packages           "libvirt"
+%define disable_unsupported_rhel   0
+%define default_graphics           "vnc"
+
+%define with_spice                 0
+
+# End local config
+
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
-Name: virt-manager
-Version: 0.8.5
-Release: 1%{_extra_release}
+Name: %{_package}
+Version: %{_version}
+Release: %{_release}%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Fix a couple configure options
+Patch1: %{name}-fix-config-options.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
-# Check QEMU permissions against the qemu user
-Patch1: %{name}-%{version}-perms-qemu-user.patch
-# Virt package names we should ask to install
-Patch2: %{name}-%{version}-packagekit-packages.patch
-# Don't override the "ignore deprecation warnings" default, which lead to a
-# C-assertion failure of pygtk2 on startup under python 2.7 (bz 620216):
-Patch3: %{name}-%{version}-ignore-python27-deprecation-warnings.patch
 
 # These two are just the oldest version tested
 Requires: pygtk2 >= 1.99.12-6
@@ -44,7 +55,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Absolutely require this version or later
-Requires: python-virtinst >= 0.500.4
+Requires: python-virtinst >= %{virtinst_version}
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -56,12 +67,15 @@ Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.8
 # For local authentication against PolicyKit
-# Fedora 12 has no need for a client agent.
+# Fedora 12 has no need for a client agent
 %if 0%{?fedora} == 11
 Requires: PolicyKit-authentication-agent
 %endif
 %if 0%{?fedora} >= 9 && 0%{?fedora} < 11
 Requires: PolicyKit-gnome
+%endif
+%if %{with_spice}
+Requires: spice-gtk
 %endif
 
 BuildRequires: gettext
@@ -84,11 +98,40 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
-%patch2 -p1
-%patch3 -p1
 
 %build
-%configure
+%if %{qemu_user}
+%define _qemu_user --with-qemu_user=%{qemu_user}
+%endif
+
+%if %{kvm_packages}
+%define _kvm_packages --with-kvm-packages=%{kvm_packages}
+%endif
+
+%if %{preferred_distros}
+%define _preferred_distros --with-preferred-distros=%{preferred_distros}
+%endif
+
+%if %{libvirt_packages}
+%define _libvirt_packages --with-libvirt-package-names=%{libvirt_packages}
+%endif
+
+%if %{disable_unsupported_rhel}
+%define _disable_unsupported_rhel --disable-unsupported-rhel-options
+%endif
+
+%if %{default_graphics}
+%define _default_graphics --with-default-graphics=%{default_graphics}
+%endif
+
+
+%configure  --without-tui \
+            %{?_qemu_user} \
+            %{?_kvm_packages} \
+            %{?_libvirt_packages} \
+            %{?_preferred_distros} \
+            %{?_enable_unsupported_rhel} \
+            %{?_default_graphics}
 make %{?_smp_mflags}
 
 
@@ -163,13 +206,35 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
-* Wed Aug 25 2010 Cole Robinson <crobinso@redhat.com> - 0.8.5-1
+* Thu Mar 31 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-1.fc14
+- Rebased to version 0.8.7
+- Allow renaming an offline VM
+- Spice password support (Marc-André Lureau)
+- Allow editting NIC <virtualport> settings (Gerhard Stenzel)
+- Allow enabling/disabling individual CPU features
+- Allow easily changing graphics type between VNC/SPICE for existing VM
+- Allow easily changing network source device for existing VM
+
+* Mon Feb 07 2011 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.8.6-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_15_Mass_Rebuild
+
+* Wed Feb  2 2011 Cole Robinson <crobinso@redhat.com> - 0.8.6-1.fc15
+- Update to 0.8.6
+- SPICE support (requires spice-gtk) (Marc-André Lureau)
+- Option to configure CPU model
+- Option to configure CPU topology
+- Save and migration cancellation (Wen Congyang)
+- Save and migration progress reporting
+- Option to enable bios boot menu
+- Option to configure direct kernel/initrd boot
+
+* Wed Aug 25 2010 Cole Robinson <crobinso@redhat.com> - 0.8.5-1.fc15
 - Update to 0.8.5
 - Improved save/restore support
 - Option to view and change disk cache mode
 - Configurable VNC keygrab sequence (Michal Novotny)
 
-* Mon Aug  2 2010 David Malcolm <dmalcolm@redhat.com> - 0.8.4-3.fc14
+* Mon Aug  2 2010 David Malcolm <dmalcolm@redhat.com> - 0.8.4-3.fc15
 - fix python 2.7 incompatibility (bz 620216)
 
 * Thu May 27 2010 Cole Robinson <crobinso@redhat.com> - 0.8.4-2.fc14
