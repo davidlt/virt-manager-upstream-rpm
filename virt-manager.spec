@@ -1,20 +1,40 @@
 # -*- rpm-spec -*-
 
+%define _package virt-manager
+%define _version 0.8.7
+%define _release 2
+%define virtinst_version 0.500.6
+
+%define qemu_user                  "qemu"
+%define preferred_distros          "fedora,rhel"
+%define kvm_packages               "qemu-system-x86"
+%define libvirt_packages           "libvirt"
+%define disable_unsupported_rhel   0
+%define default_graphics           "spice"
+
+%define with_spice                 1
+
+# End local config
+
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
 %define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
 
-Name: virt-manager
-Version: 0.8.7
-Release: 1%{_extra_release}
+Name: %{_package}
+Version: %{_version}
+Release: %{_release}%{_extra_release}
 Summary: Virtual Machine Manager
 
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Fix using spice as default graphics type
+Patch1: %{name}-fix-config-options.patch
+# Fix lockup as non-root (bz 692570)
+Patch2: %{name}-gconf-after-fork.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -37,7 +57,7 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 # Minimum we've tested with
 Requires: libxml2-python >= 2.6.23
 # Absolutely require this version or later
-Requires: python-virtinst >= 0.500.6
+Requires: python-virtinst >= %{virtinst_version}
 # Required for loading the glade UI
 Requires: pygtk2-libglade
 # Required for our graphics which are currently SVG format
@@ -56,8 +76,9 @@ Requires: PolicyKit-authentication-agent
 %if 0%{?fedora} >= 9 && 0%{?fedora} < 11
 Requires: PolicyKit-gnome
 %endif
-# For spice widget
-Requires: spice-gtk-python
+%if %{with_spice}
+Requires: spice-gtk
+%endif
 
 BuildRequires: gettext
 BuildRequires: scrollkeeper
@@ -78,14 +99,44 @@ management API.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
 
 %build
-%configure --without-tui \
-           --with-qemu-user=qemu \
-           --with-preferred-distros=fedora15 \
-           --with-libvirt-package-names=libvirt \
-           --with-kvm-packages=qemu-system-x86
+%if %{qemu_user}
+%define _qemu_user --with-qemu_user=%{qemu_user}
+%endif
+
+%if %{kvm_packages}
+%define _kvm_packages --with-kvm-packages=%{kvm_packages}
+%endif
+
+%if %{preferred_distros}
+%define _preferred_distros --with-preferred-distros=%{preferred_distros}
+%endif
+
+%if %{libvirt_packages}
+%define _libvirt_packages --with-libvirt-package-names=%{libvirt_packages}
+%endif
+
+%if %{disable_unsupported_rhel}
+%define _disable_unsupported_rhel --disable-unsupported-rhel-options
+%endif
+
+%if %{default_graphics}
+%define _default_graphics --with-default-graphics=%{default_graphics}
+%endif
+
+
+%configure  --without-tui \
+            %{?_qemu_user} \
+            %{?_kvm_packages} \
+            %{?_libvirt_packages} \
+            %{?_preferred_distros} \
+            %{?_enable_unsupported_rhel} \
+            %{?_default_graphics}
 make %{?_smp_mflags}
+
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -158,6 +209,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Mar 31 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-2.fc15
+- Fix using spice as default graphics type
+- Fix lockup as non-root (bz 692570)
+
 * Mon Mar 28 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-1.fc15
 - Rebased to version 0.8.7
 - Allow renaming an offline VM
