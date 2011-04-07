@@ -2,8 +2,8 @@
 
 %define _package virt-manager
 %define _version 0.8.7
-%define _release 2
-%define virtinst_version 0.500.6
+%define _release 3
+%define virtinst_version 0.500.6-2
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
@@ -35,6 +35,12 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 Patch1: %{name}-fix-config-options.patch
 # Fix lockup as non-root (bz 692570)
 Patch2: %{name}-gconf-after-fork.patch
+# Fix broken cs.po which crashed gettext
+Patch3: %{name}-fix-broken-cspo.patch
+# Fix offline attach fallback if hotplug fails
+Patch4: %{name}-fix-hotplug-fallback.patch
+# Offer to attach spicevmc if switching to spice
+Patch5: %{name}-spicevmc.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -101,6 +107,9 @@ management API.
 %setup -q
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
 %build
 %if %{qemu_user}
@@ -209,6 +218,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Apr 07 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-3.fc15
+- Fix broken cs.po which crashed gettext
+- Fix offline attach fallback if hotplug fails
+- Offer to attach spicevmc if switching to spice
+
 * Thu Mar 31 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-2.fc15
 - Fix using spice as default graphics type
 - Fix lockup as non-root (bz 692570)
