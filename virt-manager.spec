@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.8.7
-%define _release 1
+%define _release 2
 %define virtinst_version 0.500.6
 
 %define qemu_user                  "qemu"
@@ -33,6 +33,10 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 # Fix a couple configure options
 Patch1: %{name}-fix-config-options.patch
+# Fix broken cs.po which crashed gettext
+Patch2: %{name}-fix-broken-cspo.patch
+# Fix offline attach fallback if hotplug fails
+Patch3: %{name}-fix-hotplug-fallback.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -98,6 +102,8 @@ management API.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %if %{qemu_user}
@@ -206,6 +212,10 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Apr 07 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-2.fc14
+- Fix broken cs.po which crashed gettext
+- Fix offline attach fallback if hotplug fails
+
 * Thu Mar 31 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-1.fc14
 - Rebased to version 0.8.7
 - Allow renaming an offline VM
