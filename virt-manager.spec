@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.8.7
-%define _release 3
+%define _release 4
 %define virtinst_version 0.500.6-2
 
 %define qemu_user                  "qemu"
@@ -83,7 +83,7 @@ Requires: PolicyKit-authentication-agent
 Requires: PolicyKit-gnome
 %endif
 %if %{with_spice}
-Requires: spice-gtk
+Requires: spice-gtk-python
 %endif
 
 BuildRequires: gettext
@@ -218,6 +218,9 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Tue Apr 19 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-4.fc15
+- Fix spice RPM dependency (bz 697729)
+
 * Thu Apr 07 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-3.fc15
 - Fix broken cs.po which crashed gettext
 - Fix offline attach fallback if hotplug fails
