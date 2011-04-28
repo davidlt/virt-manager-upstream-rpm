@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.8.7
-%define _release 4
+%define _release 5
 %define virtinst_version 0.500.6-2
 
 %define qemu_user                  "qemu"
@@ -41,6 +41,10 @@ Patch3: %{name}-fix-broken-cspo.patch
 Patch4: %{name}-fix-hotplug-fallback.patch
 # Offer to attach spicevmc if switching to spice
 Patch5: %{name}-spicevmc.patch
+# Stop netcf errors from flooding logs (bz 676920)
+Patch6: %{name}-stop-netcf-flood.patch
+# Bump default mem for new guests to 1GB so F15 installs work (bz 700480)
+Patch7: %{name}-bump-default-mem.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -110,6 +114,8 @@ management API.
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -218,6 +224,11 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Thu Apr 28 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-5.fc15
+- Stop netcf errors from flooding logs (bz 676920)
+- Bump default mem for new guests to 1GB so F15 installs work (bz
+  700480)
+
 * Tue Apr 19 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-4.fc15
 - Fix spice RPM dependency (bz 697729)
 
