@@ -1,0 +1,23 @@
+diff -rup virt-manager-0.8.7/src/virtManager/connection.py tmp/src/virtManager/connection.py
+--- virt-manager-0.8.7/src/virtManager/connection.py	2011-03-24 16:39:28.000000000 -0400
++++ tmp/src/virtManager/connection.py	2011-04-28 10:45:19.836484967 -0400
+@@ -1319,15 +1319,15 @@ class vmmConnection(vmmGObject):
+             try:
+                 check_obj(name, True)
+             except:
+-                logging.exception("Couldn't fetch active "
+-                                  "interface '%s'" % name)
++                #logging.debug("Couldn't fetch active interface '%s'" % name)
++                pass
+ 
+         for name in newInactiveNames:
+             try:
+                 check_obj(name, False)
+             except:
+-                logging.exception("Couldn't fetch inactive "
+-                                  "interface '%s'" % name)
++                #logging.debug("Couldn't fetch inactive interface '%s'" % name)
++                pass
+ 
+         return (stop, start, orig, new, current)
+ 
