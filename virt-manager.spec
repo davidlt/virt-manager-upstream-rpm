@@ -2,8 +2,8 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 1
-%define virtinst_version 0.600.6
+%define _release 2
+%define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
@@ -26,7 +26,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Release: %{_release}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
