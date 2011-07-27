@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 2
+%define _release 3
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -26,7 +26,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Release: %{_release}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -90,6 +90,7 @@ Requires: virt-manager-common = %{verrel}
 BuildRequires: gettext
 BuildRequires: scrollkeeper
 BuildRequires: intltool
+BuildRequires: GConf2
 
 Requires(pre): GConf2
 Requires(post): GConf2
@@ -247,6 +248,12 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Jul 27 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-3
+- Add BuildRequires: GConf2 to fix pre scriplet error
+
+* Tue Jul 26 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-2
+- Fix virtinst dep
+
 * Tue Jul 26 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-1.fc17
 - Rebased to version 0.9.0
 - Use a hiding toolbar for fullscreen mode
