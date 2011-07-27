@@ -1,9 +1,9 @@
 # -*- rpm-spec -*-
 
 %define _package virt-manager
-%define _version 0.8.7
-%define _release 5
-%define virtinst_version 0.500.6-2
+%define _version 0.9.0
+%define _release 1
+%define virtinst_version 0.600.6
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
@@ -12,7 +12,9 @@
 %define disable_unsupported_rhel   0
 %define default_graphics           "spice"
 
+%define with_guestfs               1
 %define with_spice                 1
+%define with_tui                   1
 
 # End local config
 
@@ -24,27 +26,14 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}
-Summary: Virtual Machine Manager
+Release: %{_release}%{_extra_release}.1
+%define verrel %{version}-%{release}
 
+Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Fix using spice as default graphics type
-Patch1: %{name}-fix-config-options.patch
-# Fix lockup as non-root (bz 692570)
-Patch2: %{name}-gconf-after-fork.patch
-# Fix broken cs.po which crashed gettext
-Patch3: %{name}-fix-broken-cspo.patch
-# Fix offline attach fallback if hotplug fails
-Patch4: %{name}-fix-hotplug-fallback.patch
-# Offer to attach spicevmc if switching to spice
-Patch5: %{name}-spicevmc.patch
-# Stop netcf errors from flooding logs (bz 676920)
-Patch6: %{name}-stop-netcf-flood.patch
-# Bump default mem for new guests to 1GB so F15 installs work (bz 700480)
-Patch7: %{name}-bump-default-mem.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -70,8 +59,6 @@ Requires: libxml2-python >= 2.6.23
 Requires: python-virtinst >= %{virtinst_version}
 # Required for loading the glade UI
 Requires: pygtk2-libglade
-# Required for our graphics which are currently SVG format
-Requires: librsvg2
 # Earlier vte had broken python binding module
 Requires: vte >= 0.12.2
 # For online help
@@ -88,6 +75,16 @@ Requires: PolicyKit-gnome
 %endif
 %if %{with_spice}
 Requires: spice-gtk-python
+%endif
+%if %{with_guestfs}
+Requires: python-libguestfs
+%endif
+
+%if %{with_tui} == 0
+Obsoletes: virt-manager-common <= %{verrel}
+Conflicts: virt-manager-common > %{verrel}
+%else
+Requires: virt-manager-common = %{verrel}
 %endif
 
 BuildRequires: gettext
@@ -107,15 +104,39 @@ connect to a graphical or serial console, and see resource usage statistics
 for existing VMs on local or remote machines. Uses libvirt as the backend
 management API.
 
+# TUI package setup
+%if %{with_tui}
+%package tui
+Summary: Virtual Machine Manager text user interface
+Group: Applications/Emulators
+
+Requires: virt-manager-common = %{verrel}
+Requires: python-newt_syrup
+Requires: libuser-python
+Requires: python-IPy
+
+%description tui
+An interactive text user interface for Virtual Machine Manager.
+
+%package common
+Summary: Common files used by the different Virtual Machine Manager interfaces
+Group: Applications/Emulators
+
+# This version not strictly required: virt-manager should work with older,
+# however varying amounts of functionality will not be enabled.
+Requires: libvirt-python >= 0.7.0
+Requires: dbus-python
+# Minimum we've tested with
+Requires: libxml2-python >= 2.6.23
+# Absolutely require this version or later
+Requires: python-virtinst >= %{virtinst_version}
+
+%description common
+Common files used by the different Virtual Machine Manager interfaces.
+%endif
+
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -142,8 +163,13 @@ management API.
 %define _default_graphics --with-default-graphics=%{default_graphics}
 %endif
 
+%if %{with_tui}
+%define _tui_opt --with-tui
+%else
+%define _tui_opt --without-tui
+%endif
 
-%configure  --without-tui \
+%configure  %{?_tui_opt} \
             %{?_qemu_user} \
             %{?_kvm_packages} \
             %{?_libvirt_packages} \
@@ -162,36 +188,24 @@ make install  DESTDIR=$RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if [ "$1" -gt 1 ]; then
-    export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-    gconftool-2 --makefile-uninstall-rule \
-      %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
-fi
+%gconf_schema_prepare %{name}
 
 %post
-export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-gconftool-2 --makefile-install-rule \
-  %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
-
-update-desktop-database %{_datadir}/applications
-
-# Revive when we update help docs
-#if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q -o %{_datadir}/omf/%{name}; fi
+update-desktop-database -q %{_datadir}/applications
+%gconf_schema_upgrade virt-manager
 
 %postun
-update-desktop-database %{_datadir}/applications
-
-# Revive when we update help docs
-#if which scrollkeeper-update>/dev/null 2>&1; then scrollkeeper-update -q; fi
+update-desktop-database -q %{_datadir}/applications
 
 %preun
-if [ "$1" -eq 0 ]; then
-    export GCONF_CONFIG_SOURCE=`gconftool-2 --get-default-source`
-    gconftool-2 --makefile-uninstall-rule \
-      %{_sysconfdir}/gconf/schemas/%{name}.schemas > /dev/null || :
-fi
+%gconf_schema_remove %{name}
 
+
+%if %{with_tui}
+%files
+%else
 %files -f %{name}.lang
+%endif
 %defattr(-,root,root,-)
 %doc README COPYING COPYING-DOCS AUTHORS ChangeLog NEWS
 %{_sysconfdir}/gconf/schemas/%{name}.schemas
@@ -200,30 +214,51 @@ fi
 
 %{_mandir}/man1/%{name}.1*
 
+%if %{with_tui} == 0
 %dir %{_datadir}/%{name}
-%{_datadir}/%{name}/*.glade
-%{_datadir}/%{name}/*.py*
-
-%dir %{_datadir}/%{name}/pixmaps/
-%{_datadir}/%{name}/pixmaps/*.png
-%{_datadir}/%{name}/pixmaps/*.svg
-
-%dir %{_datadir}/%{name}/pixmaps/hicolor/
-%dir %{_datadir}/%{name}/pixmaps/hicolor/*/
-%dir %{_datadir}/%{name}/pixmaps/hicolor/*/*/
-%{_datadir}/%{name}/pixmaps/hicolor/*/*/*.png
-
 %dir %{_datadir}/%{name}/virtManager/
 %{_datadir}/%{name}/virtManager/*.py*
+%endif
 
-# Revive when we update help docs
-#%{_datadir}/omf/%{name}/
-#%{_datadir}/gnome/help/%{name}
+%{_datadir}/%{name}/*.glade
+%{_datadir}/%{name}/%{name}.py*
+
+%{_datadir}/%{name}/icons
+%{_datadir}/icons/hicolor/*/apps/*
 
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/dbus-1/services/%{name}.service
 
+%if %{with_tui}
+%files common -f %{name}.lang
+%defattr(-,root,root,-)
+%dir %{_datadir}/%{name}
+%dir %{_datadir}/%{name}/virtManager/
+
+%{_datadir}/%{name}/virtManager/*.py*
+
+%files tui
+%defattr(-,root,root,-)
+
+%{_bindir}/%{name}-tui
+%{_datadir}/%{name}/%{name}-tui.py*
+
+%{_datadir}/%{name}/virtManagerTui
+%endif
+
 %changelog
+* Tue Jul 26 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-1.fc16
+- Rebased to version 0.9.0
+- Use a hiding toolbar for fullscreen mode
+- Use libguestfs to show guest packagelist and more (Richard W.M. Jones)
+- Basic 'New VM' wizard support for LXC guests
+- Remote serial console access (with latest libvirt)
+- Remote URL guest installs (with latest libvirt)
+- Add Hardware: Support <filesystem> devices
+- Add Hardware: Support <smartcard> devices (Marc-André Lureau)
+- Enable direct interface selection for qemu/kvm (Gerhard Stenzel)
+- Allow viewing and changing disk serial number
+
 * Thu Apr 28 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-5.fc16
 - Stop netcf errors from flooding logs (bz 676920)
 - Bump default mem for new guests to 1GB so F15 installs work (bz
