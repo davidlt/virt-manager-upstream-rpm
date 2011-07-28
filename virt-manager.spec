@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 3
+%define _release 4
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -34,6 +34,8 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Fix typo that broke net stats reporting
+Patch1: %{name}-fix-net-stats.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -138,6 +140,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
+%patch1 -p1
 
 %build
 %if %{qemu_user}
@@ -248,6 +251,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Thu Jul 28 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-4
+- Fix typo that broke net stats reporting
+
 * Wed Jul 27 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-3
 - Add BuildRequires: GConf2 to fix pre scriplet error
 
