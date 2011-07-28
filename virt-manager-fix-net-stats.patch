@@ -1,0 +1,19 @@
+commit 62a762e77f2f5e5298ececda6fb4638b8488da4a
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Wed Jul 27 12:02:29 2011 -0400
+
+    domain: Fix typo that broke net stats gathering
+
+diff --git a/src/virtManager/domain.py b/src/virtManager/domain.py
+index d0683db..f9a39b5 100644
+--- a/src/virtManager/domain.py
++++ b/src/virtManager/domain.py
+@@ -1448,7 +1448,7 @@ class vmmDomain(vmmLibvirtObject):
+     def _sample_network_traffic(self):
+         rx = 0
+         tx = 0
+-        if (not self._stats_net_supported or not
++        if (not self._stats_net_supported or
+             not self._enable_net_poll or
+             not self.is_active()):
+             return rx, tx
