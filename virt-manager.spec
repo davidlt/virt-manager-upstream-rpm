@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 3
+%define _release 4
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -251,6 +251,10 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Aug 01 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-4
+- Don't have a hard dep on libguestfs (bz 726364)
+- Depend on needed python-newt_syrup version
+
 * Thu Jul 28 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-3
 - Fix typo that broke net stats reporting
 - Add BuildRequires: GConf2 to fix pre scriplet error
