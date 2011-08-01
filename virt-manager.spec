@@ -12,7 +12,7 @@
 %define disable_unsupported_rhel   0
 %define default_graphics           "spice"
 
-%define with_guestfs               1
+%define with_guestfs               0
 %define with_spice                 1
 %define with_tui                   1
 
@@ -114,7 +114,7 @@ Summary: Virtual Machine Manager text user interface
 Group: Applications/Emulators
 
 Requires: virt-manager-common = %{verrel}
-Requires: python-newt_syrup
+Requires: python-newt_syrup >= 1.1.2
 Requires: libuser-python
 Requires: python-IPy
 
@@ -196,7 +196,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 update-desktop-database -q %{_datadir}/applications
-%gconf_schema_upgrade virt-manager
+%gconf_schema_upgrade %{name}
 
 %postun
 update-desktop-database -q %{_datadir}/applications
