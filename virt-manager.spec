@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 5
+%define _release 6
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -114,7 +114,7 @@ Summary: Virtual Machine Manager text user interface
 Group: Applications/Emulators
 
 Requires: virt-manager-common = %{verrel}
-Requires: python-newt_syrup >= 1.1.2
+Requires: python-newt_syrup >= 0.1.2
 Requires: libuser-python
 Requires: python-IPy
 
@@ -251,6 +251,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Tue Aug 02 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-6
+- Fix python-newt_syrup dep
+
 * Mon Aug 01 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-5
 - Don't have a hard dep on libguestfs (bz 726364)
 - Depend on needed python-newt_syrup version
