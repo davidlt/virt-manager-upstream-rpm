@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.8.7
-%define _release 5
+%define _release 6
 %define virtinst_version 0.500.6-2
 
 %define qemu_user                  "qemu"
@@ -224,6 +224,12 @@ fi
 %{_datadir}/dbus-1/services/%{name}.service
 
 %changelog
+* Mon Aug 08 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-6
+- Bump release to build a new package since old one was never pushed
+- Stop netcf errors from flooding logs
+- Bump default mem for new guests to 1GB so F15 installs work (bz
+  728820)
+
 * Thu Apr 28 2011 Cole Robinson <crobinso@redhat.com> - 0.8.7-5.fc15
 - Stop netcf errors from flooding logs (bz 676920)
 - Bump default mem for new guests to 1GB so F15 installs work (bz
