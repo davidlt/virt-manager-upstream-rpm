@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 6
+%define _release 7
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -36,6 +36,16 @@ URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 # Fix typo that broke net stats reporting
 Patch1: %{name}-fix-net-stats.patch
+# Fix 'Resize to VM' graphical option (bz 738806)
+Patch2: %{name}-fix-resize-to-vm.patch
+# Fix deleting guest with managed save data
+Patch3: %{name}-managed-save-delete.patch
+# Fix error when adding default storage
+Patch4: %{name}-default-storage-error.patch
+# Don't flush XML cache on every tick
+Patch5: %{name}-cache-xml-fix.patch
+# Use labels for non-editable network info fields (bz 738751)
+Patch6: %{name}-host-net-labels.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -100,6 +110,10 @@ Requires(preun): GConf2
 Requires(post): desktop-file-utils
 Requires(postun): desktop-file-utils
 
+%if %{with_spice}
+%define default_graphics "spice"
+%endif
+
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
 machines for KVM, Xen, and QEmu. Start, stop, add or remove virtual devices,
@@ -141,6 +155,11 @@ Common files used by the different Virtual Machine Manager interfaces.
 %prep
 %setup -q
 %patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %if %{qemu_user}
@@ -163,7 +182,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %define _disable_unsupported_rhel --disable-unsupported-rhel-options
 %endif
 
-%if %{default_graphics}
+%if %{?default_graphics}
 %define _default_graphics --with-default-graphics=%{default_graphics}
 %endif
 
@@ -178,7 +197,7 @@ Common files used by the different Virtual Machine Manager interfaces.
             %{?_kvm_packages} \
             %{?_libvirt_packages} \
             %{?_preferred_distros} \
-            %{?_enable_unsupported_rhel} \
+            %{?_disable_unsupported_rhel} \
             %{?_default_graphics}
 make %{?_smp_mflags}
 
@@ -195,15 +214,22 @@ rm -rf $RPM_BUILD_ROOT
 %gconf_schema_prepare %{name}
 
 %post
+/bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null || :
 update-desktop-database -q %{_datadir}/applications
 %gconf_schema_upgrade %{name}
 
 %postun
+if [ $1 -eq 0 ] ; then
+    /bin/touch --no-create %{_datadir}/icons/hicolor &>/dev/null
+    /usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
+fi
 update-desktop-database -q %{_datadir}/applications
 
 %preun
 %gconf_schema_remove %{name}
 
+%posttrans
+/usr/bin/gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
 %if %{with_tui}
 %files
@@ -251,6 +277,14 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Tue Sep 27 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-7
+- Fix 'Resize to VM' graphical option (bz 738806)
+- Fix deleting guest with managed save data
+- Fix error when adding default storage
+- Don't flush XML cache on every tick
+- Use labels for non-editable network info fields (bz 738751)
+- Properly update icon cache (bz 733836)
+
 * Tue Aug 02 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-6
 - Fix python-newt_syrup dep
 
