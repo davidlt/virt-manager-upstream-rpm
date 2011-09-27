@@ -1,0 +1,30 @@
+commit 9a46aa41e092e73ed1596c361acbca65ac3cbe95
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Tue Aug 30 14:29:08 2011 -0400
+
+    util: get_default_path: Handle 'None' in collidelist
+
+diff --git a/src/virtManager/util.py b/src/virtManager/util.py
+index d351cb3..0cba349 100644
+--- a/src/virtManager/util.py
++++ b/src/virtManager/util.py
+@@ -126,14 +126,14 @@ def get_default_path(conn, name, collidelist=None):
+         target, ignore, suffix = get_ideal_path_info(conn, name)
+ 
+         # Sanitize collidelist to work with the collision checker
+-        for c in collidelist[:]:
+-            collidelist.remove(c)
+-            if os.path.dirname(c) == pool.get_target_path():
+-                collidelist.append(os.path.basename(c))
++        newcollidelist = []
++        for c in collidelist:
++            if c and os.path.dirname(c) == pool.get_target_path():
++                newcollidelist.append(os.path.basename(c))
+ 
+         path = virtinst.Storage.StorageVolume.find_free_name(name,
+                         pool_object=pool.pool, suffix=suffix,
+-                        collidelist=collidelist)
++                        collidelist=newcollidelist)
+ 
+         path = os.path.join(target, path)
+ 

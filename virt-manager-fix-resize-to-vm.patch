@@ -1,0 +1,38 @@
+commit a815fa17a7c643ddde8ea326399e2bee449dff98
+Author: Marc Deslauriers <marc.deslauriers@canonical.com>
+Date:   Fri Aug 19 11:50:11 2011 -0400
+
+    virt-manager: Fix "Resize to VM" menu option
+    
+    Hello,
+    
+    This patch fixes the "Resize to VM" menu option by correcting inverted return
+    values in autodrawer.py.
+    
+    Thanks,
+    
+    Marc.
+    
+    commit 8e666f4b87926c866ed35e58eb82213d2c514e89
+    Author: Marc Deslauriers <marc.deslauriers@ubuntu.com>
+    Date:   Fri Aug 19 11:46:48 2011 -0400
+    
+        Fix inverted width and height
+
+diff --git a/src/virtManager/autodrawer.py b/src/virtManager/autodrawer.py
+index a0ddec6..9682aa9 100644
+--- a/src/virtManager/autodrawer.py
++++ b/src/virtManager/autodrawer.py
+@@ -271,10 +271,10 @@ class OverBox(parentclass):
+         self.underWin = None
+ 
+     def do_size_request(self, req):
+-        height, width = self._size_request()
++        width, height = self._size_request()
+ 
+-        req.height = height
+         req.width = width
++        req.height = height
+ 
+     def do_size_allocate(self, newalloc):
+         self.allocation = newalloc

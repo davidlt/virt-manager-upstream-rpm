@@ -1,0 +1,285 @@
+commit 3d3ac635e1ba33e13961c0d9663f23a2387fa3c4
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Thu Sep 22 10:43:55 2011 -0400
+
+    host: Don't use text entries for fields that aren't editable
+    
+    Also make some interface labels selectable.
+
+diff --git a/src/vmm-host.glade b/src/vmm-host.glade
+index 2a6fde6..532d7c6 100644
+--- a/src/vmm-host.glade
++++ b/src/vmm-host.glade
+@@ -511,8 +511,8 @@
+                                     <property name="border_width">6</property>
+                                     <property name="n_rows">4</property>
+                                     <property name="n_columns">2</property>
+-                                    <property name="column_spacing">3</property>
+-                                    <property name="row_spacing">3</property>
++                                    <property name="column_spacing">6</property>
++                                    <property name="row_spacing">5</property>
+                                     <child>
+                                       <widget class="GtkLabel" id="label56">
+                                         <property name="visible">True</property>
+@@ -525,19 +525,6 @@
+                                       </packing>
+                                     </child>
+                                     <child>
+-                                      <widget class="GtkEntry" id="net-name">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+                                       <widget class="GtkLabel" id="label58">
+                                         <property name="visible">True</property>
+                                         <property name="xalign">0</property>
+@@ -551,21 +538,6 @@
+                                       </packing>
+                                     </child>
+                                     <child>
+-                                      <widget class="GtkEntry" id="net-device">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="top_attach">1</property>
+-                                        <property name="bottom_attach">2</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+                                       <widget class="GtkLabel" id="label63">
+                                         <property name="visible">True</property>
+                                         <property name="xalign">0</property>
+@@ -646,6 +618,32 @@
+                                         <property name="y_options"></property>
+                                       </packing>
+                                     </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="net-name">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                      </packing>
++                                    </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="net-device">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                        <property name="top_attach">1</property>
++                                        <property name="bottom_attach">2</property>
++                                      </packing>
++                                    </child>
+                                   </widget>
+                                 </child>
+                                 <child>
+@@ -676,8 +674,8 @@
+                                     <property name="border_width">6</property>
+                                     <property name="n_rows">4</property>
+                                     <property name="n_columns">2</property>
+-                                    <property name="column_spacing">3</property>
+-                                    <property name="row_spacing">3</property>
++                                    <property name="column_spacing">6</property>
++                                    <property name="row_spacing">5</property>
+                                     <child>
+                                       <widget class="GtkLabel" id="label52">
+                                         <property name="visible">True</property>
+@@ -716,49 +714,6 @@
+                                       </packing>
+                                     </child>
+                                     <child>
+-                                      <widget class="GtkEntry" id="net-ip4-network">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+-                                      <widget class="GtkEntry" id="net-ip4-dhcp-start">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="top_attach">1</property>
+-                                        <property name="bottom_attach">2</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+-                                      <widget class="GtkEntry" id="net-ip4-dhcp-end">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="top_attach">2</property>
+-                                        <property name="bottom_attach">3</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+                                       <widget class="GtkLabel" id="label22">
+                                         <property name="visible">True</property>
+                                         <property name="xalign">0</property>
+@@ -808,6 +763,49 @@
+                                         <property name="y_options">GTK_FILL</property>
+                                       </packing>
+                                     </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="net-ip4-network">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                        <property name="y_options">GTK_FILL</property>
++                                      </packing>
++                                    </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="net-ip4-dhcp-start">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                        <property name="top_attach">1</property>
++                                        <property name="bottom_attach">2</property>
++                                        <property name="y_options">GTK_FILL</property>
++                                      </packing>
++                                    </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="net-ip4-dhcp-end">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                        <property name="top_attach">2</property>
++                                        <property name="bottom_attach">3</property>
++                                        <property name="y_options">GTK_FILL</property>
++                                      </packing>
++                                    </child>
+                                   </widget>
+                                 </child>
+                                 <child>
+@@ -1070,7 +1068,7 @@
+                                     <property name="n_rows">5</property>
+                                     <property name="n_columns">2</property>
+                                     <property name="column_spacing">8</property>
+-                                    <property name="row_spacing">3</property>
++                                    <property name="row_spacing">5</property>
+                                     <child>
+                                       <widget class="GtkLabel" id="label73">
+                                         <property name="visible">True</property>
+@@ -1140,21 +1138,6 @@
+                                       </packing>
+                                     </child>
+                                     <child>
+-                                      <widget class="GtkEntry" id="pool-location">
+-                                        <property name="visible">True</property>
+-                                        <property name="can_focus">True</property>
+-                                        <property name="editable">False</property>
+-                                        <property name="invisible_char">●</property>
+-                                      </widget>
+-                                      <packing>
+-                                        <property name="left_attach">1</property>
+-                                        <property name="right_attach">2</property>
+-                                        <property name="top_attach">2</property>
+-                                        <property name="bottom_attach">3</property>
+-                                        <property name="y_options"></property>
+-                                      </packing>
+-                                    </child>
+-                                    <child>
+                                       <widget class="GtkLabel" id="label75">
+                                         <property name="visible">True</property>
+                                         <property name="xalign">0</property>
+@@ -1237,6 +1220,20 @@
+                                         <property name="y_options"></property>
+                                       </packing>
+                                     </child>
++                                    <child>
++                                      <widget class="GtkLabel" id="pool-location">
++                                        <property name="visible">True</property>
++                                        <property name="xalign">0</property>
++                                        <property name="label">label</property>
++                                        <property name="selectable">True</property>
++                                      </widget>
++                                      <packing>
++                                        <property name="left_attach">1</property>
++                                        <property name="right_attach">2</property>
++                                        <property name="top_attach">2</property>
++                                        <property name="bottom_attach">3</property>
++                                      </packing>
++                                    </child>
+                                   </widget>
+                                   <packing>
+                                     <property name="expand">False</property>
+@@ -1611,6 +1608,7 @@
+                                         <property name="xalign">0</property>
+                                         <property name="yalign">0</property>
+                                         <property name="label">insert mac</property>
++                                        <property name="selectable">True</property>
+                                       </widget>
+                                       <packing>
+                                         <property name="left_attach">1</property>
+@@ -1792,6 +1790,7 @@
+                                             <property name="visible">True</property>
+                                             <property name="xalign">0</property>
+                                             <property name="label">label</property>
++                                            <property name="selectable">True</property>
+                                           </widget>
+                                           <packing>
+                                             <property name="left_attach">1</property>
+@@ -1869,6 +1868,7 @@
+                                             <property name="xalign">0</property>
+                                             <property name="yalign">0</property>
+                                             <property name="label">label</property>
++                                            <property name="selectable">True</property>
+                                           </widget>
+                                           <packing>
+                                             <property name="left_attach">1</property>

@@ -1,0 +1,43 @@
+commit db21a2a8331c8518f27b136d0013a56cf84df7e6
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Aug 29 14:01:40 2011 -0400
+
+    delete: Properly raise 'undefine' errors
+
+diff --git a/src/virtManager/delete.py b/src/virtManager/delete.py
+index 79d267e..22f3b23 100644
+--- a/src/virtManager/delete.py
++++ b/src/virtManager/delete.py
+@@ -183,7 +183,7 @@ class vmmDeleteDialog(vmmGObjectUI):
+         for errinfo in storage_errors:
+             storage_errstr += "%s\n%s\n" % (errinfo[0], errinfo[1])
+ 
+-        if not storage_errstr:
++        if not storage_errstr and not details:
+             return
+ 
+         # We had extra storage errors. If there was another error message,
+commit b36ec4b8c2ec7ed72404db7f71cadfaecfea719e
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Aug 29 14:03:50 2011 -0400
+
+    domain: Remove managed save state before delete
+    
+    Newer libvirt forbids 'undefine' in this case
+
+diff --git a/src/virtManager/domain.py b/src/virtManager/domain.py
+index 2e4ad4f..679dfc4 100644
+--- a/src/virtManager/domain.py
++++ b/src/virtManager/domain.py
+@@ -1055,6 +1055,11 @@ class vmmDomain(vmmLibvirtObject):
+         self.force_update_status()
+ 
+     def delete(self):
++        if self.hasSavedImage():
++            try:
++                self._backend.managedSaveRemove(0)
++            except:
++                logging.exception("Failed to remove managed save state")
+         self._backend.undefine()
+ 
+     def resume(self):
