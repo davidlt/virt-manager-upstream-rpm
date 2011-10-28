@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.0
-%define _release 7
+%define _release 8
 %define virtinst_version 0.600.0
 
 %define qemu_user                  "qemu"
@@ -46,6 +46,8 @@ Patch4: %{name}-default-storage-error.patch
 Patch5: %{name}-cache-xml-fix.patch
 # Use labels for non-editable network info fields (bz 738751)
 Patch6: %{name}-host-net-labels.patch
+# Fix crashes when deleting a VM (bz 749263)
+Patch7: %{name}-console-cleanup-crash.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -160,6 +162,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -277,6 +280,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Fri Oct 28 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-8
+- Fix crashes when deleting a VM (bz 749263)
+
 * Tue Sep 27 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-7
 - Fix 'Resize to VM' graphical option (bz 738806)
 - Fix deleting guest with managed save data
