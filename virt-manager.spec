@@ -26,7 +26,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}
+Release: %{_release}%{_extra_release}.1
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -280,6 +280,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Sat Jan 14 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.0-8.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_17_Mass_Rebuild
+
 * Fri Oct 28 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-8
 - Fix crashes when deleting a VM (bz 749263)
 
