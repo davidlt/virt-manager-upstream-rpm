@@ -26,7 +26,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Release: %{_release}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
