@@ -1,9 +1,9 @@
 # -*- rpm-spec -*-
 
 %define _package virt-manager
-%define _version 0.9.0
-%define _release 7
-%define virtinst_version 0.600.0
+%define _version 0.9.1
+%define _release 1
+%define virtinst_version 0.600.1
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
@@ -34,20 +34,6 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Fix typo that broke net stats reporting
-Patch1: %{name}-fix-net-stats.patch
-# Fix 'Resize to VM' graphical option (bz 738806)
-Patch2: %{name}-fix-resize-to-vm.patch
-# Fix deleting guest with managed save data
-Patch3: %{name}-managed-save-delete.patch
-# Fix error when adding default storage
-Patch4: %{name}-default-storage-error.patch
-# Don't flush XML cache on every tick
-Patch5: %{name}-cache-xml-fix.patch
-# Use labels for non-editable network info fields (bz 738751)
-Patch6: %{name}-host-net-labels.patch
-# Fix crashes when deleting a VM (bz 749263)
-Patch7: %{name}-console-cleanup-crash.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -156,13 +142,6 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -280,6 +259,14 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Feb 01 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-1
+- Rebased to version 0.9.1
+- Support for adding usb redirection devices (Marc-André Lureau)
+- Option to switch usb controller to support usb2.0 (Marc-André Lureau)
+- Option to specify machine type for non-x86 guests (Li Zhang)
+- Support for filesystem device type and write policy (Deepak C Shetty)
+- Many bug fixes!
+
 * Fri Oct 28 2011 Cole Robinson <crobinso@redhat.com> - 0.9.0-7
 - Fix crashes when deleting a VM (bz 749263)
 
