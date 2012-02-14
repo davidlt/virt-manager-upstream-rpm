@@ -1,0 +1,24 @@
+commit f12f4ea1980e68a12129922f456f9275ee897f65
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Mon Feb 13 16:19:34 2012 -0500
+
+    create: reshow shouldn't overwrite values in visible dialog
+
+diff --git a/src/virtManager/create.py b/src/virtManager/create.py
+index 56d4e27..4d02922 100644
+--- a/src/virtManager/create.py
++++ b/src/virtManager/create.py
+@@ -169,9 +169,11 @@ class vmmCreate(vmmGObjectUI):
+ 
+     def show(self, parent, uri=None):
+         logging.debug("Showing new vm wizard")
+-        self.reset_state(uri)
+ 
+-        self.topwin.set_transient_for(parent)
++        if not self.is_visible():
++            self.reset_state(uri)
++            self.topwin.set_transient_for(parent)
++
+         self.topwin.present()
+ 
+     def close(self, ignore1=None, ignore2=None):

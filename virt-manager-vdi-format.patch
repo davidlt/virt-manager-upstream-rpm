@@ -1,0 +1,22 @@
+commit 265e04205e4766f459d4ced516dbd784cf2ca57f
+Author: Cole Robinson <crobinso@redhat.com>
+Date:   Tue Feb 7 17:13:59 2012 -0500
+
+    Add VDI to disk format list
+    
+    People actually distribute images in that format:
+    
+    https://bugzilla.redhat.com/show_bug.cgi?id=761300
+
+diff --git a/src/virtManager/uihelpers.py b/src/virtManager/uihelpers.py
+index c274592..3ba4a71 100644
+--- a/src/virtManager/uihelpers.py
++++ b/src/virtManager/uihelpers.py
+@@ -397,6 +397,7 @@ def build_storage_format_combo(vm, combo):
+     formats = ["raw", "qcow2"]
+     if vm.rhel6_defaults():
+         formats.append("vmdk")
++        formats.append("vdi")
+ 
+     for m in formats:
+         dev_model.append([m])
