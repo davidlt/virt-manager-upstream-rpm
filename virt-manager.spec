@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.1
-%define _release 1
+%define _release 2
 %define virtinst_version 0.600.1
 
 %define qemu_user                  "qemu"
@@ -34,6 +34,18 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Fix error reporting for failed remote connections (bz 787011)
+Patch1: %{name}-remote-error-reporting.patch
+# Fix setting window title when VNC mouse is grabbed (bz 788443)
+Patch2: %{name}-vnc-grab-recursion.patch
+# Advertise VDI format in disk details (bz 761300)
+Patch3: %{name}-vdi-format.patch
+# Don't let an unavailable host hang the app (bz 766769)
+Patch4: %{name}-conn-hang-app.patch
+# Don't overwrite existing create dialog when reshowing (bz 754152)
+Patch5: %{name}-create-reshow.patch
+# Improve tooltip for 'force console shortcuts' (bz 788448)
+Patch6: %{name}-console-shortcut-explanation.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -142,6 +154,12 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %if %{qemu_user}
@@ -259,6 +277,14 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Feb 13 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-2
+- Fix error reporting for failed remote connections (bz 787011)
+- Fix setting window title when VNC mouse is grabbed (bz 788443)
+- Advertise VDI format in disk details (bz 761300)
+- Don't let an unavailable host hang the app (bz 766769)
+- Don't overwrite existing create dialog when reshowing (bz 754152)
+- Improve tooltip for 'force console shortcuts' (bz 788448)
+
 * Wed Feb 01 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-1
 - Rebased to version 0.9.1
 - Support for adding usb redirection devices (Marc-André Lureau)

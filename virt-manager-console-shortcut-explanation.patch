@@ -1,0 +1,22 @@
+diff -rup virt-manager-0.9.1/src/vmm-preferences.glade new/src/vmm-preferences.glade
+--- virt-manager-0.9.1/src/vmm-preferences.glade	2012-01-27 09:38:01.000000000 -0500
++++ new/src/vmm-preferences.glade	2012-02-13 19:05:22.890465706 -0500
+@@ -398,8 +398,8 @@ Always</property>
+                                 <child>
+                                   <widget class="GtkLabel" id="label15">
+                                     <property name="visible">True</property>
+-                                    <property name="tooltip" translatable="yes">Force console menu accelerators while the console is active. Enabling this may overwrite keyboard interaction with the guest.</property>
+-                                    <property name="label" translatable="yes">Force console keyboard shortcuts:</property>
++                                    <property name="tooltip" translatable="yes">When the guest graphical console has keyboard focus, do not disable shortcuts for console window menus (Alt+F -&gt; File, etc.) Normally these are disabled to ensure that typing in the guest does not accidentally perform an operation in virt-manager's console window.</property>
++                                    <property name="label" translatable="yes">Don't disable console shortcuts:</property>
+                                   </widget>
+                                   <packing>
+                                     <property name="expand">False</property>
+@@ -412,6 +412,7 @@ Always</property>
+                                     <property name="can_focus">True</property>
+                                     <property name="receives_default">False</property>
+                                     <property name="draw_indicator">True</property>
++                                    <property name="tooltip" translatable="yes">When the guest graphical console has keyboard focus, do not disable shortcuts for console window menus (Alt+F -&gt; File, etc.) Normally these are disabled to ensure that typing in the guest does not accidentally perform an operation in virt-manager's console window.</property>
+                                     <signal name="toggled" handler="on_prefs_console_accels_toggled"/>
+                                   </widget>
+                                   <packing>
