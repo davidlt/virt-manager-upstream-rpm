@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.1
-%define _release 2
+%define _release 3
 %define virtinst_version 0.600.1
 
 %define qemu_user                  "qemu"
@@ -10,11 +10,15 @@
 %define kvm_packages               "qemu-system-x86"
 %define libvirt_packages           "libvirt"
 %define disable_unsupported_rhel   0
-%define default_graphics           "spice"
 
 %define with_guestfs               0
-%define with_spice                 1
 %define with_tui                   1
+
+%ifarch %{ix86} x86_64
+%define with_spice                 1
+%else
+%define with_spice                 0
+%endif
 
 # End local config
 
@@ -46,6 +50,8 @@ Patch4: %{name}-conn-hang-app.patch
 Patch5: %{name}-create-reshow.patch
 # Improve tooltip for 'force console shortcuts' (bz 788448)
 Patch6: %{name}-console-shortcut-explanation.patch
+# Actually make spice the default (bz 757874)
+Patch7: %{name}-fix-spice-default.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -58,8 +64,12 @@ Requires: libvirt-python >= 0.7.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 Requires: dbus-x11
+%if !0%{?rhel} || 0%{?rhel} > 6
 # Might work with earlier, but this is what we've tested
 Requires: gnome-keyring >= 0.4.9
+%else
+Requires: libgnome-keyring
+%endif
 # Minimum we've tested with
 # Although if you don't have this, comment it out and the app
 # will work just fine - keyring functionality will simply be
@@ -77,14 +87,6 @@ Requires: vte >= 0.12.2
 Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.8
-# For local authentication against PolicyKit
-# Fedora 12 has no need for a client agent
-%if 0%{?fedora} == 11
-Requires: PolicyKit-authentication-agent
-%endif
-%if 0%{?fedora} >= 9 && 0%{?fedora} < 11
-Requires: PolicyKit-gnome
-%endif
 %if %{with_spice}
 Requires: spice-gtk-python
 %endif
@@ -160,6 +162,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -182,7 +185,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %define _disable_unsupported_rhel --disable-unsupported-rhel-options
 %endif
 
-%if %{?default_graphics}
+%if 0%{?default_graphics}
 %define _default_graphics --with-default-graphics=%{default_graphics}
 %endif
 
@@ -277,6 +280,11 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Apr 25 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-3
+- Actually make spice the default (bz 757874)
+- Only depend on spice on arch it is available (bz 811030)
+- Depend on libgnome-keyring (bz 811921)
+
 * Mon Feb 13 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-2
 - Fix error reporting for failed remote connections (bz 787011)
 - Fix setting window title when VNC mouse is grabbed (bz 788443)
