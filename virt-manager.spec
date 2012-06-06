@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.1
-%define _release 3
+%define _release 4
 %define virtinst_version 0.600.1
 
 %define qemu_user                  "qemu"
@@ -14,10 +14,11 @@
 %define with_guestfs               0
 %define with_tui                   1
 
-%ifarch %{ix86} x86_64
 %define with_spice                 1
-%else
-%define with_spice                 0
+%define default_graphics           ""
+
+%if %{with_spice} && %{default_graphics} == ""
+%define default_graphics "spice"
 %endif
 
 # End local config
@@ -52,6 +53,8 @@ Patch5: %{name}-create-reshow.patch
 Patch6: %{name}-console-shortcut-explanation.patch
 # Actually make spice the default (bz 757874)
 Patch7: %{name}-fix-spice-default.patch
+# Fix connecting to console with specific listen address
+Patch8: %{name}-fix-listen-address.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -112,9 +115,6 @@ Requires(preun): GConf2
 Requires(post): desktop-file-utils
 Requires(postun): desktop-file-utils
 
-%if %{with_spice}
-%define default_graphics "spice"
-%endif
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -163,6 +163,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 %build
 %if %{qemu_user}
@@ -185,7 +186,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %define _disable_unsupported_rhel --disable-unsupported-rhel-options
 %endif
 
-%if 0%{?default_graphics}
+%if %{default_graphics}
 %define _default_graphics --with-default-graphics=%{default_graphics}
 %endif
 
@@ -280,6 +281,10 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Jun 06 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-4
+- Fix connecting to console with specific listen address
+- Fix regression that dropped spice dependency (bz 819270)
+
 * Wed Apr 25 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-3
 - Actually make spice the default (bz 757874)
 - Only depend on spice on arch it is available (bz 811030)

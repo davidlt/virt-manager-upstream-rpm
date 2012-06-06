@@ -1,0 +1,53 @@
+diff -rup virt-manager-0.9.1/src/virtManager/console.py foo/src/virtManager/console.py
+--- virt-manager-0.9.1/src/virtManager/console.py	2012-06-06 17:05:12.762334674 -0400
++++ foo/src/virtManager/console.py	2012-06-06 17:04:59.383045040 -0400
+@@ -370,6 +370,7 @@ class VNCViewer(Viewer):
+         ignore = user
+ 
+         if not socketpath:
++            logging.debug("VNC connecting to %s:%s" % (host, port))
+             self.display.open_host(host, port)
+             return
+ 
+@@ -485,7 +486,6 @@ class SpiceViewer(Viewer):
+         ignore = socketpath
+ 
+         uri = "spice://"
+-        uri += (user and str(user) or "")
+         uri += str(host) + "?port=" + str(port)
+         logging.debug("spice uri: %s", uri)
+ 
+@@ -1084,7 +1084,7 @@ class vmmConsolePages(vmmGObjectUI):
+ 
+             self.set_enable_accel()
+ 
+-            if transport in ("ssh", "ext"):
++            if (transport in ("ssh", "ext")) and gaddr == "127.0.0.1":
+                 if self.tunnels:
+                     # Tunnel already open, no need to continue
+                     return
+@@ -1096,8 +1096,10 @@ class vmmConsolePages(vmmGObjectUI):
+                     self.viewer.open_fd(fd)
+ 
+             else:
+-                self.viewer.open_host(connhost, connuser,
+-                                      str(gport), gsocket)
++                host = gaddr
++                if gaddr == "127.0.0.1" or gaddr == "0.0.0.0":
++                    host = connhost
++                self.viewer.open_host(host, connuser, str(gport), gsocket)
+ 
+         except Exception, e:
+             logging.exception("Error connection to graphical console")
+diff -rup virt-manager-0.9.1/src/virtManager/domain.py foo/src/virtManager/domain.py
+--- virt-manager-0.9.1/src/virtManager/domain.py	2012-01-29 15:40:49.000000000 -0500
++++ foo/src/virtManager/domain.py	2012-06-06 17:04:59.384044912 -0400
+@@ -952,7 +952,7 @@ class vmmDomain(vmmLibvirtObject):
+             if gport != None:
+                 gport = int(gport)
+             gtype = gdev.type
+-            gaddr = "127.0.0.1"
++            gaddr = gdev.listen or "127.0.0.1"
+             gsocket = gdev.socket
+ 
+         if connhost == None:
