@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.1
-%define _release 2
+%define _release 3
 %define virtinst_version 0.600.1
 
 %define qemu_user                  "qemu"
@@ -46,6 +46,8 @@ Patch4: %{name}-conn-hang-app.patch
 Patch5: %{name}-create-reshow.patch
 # Improve tooltip for 'force console shortcuts' (bz 788448)
 Patch6: %{name}-console-shortcut-explanation.patch
+# Fix connecting to console with specific listen address
+Patch7: %{name}-fix-listen-address.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -160,6 +162,7 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -277,6 +280,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Jun 06 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-3
+- Fix connecting to console with specific listen address
+
 * Mon Feb 13 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-2
 - Fix error reporting for failed remote connections (bz 787011)
 - Fix setting window title when VNC mouse is grabbed (bz 788443)
