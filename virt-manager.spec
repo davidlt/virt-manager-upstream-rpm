@@ -1,28 +1,37 @@
 # -*- rpm-spec -*-
 
 %define _package virt-manager
-%define _version 0.9.1
-%define _release 3
-%define virtinst_version 0.600.1
+%define _version 0.9.3
+%define _release 1
+%define virtinst_version 0.600.2
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
 %define libvirt_packages           "libvirt"
+%define askpass_package            "openssh-askpass"
 %define disable_unsupported_rhel   0
-%define default_graphics           "spice"
+
+%define with_guestfs               0
+%define with_tui                   1
 
 %define with_guestfs               0
 %define with_spice                 1
 %define with_tui                   1
 
 # End local config
+# Default option handling
+
+%if %{with_spice}
+%define default_graphics "spice"
+%endif
+
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
-%define _extra_release %{?dist:%{dist}}%{!?dist:%{?extra_release:%{extra_release}}}
+%define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
 
 Name: %{_package}
 Version: %{_version}
@@ -34,20 +43,6 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Fix error reporting for failed remote connections (bz 787011)
-Patch1: %{name}-remote-error-reporting.patch
-# Fix setting window title when VNC mouse is grabbed (bz 788443)
-Patch2: %{name}-vnc-grab-recursion.patch
-# Advertise VDI format in disk details (bz 761300)
-Patch3: %{name}-vdi-format.patch
-# Don't let an unavailable host hang the app (bz 766769)
-Patch4: %{name}-conn-hang-app.patch
-# Don't overwrite existing create dialog when reshowing (bz 754152)
-Patch5: %{name}-create-reshow.patch
-# Improve tooltip for 'force console shortcuts' (bz 788448)
-Patch6: %{name}-console-shortcut-explanation.patch
-# Fix connecting to console with specific listen address
-Patch7: %{name}-fix-listen-address.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -60,8 +55,12 @@ Requires: libvirt-python >= 0.7.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 Requires: dbus-x11
+%if !0%{?rhel} || 0%{?rhel} > 6
 # Might work with earlier, but this is what we've tested
 Requires: gnome-keyring >= 0.4.9
+%else
+Requires: libgnome-keyring
+%endif
 # Minimum we've tested with
 # Although if you don't have this, comment it out and the app
 # will work just fine - keyring functionality will simply be
@@ -71,22 +70,12 @@ Requires: gnome-python2-gnomekeyring >= 2.15.4
 Requires: libxml2-python >= 2.6.23
 # Absolutely require this version or later
 Requires: python-virtinst >= %{virtinst_version}
-# Required for loading the glade UI
-Requires: pygtk2-libglade
 # Earlier vte had broken python binding module
 Requires: vte >= 0.12.2
 # For online help
 Requires: scrollkeeper
 # For console widget
 Requires: gtk-vnc-python >= 0.3.8
-# For local authentication against PolicyKit
-# Fedora 12 has no need for a client agent
-%if 0%{?fedora} == 11
-Requires: PolicyKit-authentication-agent
-%endif
-%if 0%{?fedora} >= 9 && 0%{?fedora} < 11
-Requires: PolicyKit-gnome
-%endif
 %if %{with_spice}
 Requires: spice-gtk-python
 %endif
@@ -111,10 +100,6 @@ Requires(post): GConf2
 Requires(preun): GConf2
 Requires(post): desktop-file-utils
 Requires(postun): desktop-file-utils
-
-%if %{with_spice}
-%define default_graphics "spice"
-%endif
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
@@ -156,13 +141,6 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -181,11 +159,15 @@ Common files used by the different Virtual Machine Manager interfaces.
 %define _libvirt_packages --with-libvirt-package-names=%{libvirt_packages}
 %endif
 
+%if %{askpass_package}
+%define _askpass_package --with-askpass-package=%{askpass_package}
+%endif
+
 %if %{disable_unsupported_rhel}
 %define _disable_unsupported_rhel --disable-unsupported-rhel-options
 %endif
 
-%if %{?default_graphics}
+%if 0%{?default_graphics:1}
 %define _default_graphics --with-default-graphics=%{default_graphics}
 %endif
 
@@ -199,6 +181,7 @@ Common files used by the different Virtual Machine Manager interfaces.
             %{?_qemu_user} \
             %{?_kvm_packages} \
             %{?_libvirt_packages} \
+            %{?_askpass_package} \
             %{?_preferred_distros} \
             %{?_disable_unsupported_rhel} \
             %{?_default_graphics}
@@ -253,7 +236,7 @@ update-desktop-database -q %{_datadir}/applications
 %{_datadir}/%{name}/virtManager/*.py*
 %endif
 
-%{_datadir}/%{name}/*.glade
+%{_datadir}/%{name}/*.ui
 %{_datadir}/%{name}/%{name}.py*
 
 %{_datadir}/%{name}/icons
@@ -280,6 +263,20 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Jul 09 2012 Cole Robinson <crobinso@redhat.com> - 0.9.3-1
+- Rebased to version 0.9.3
+- Convert to gtkbuilder: UI can now be editted with modern glade tool
+- virt-manager no longer runs on RHEL5, but can manage a remote RHEL5
+  host
+- Option to configure spapr net and disk devices for pseries (Li Zhang)
+- Offer to install openssh-askpass if we need it (bz 754484)
+- Don't leave defunct SSH processes around (bz 757892)
+- Offer to start libvirtd after install (bz 791152)
+- Fix crash when deleting storage volumes (bz 805950)
+- Show serial device PTY path again (bz 811760)
+- Fix possible crash when rebooting fails (bz 813119)
+- Offer to discard state if restore fails (bz 837236)
+
 * Wed Jun 06 2012 Cole Robinson <crobinso@redhat.com> - 0.9.1-3
 - Fix connecting to console with specific listen address
 
