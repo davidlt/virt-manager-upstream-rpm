@@ -33,7 +33,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}
+Release: %{_release}%{_extra_release}.1
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -261,6 +261,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.3-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Mon Jul 09 2012 Cole Robinson <crobinso@redhat.com> - 0.9.3-1
 - Rebased to version 0.9.3
 - Convert to gtkbuilder: UI can now be editted with modern glade tool
