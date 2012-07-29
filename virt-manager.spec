@@ -1,9 +1,9 @@
 # -*- rpm-spec -*-
 
 %define _package virt-manager
-%define _version 0.9.3
+%define _version 0.9.4
 %define _release 1
-%define virtinst_version 0.600.2
+%define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
@@ -263,6 +263,13 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-1
+- Rebased to version 0.9.4
+- Fix VNC keygrab issues (bz 840240)
+
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.3-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Mon Jul 09 2012 Cole Robinson <crobinso@redhat.com> - 0.9.3-1
 - Rebased to version 0.9.3
 - Convert to gtkbuilder: UI can now be editted with modern glade tool
