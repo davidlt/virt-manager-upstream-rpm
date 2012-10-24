@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.4
-%define _release 1
+%define _release 2
 %define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
@@ -41,6 +41,12 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Fix KVM package install on app first run
+Patch1: 0001-virt-manager-Fix-KVM_PACKAGES-substitution-variable.patch
+# Fix listing domain with 'suspended' state (bz #850954)
+Patch2: 0002-domain-Handle-PMSUSPENDED-status.patch
+# Fix 'browse local' behavior when choosing directory (bz #855335)
+Patch3: 0003-browse_local-Fix-choosing-directory-of-F17.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -53,7 +59,7 @@ Requires: libvirt-python >= 0.7.0
 # Definitely does not work with earlier due to python API changes
 Requires: dbus-python >= 0.61
 Requires: dbus-x11
-%if !0%{?rhel} || 0%{?rhel} > 6
+%if 0%{?rhel} > 6
 # Might work with earlier, but this is what we've tested
 Requires: gnome-keyring >= 0.4.9
 %else
@@ -139,6 +145,9 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
+%patch1 -p1
+%patch2 -p1
+%patch3 -p1
 
 %build
 %if %{qemu_user}
@@ -261,6 +270,12 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Wed Oct 24 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-2
+- Fix KVM package install on app first run
+- Fix listing domain with 'suspended' state (bz #850954)
+- Fix 'browse local' behavior when choosing directory (bz #855335)
+- Fix libgnome-keyring dep (bz #811921)
+
 * Sun Jul 29 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-1
 - Rebased to version 0.9.4
 - Fix VNC keygrab issues (bz 840240)

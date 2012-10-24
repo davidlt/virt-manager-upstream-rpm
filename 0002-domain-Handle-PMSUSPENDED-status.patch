@@ -1,0 +1,54 @@
+From 04ba35a12bc5065bfa6f8b3257abf1578707ac56 Mon Sep 17 00:00:00 2001
+Message-Id: <04ba35a12bc5065bfa6f8b3257abf1578707ac56.1351081950.git.crobinso@redhat.com>
+In-Reply-To: <6f95a37c1dd600f05b6678d1c142d38050eddf73.1351081950.git.crobinso@redhat.com>
+References: <6f95a37c1dd600f05b6678d1c142d38050eddf73.1351081950.git.crobinso@redhat.com>
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 14 Oct 2012 00:00:38 -0400
+Subject: [PATCH 2/3] domain: Handle PMSUSPENDED status
+
+And add a catchall
+
+https://bugzilla.redhat.com/show_bug.cgi?id=850954
+(cherry picked from commit 63ba65d374d0cb46d02093d96580f5b53b947005)
+---
+ src/virtManager/domain.py | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+diff --git a/src/virtManager/domain.py b/src/virtManager/domain.py
+index 82680b8..d536f77 100644
+--- a/src/virtManager/domain.py
++++ b/src/virtManager/domain.py
+@@ -1371,19 +1371,25 @@ class vmmDomain(vmmLibvirtObject):
+         self.vcpu_max_count()
+ 
+     def run_status(self):
+-        if self.status() == libvirt.VIR_DOMAIN_RUNNING:
++        status = self.status()
++
++        if status == libvirt.VIR_DOMAIN_RUNNING:
+             return _("Running")
+-        elif self.status() == libvirt.VIR_DOMAIN_PAUSED:
++        elif status == libvirt.VIR_DOMAIN_PAUSED:
+             return _("Paused")
+-        elif self.status() == libvirt.VIR_DOMAIN_SHUTDOWN:
++        elif status == libvirt.VIR_DOMAIN_SHUTDOWN:
+             return _("Shutting Down")
+-        elif self.status() == libvirt.VIR_DOMAIN_SHUTOFF:
++        elif status == libvirt.VIR_DOMAIN_SHUTOFF:
+             if self.hasSavedImage():
+                 return _("Saved")
+             else:
+                 return _("Shutoff")
+-        elif self.status() == libvirt.VIR_DOMAIN_CRASHED:
++        elif status == libvirt.VIR_DOMAIN_CRASHED:
+             return _("Crashed")
++        elif (hasattr(libvirt, "VIR_DOMAIN_PMSUSPENDED") and
++              status == libvirt.VIR_DOMAIN_PMSUSPENDED):
++            return _("Suspended")
++        return _("Unknown")
+ 
+     def _normalize_status(self, status):
+         if status == libvirt.VIR_DOMAIN_NOSTATE:
+-- 
+1.7.11.7
+
