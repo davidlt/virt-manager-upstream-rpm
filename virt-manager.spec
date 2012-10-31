@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.4
-%define _release 2
+%define _release 3
 %define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
@@ -47,6 +47,11 @@ Patch1: 0001-virt-manager-Fix-KVM_PACKAGES-substitution-variable.patch
 Patch2: 0002-domain-Handle-PMSUSPENDED-status.patch
 # Fix 'browse local' behavior when choosing directory (bz #855335)
 Patch3: 0003-browse_local-Fix-choosing-directory-of-F17.patch
+# Fix first run packagekit interaction (bz 870851)
+Patch4: 0004-Fix-package-install-with-PackageKit-0.8.4.patch
+Patch5: 0005-Fix-detection-of-running-libvirtd-via-systemd.patch
+# Fix another backtrace if guest is pmsuspended (bz 871237)
+Patch6: 0006-domain-Fix-more-backtraces-from-PMSUSPEND-status.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -148,6 +153,9 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
 
 %build
 %if %{qemu_user}
@@ -270,6 +278,10 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Tue Oct 30 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-3
+- Fix first run packagekit interaction (bz #870851)
+- Fix another backtrace if guest is pmsuspended (bz #871237)
+
 * Wed Oct 24 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-2
 - Fix KVM package install on app first run
 - Fix listing domain with 'suspended' state (bz #850954)
