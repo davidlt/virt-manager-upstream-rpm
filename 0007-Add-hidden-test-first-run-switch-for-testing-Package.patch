@@ -1,0 +1,96 @@
+From 29ffac229ae7036dc238262d5e733a850b233329 Mon Sep 17 00:00:00 2001
+Message-Id: <29ffac229ae7036dc238262d5e733a850b233329.1355706113.git.crobinso@redhat.com>
+In-Reply-To: <30282a17091014ba5a96d20f4260df55779933c4.1355706113.git.crobinso@redhat.com>
+References: <30282a17091014ba5a96d20f4260df55779933c4.1355706113.git.crobinso@redhat.com>
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 28 Oct 2012 18:49:48 -0400
+Subject: [PATCH 7/8] Add hidden --test-first-run switch for testing PackageKit
+ bits
+
+Basically stubs out the gconf URI fetching + listing so we don't
+need to delete anything to trigger it.
+(cherry picked from commit 96ce9ac0b1257b66d0075c12aa572afe21eae0b0)
+
+Conflicts:
+	src/virt-manager.py.in
+---
+ src/virt-manager.py.in    |  8 +++++++-
+ src/virtManager/config.py | 11 ++++++++++-
+ 2 files changed, 17 insertions(+), 2 deletions(-)
+
+diff --git a/src/virt-manager.py.in b/src/virt-manager.py.in
+index 1f93d22..0cac2c2 100755
+--- a/src/virt-manager.py.in
++++ b/src/virt-manager.py.in
+@@ -117,6 +117,11 @@ def parse_commandline():
+     optParser.add_option("--profile", dest="profile",
+         help=optparse.SUPPRESS_HELP, metavar="FILE")
+ 
++    # Don't load any connections on startup to test first run
++    # PackageKit integration
++    optParser.add_option("--test-first-run", dest="testfirstrun",
++        help=optparse.SUPPRESS_HELP, action="store_true")
++
+     optParser.add_option("-c", "--connect", dest="uri",
+         help="Connect to hypervisor at URI", metavar="URI")
+     optParser.add_option("--debug", action="store_true", dest="debug",
+@@ -318,7 +323,8 @@ def main():
+     # display access
+     import virtManager.config
+     import virtManager.util
+-    config = virtManager.config.vmmConfig(appname, appversion, ui_dir)
++    config = virtManager.config.vmmConfig(appname, appversion, ui_dir,
++                                          options.test_first_run)
+     virtManager.util.running_config = config
+     config.default_qemu_user = default_qemu_user
+     config.rhel6_defaults = rhel_enable_unsupported_opts
+diff --git a/src/virtManager/config.py b/src/virtManager/config.py
+index 63cbc15..508fea0 100644
+--- a/src/virtManager/config.py
++++ b/src/virtManager/config.py
+@@ -88,11 +88,12 @@ class vmmConfig(object):
+     DEFAULT_VIRT_IMAGE_DIR = "/var/lib/libvirt/images"
+     DEFAULT_VIRT_SAVE_DIR = "/var/lib/libvirt"
+ 
+-    def __init__(self, appname, appversion, ui_dir):
++    def __init__(self, appname, appversion, ui_dir, test_first_run=False):
+         self.appname = appname
+         self.appversion = appversion
+         self.conf_dir = "/apps/" + appname
+         self.ui_dir = ui_dir
++        self.test_first_run = bool(test_first_run)
+ 
+         self.conf = gconf.client_get_default()
+         self.conf.add_dir(self.conf_dir, gconf.CLIENT_PRELOAD_NONE)
+@@ -590,6 +591,9 @@ class vmmConfig(object):
+ 
+     # Manager view connection list
+     def add_conn(self, uri):
++        if self.test_first_run:
++            return
++
+         uris = self.conf.get_list(self.conf_dir + "/connections/uris",
+                                   gconf.VALUE_STRING)
+         if uris == None:
+@@ -619,6 +623,8 @@ class vmmConfig(object):
+                                gconf.VALUE_STRING, uris)
+ 
+     def get_conn_uris(self):
++        if self.test_first_run:
++            return []
+         return self.conf.get_list(self.conf_dir + "/connections/uris",
+                                   gconf.VALUE_STRING)
+ 
+@@ -638,6 +644,9 @@ class vmmConfig(object):
+         return ((uris is not None) and (uri in uris))
+ 
+     def set_conn_autoconnect(self, uri, val):
++        if self.test_first_run:
++            return
++
+         uris = self.conf.get_list(self.conf_dir + "/connections/autoconnect",
+                                   gconf.VALUE_STRING)
+         if uris is None:
+-- 
+1.8.0.2
+

@@ -2,13 +2,13 @@
 
 %define _package virt-manager
 %define _version 0.9.4
-%define _release 3
+%define _release 4
 %define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
-%define libvirt_packages           "libvirt"
+%define libvirt_packages           "libvirt-daemon-qemu"
 %define askpass_package            "openssh-askpass"
 %define disable_unsupported_rhel   0
 
@@ -52,6 +52,12 @@ Patch4: 0004-Fix-package-install-with-PackageKit-0.8.4.patch
 Patch5: 0005-Fix-detection-of-running-libvirtd-via-systemd.patch
 # Fix another backtrace if guest is pmsuspended (bz 871237)
 Patch6: 0006-domain-Fix-more-backtraces-from-PMSUSPEND-status.patch
+# Use correct KVM package names on first run (bz 873878)
+Patch7: 0007-Add-hidden-test-first-run-switch-for-testing-Package.patch
+Patch8: 0008-Fix-test-first-run.patch
+Patch9: 0009-really-fix-kvm-substitution.patch
+# network: fix parsing ip blocks with prefix= (bz 872814)
+Patch10: 0010-network-Fix-parsing-ip-blocks-with-prefix.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -156,6 +162,10 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
+%patch10 -p1
 
 %build
 %if %{qemu_user}
@@ -278,6 +288,11 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Dec 17 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-4
+- Use correct KVM package names on first run (bz #873878)
+- network: fix parsing ip blocks with prefix= (bz #872814)
+- Don't recommend all of libvirt, just the kvm bits (bz #872246)
+
 * Tue Oct 30 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-3
 - Fix first run packagekit interaction (bz #870851)
 - Fix another backtrace if guest is pmsuspended (bz #871237)
