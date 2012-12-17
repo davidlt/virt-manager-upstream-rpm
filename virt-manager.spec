@@ -2,13 +2,13 @@
 
 %define _package virt-manager
 %define _version 0.9.4
-%define _release 2
+%define _release 3
 %define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
-%define libvirt_packages           "libvirt"
+%define libvirt_packages           "libvirt-daemon-qemu"
 %define askpass_package            "openssh-askpass"
 %define disable_unsupported_rhel   0
 
@@ -47,6 +47,12 @@ Patch1: 0001-virt-manager-Fix-KVM_PACKAGES-substitution-variable.patch
 Patch2: 0002-domain-Handle-PMSUSPENDED-status.patch
 # Fix 'browse local' behavior when choosing directory (bz #855335)
 Patch3: 0003-browse_local-Fix-choosing-directory-of-F17.patch
+# Use correct KVM package names on first run (bz 873878)
+Patch4: 0007-Add-hidden-test-first-run-switch-for-testing-Package.patch
+Patch5: 0008-Fix-test-first-run.patch
+Patch6: 0009-really-fix-kvm-substitution.patch
+# network: fix parsing ip blocks with prefix= (bz 872814)
+Patch7: 0010-network-Fix-parsing-ip-blocks-with-prefix.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -148,6 +154,10 @@ Common files used by the different Virtual Machine Manager interfaces.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
 
 %build
 %if %{qemu_user}
@@ -270,6 +280,11 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Dec 17 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-3
+- Use correct KVM package names on first run (bz #873878)
+- network: fix parsing ip blocks with prefix= (bz #872814)
+- Don't recommend all of libvirt, just the kvm bits (bz #872246)
+
 * Wed Oct 24 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-2
 - Fix KVM package install on app first run
 - Fix listing domain with 'suspended' state (bz #850954)

@@ -1,0 +1,37 @@
+From a00bcce0a0d3a5af85dbf685aefec5495349328f Mon Sep 17 00:00:00 2001
+Message-Id: <a00bcce0a0d3a5af85dbf685aefec5495349328f.1355706113.git.crobinso@redhat.com>
+In-Reply-To: <30282a17091014ba5a96d20f4260df55779933c4.1355706113.git.crobinso@redhat.com>
+References: <30282a17091014ba5a96d20f4260df55779933c4.1355706113.git.crobinso@redhat.com>
+From: Michal Privoznik <mprivozn@redhat.com>
+Date: Tue, 30 Oct 2012 14:22:44 +0100
+Subject: [PATCH 8/8] Fix --test-first-run
+
+One of previous patches (96ce9ac0b125) invented this feature. However,
+in options object it is called testfirstrun not test_first_run.
+This produces a runtime error.
+
+(crobinso: add Michal to AUTHORS)
+(cherry picked from commit d9e8546e8608d0fd0b6af61e9a2236c91b286cdd)
+
+Conflicts:
+	AUTHORS
+---
+ src/virt-manager.py.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/virt-manager.py.in b/src/virt-manager.py.in
+index 0cac2c2..f01c476 100755
+--- a/src/virt-manager.py.in
++++ b/src/virt-manager.py.in
+@@ -324,7 +324,7 @@ def main():
+     import virtManager.config
+     import virtManager.util
+     config = virtManager.config.vmmConfig(appname, appversion, ui_dir,
+-                                          options.test_first_run)
++                                          options.testfirstrun)
+     virtManager.util.running_config = config
+     config.default_qemu_user = default_qemu_user
+     config.rhel6_defaults = rhel_enable_unsupported_opts
+-- 
+1.8.0.2
+
