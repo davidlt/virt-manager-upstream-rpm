@@ -33,7 +33,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}
+Release: %{_release}%{_extra_release}.1
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -288,6 +288,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.4-4.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
+
 * Mon Dec 17 2012 Cole Robinson <crobinso@redhat.com> - 0.9.4-4
 - Use correct KVM package names on first run (bz #873878)
 - network: fix parsing ip blocks with prefix= (bz #872814)
