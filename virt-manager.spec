@@ -2,7 +2,7 @@
 
 %define _package virt-manager
 %define _version 0.9.4
-%define _release 4
+%define _release 5
 %define virtinst_version 0.600.3
 
 %define qemu_user                  "qemu"
@@ -33,7 +33,7 @@
 
 Name: %{_package}
 Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Release: %{_release}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -109,6 +109,7 @@ BuildRequires: gettext
 BuildRequires: scrollkeeper
 BuildRequires: intltool
 BuildRequires: GConf2
+BuildRequires: /usr/bin/pod2man
 
 Requires(pre): GConf2
 Requires(post): GConf2
@@ -288,6 +289,9 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Fri Mar 01 2013 Cole Robinson <crobinso@redhat.com> - 0.9.4-5
+- Add explicit dep on pod2man (bz #914562)
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.9.4-4.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
