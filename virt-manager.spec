@@ -1,14 +1,14 @@
 # -*- rpm-spec -*-
 
 %define _package virt-manager
-%define _version 0.9.4
-%define _release 5
-%define virtinst_version 0.600.3
+%define _version 0.9.5
+%define _release 1
+%define virtinst_version 0.600.4
 
 %define qemu_user                  "qemu"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
-%define libvirt_packages           "libvirt-daemon-qemu"
+%define libvirt_packages           "libvirt-daemon-kvm"
 %define askpass_package            "openssh-askpass"
 %define disable_unsupported_rhel   0
 
@@ -41,23 +41,6 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Fix KVM package install on app first run
-Patch1: 0001-virt-manager-Fix-KVM_PACKAGES-substitution-variable.patch
-# Fix listing domain with 'suspended' state (bz #850954)
-Patch2: 0002-domain-Handle-PMSUSPENDED-status.patch
-# Fix 'browse local' behavior when choosing directory (bz #855335)
-Patch3: 0003-browse_local-Fix-choosing-directory-of-F17.patch
-# Fix first run packagekit interaction (bz 870851)
-Patch4: 0004-Fix-package-install-with-PackageKit-0.8.4.patch
-Patch5: 0005-Fix-detection-of-running-libvirtd-via-systemd.patch
-# Fix another backtrace if guest is pmsuspended (bz 871237)
-Patch6: 0006-domain-Fix-more-backtraces-from-PMSUSPEND-status.patch
-# Use correct KVM package names on first run (bz 873878)
-Patch7: 0007-Add-hidden-test-first-run-switch-for-testing-Package.patch
-Patch8: 0008-Fix-test-first-run.patch
-Patch9: 0009-really-fix-kvm-substitution.patch
-# network: fix parsing ip blocks with prefix= (bz 872814)
-Patch10: 0010-network-Fix-parsing-ip-blocks-with-prefix.patch
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildArch: noarch
 
@@ -157,16 +140,6 @@ Common files used by the different Virtual Machine Manager interfaces.
 
 %prep
 %setup -q
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
 
 %build
 %if %{qemu_user}
@@ -289,6 +262,17 @@ update-desktop-database -q %{_datadir}/applications
 %endif
 
 %changelog
+* Mon Apr 01 2013 Cole Robinson <crobinso@redhat.com> - 0.9.5-1
+- Rebased to version 0.9.5
+- Enable adding virtio-scsi disks (Chen Hanxiao) (bz 887584)
+- Support security auto-relabel setting (Martin Kletzander)
+- Support disk iotune settings (David Shane Holden)
+- Support 'reset' as a reboot option (John Doyle)
+- Don't pull in non-native qemu packages on first run (bz 924469)
+- Don't create LVM volumes with alloc=0, it doesn't work (bz 872162)
+- Fix storage browser hang on KDE (bz 880781)
+- Fix package installation on KDE (bz 882024)
+
 * Fri Mar 01 2013 Cole Robinson <crobinso@redhat.com> - 0.9.4-5
 - Add explicit dep on pod2man (bz #914562)
 
