@@ -18,9 +18,9 @@
 
 # End local config
 
-%global gitcommit d3f9bc8e
+%global gitcommit b68faac8
 %define _version 0.10.0
-%define _release 0.1.git%{gitcommit}
+%define _release 0.2.git%{gitcommit}
 
 
 # This macro is used for the continuous automated builds. It just
@@ -48,12 +48,13 @@ BuildArch: noarch
 Source: virt-manager-%{gitcommit}.tar.gz
 
 
+Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
 Requires: gnome-python2-gconf
 Requires: libxml2-python
-Requires: vte
+Requires: vte3
 
 # For console widget
 Requires: gtk-vnc2
@@ -223,6 +224,12 @@ fi
 
 
 %changelog
+* Thu May 09 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.2.gitb68faac8
+- Fix dep on vte3 (bz #958945)
+- Fix dep on virt-manager-common (bz #958730)
+- Fix crash when installing from ISO media (bz #958641)
+- Fix poor error reporting with unknown CLI option (bz #958730)
+
 * Mon Apr 29 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.1.gitd3f9bc8e
 - Update to git snapshot for next release
 
