@@ -1,0 +1,28 @@
+From bde9943221c3d78388fb554cc5a2838b05aaa7de Mon Sep 17 00:00:00 2001
+Message-Id: <bde9943221c3d78388fb554cc5a2838b05aaa7de.1368646837.git.crobinso@redhat.com>
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 15 May 2013 15:35:55 -0400
+Subject: [PATCH] gsettings: Fix default for perms-fix-ignore (bz 962569)
+
+---
+ data/org.virt-manager.virt-manager.gschema.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/data/org.virt-manager.virt-manager.gschema.xml b/data/org.virt-manager.virt-manager.gschema.xml
+index 2e4664f..d086a64 100644
+--- a/data/org.virt-manager.virt-manager.gschema.xml
++++ b/data/org.virt-manager.virt-manager.gschema.xml
+@@ -212,8 +212,8 @@
+       <description>Default path for saving screenshots from VMs</description>
+     </key>
+ 
+-    <key name="perms-fix-ignore" type="b">
+-      <default>false</default>
++    <key name="perms-fix-ignore" type="as">
++      <default>[]</default>
+       <summary>Ask about fixing permissions</summary>
+       <description>Whether to ask about fixing path permissions</description>
+     </key>
+-- 
+1.8.2.1
+

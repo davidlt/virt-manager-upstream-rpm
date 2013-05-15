@@ -20,7 +20,7 @@
 
 %global gitcommit b68faac8
 %define _version 0.10.0
-%define _release 0.2.git%{gitcommit}
+%define _release 0.3.git%{gitcommit}
 
 
 # This macro is used for the continuous automated builds. It just
@@ -46,6 +46,9 @@ BuildArch: noarch
 #   cd virt-manager
 #   git archive --output virt-manager-%{gitcommit}.tar.gz --prefix virt-manager-%{gitcommit}/ %{gitcommit}
 Source: virt-manager-%{gitcommit}.tar.gz
+
+# Fix error creating QEMU guests (bz #962569)
+Patch0001: 0001-gsettings-Fix-default-for-perms-fix-ignore-bz-962569.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -113,6 +116,9 @@ machine).
 
 %prep
 %setup -q -n virt-manager-%{gitcommit}
+
+# Fix error creating QEMU guests (bz #962569)
+%patch0001 -p1
 
 %build
 %if %{qemu_user}
@@ -224,6 +230,9 @@ fi
 
 
 %changelog
+* Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.3.gitb68faac8
+- Fix error creating QEMU guests (bz #962569)
+
 * Thu May 09 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.2.gitb68faac8
 - Fix dep on vte3 (bz #958945)
 - Fix dep on virt-manager-common (bz #958730)
