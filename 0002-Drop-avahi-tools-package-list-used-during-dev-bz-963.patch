@@ -1,0 +1,25 @@
+From 070e19eab9c04981c4f7e751781654c5b4df337b Mon Sep 17 00:00:00 2001
+Message-Id: <070e19eab9c04981c4f7e751781654c5b4df337b.1368653775.git.crobinso@redhat.com>
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 15 May 2013 17:35:14 -0400
+Subject: [PATCH] Drop 'avahi-tools' package list used during dev (bz 963472)
+
+---
+ virtManager/packageutils.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/virtManager/packageutils.py b/virtManager/packageutils.py
+index 6b51ab3..39f5c66 100644
+--- a/virtManager/packageutils.py
++++ b/virtManager/packageutils.py
+@@ -39,7 +39,6 @@ def check_packagekit(errbox, packages, ishv):
+     Returns None when we determine nothing useful.
+     Returns (success, did we just install libvirt) otherwise.
+     """
+-    packages = ["avahi-tools"]
+     if not packages:
+         logging.debug("No PackageKit packages to search for.")
+         return
+-- 
+1.8.2.1
+

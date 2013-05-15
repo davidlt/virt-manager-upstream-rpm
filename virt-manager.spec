@@ -20,7 +20,7 @@
 
 %global gitcommit b68faac8
 %define _version 0.10.0
-%define _release 0.3.git%{gitcommit}
+%define _release 0.4.git%{gitcommit}
 
 
 # This macro is used for the continuous automated builds. It just
@@ -49,6 +49,8 @@ Source: virt-manager-%{gitcommit}.tar.gz
 
 # Fix error creating QEMU guests (bz #962569)
 Patch0001: 0001-gsettings-Fix-default-for-perms-fix-ignore-bz-962569.patch
+# Drop bogus packagekit check for avahi-tools (bz #963472)
+Patch0002: 0002-Drop-avahi-tools-package-list-used-during-dev-bz-963.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -119,6 +121,8 @@ machine).
 
 # Fix error creating QEMU guests (bz #962569)
 %patch0001 -p1
+# Drop bogus packagekit check for avahi-tools (bz #963472)
+%patch0002 -p1
 
 %build
 %if %{qemu_user}
@@ -230,6 +234,9 @@ fi
 
 
 %changelog
+* Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.4.gitb68faac8
+- Drop bogus packagekit check for avahi-tools (bz #963472)
+
 * Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.3.gitb68faac8
 - Fix error creating QEMU guests (bz #962569)
 
