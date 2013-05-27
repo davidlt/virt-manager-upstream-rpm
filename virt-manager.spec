@@ -18,9 +18,9 @@
 
 # End local config
 
-%global gitcommit b68faac8
+%global gitcommit de1695b2
 %define _version 0.10.0
-%define _release 0.4.git%{gitcommit}
+%define _release 0.5.git%{gitcommit}
 
 
 # This macro is used for the continuous automated builds. It just
@@ -46,12 +46,6 @@ BuildArch: noarch
 #   cd virt-manager
 #   git archive --output virt-manager-%{gitcommit}.tar.gz --prefix virt-manager-%{gitcommit}/ %{gitcommit}
 Source: virt-manager-%{gitcommit}.tar.gz
-
-# Fix error creating QEMU guests (bz #962569)
-Patch0001: 0001-gsettings-Fix-default-for-perms-fix-ignore-bz-962569.patch
-# Drop bogus packagekit check for avahi-tools (bz #963472)
-Patch0002: 0002-Drop-avahi-tools-package-list-used-during-dev-bz-963.patch
-
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
@@ -118,11 +112,6 @@ machine).
 
 %prep
 %setup -q -n virt-manager-%{gitcommit}
-
-# Fix error creating QEMU guests (bz #962569)
-%patch0001 -p1
-# Drop bogus packagekit check for avahi-tools (bz #963472)
-%patch0002 -p1
 
 %build
 %if %{qemu_user}
@@ -234,6 +223,11 @@ fi
 
 
 %changelog
+* Mon May 27 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.5.gitde1695b2
+- Fix default graphics, should be spice+qxl (bz #965864)
+- Check for libvirt default network package on first run (bz #950329)
+- Fix changing VM cirrus->QXL (bz #928882)
+
 * Wed May 15 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.4.gitb68faac8
 - Drop bogus packagekit check for avahi-tools (bz #963472)
 
