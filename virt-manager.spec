@@ -5,9 +5,10 @@
 %define disable_unsupported_rhel   0
 %define askpass_package            "openssh-askpass"
 %define qemu_user                  "qemu"
-%define libvirt_packages           "libvirt-daemon-kvm"
+%define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
+%define default_graphics           "spice"
 
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
@@ -18,9 +19,9 @@
 
 # End local config
 
-%global gitcommit de1695b2
+
 %define _version 0.10.0
-%define _release 0.5.git%{gitcommit}
+%define _release 1
 
 
 # This macro is used for the continuous automated builds. It just
@@ -38,14 +39,9 @@ Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildArch: noarch
 
-#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Generate source with
-#   git clone git://git.fedorahosted.org/git/virt-manager.git
-#   cd virt-manager
-#   git archive --output virt-manager-%{gitcommit}.tar.gz --prefix virt-manager-%{gitcommit}/ %{gitcommit}
-Source: virt-manager-%{gitcommit}.tar.gz
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
@@ -58,11 +54,6 @@ Requires: vte3
 # For console widget
 Requires: gtk-vnc2
 Requires: spice-gtk3
-
-
-%if %{with_guestfs}
-Requires: python-libguestfs
-%endif
 
 
 BuildRequires: intltool
@@ -111,7 +102,7 @@ machine).
 
 
 %prep
-%setup -q -n virt-manager-%{gitcommit}
+%setup -q
 
 %build
 %if %{qemu_user}
@@ -138,10 +129,9 @@ machine).
 %define _disable_unsupported_rhel --hide-unsupported-rhel-options
 %endif
 
-%if 0%{?default_graphics:1}
+%if %{default_graphics}
 %define _default_graphics --default-graphics=%{default_graphics}
 %endif
-
 
 python setup.py configure \
     --pkgversion="%{version}" \
@@ -223,6 +213,14 @@ fi
 
 
 %changelog
+* Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-1
+- Rebased to version 0.10.0
+- Fix screenshots (bz #969410)
+- Add Fedora 19 osdict option (bz #950230)
+- Fix loading libguestfs OS icons (bz #905238)
+- Make packagekit search cancellable (bz #973777)
+- Fix freeze on guest shutdown if serial console connected (bz #967968)
+
 * Mon May 27 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-0.5.gitde1695b2
 - Fix default graphics, should be spice+qxl (bz #965864)
 - Check for libvirt default network package on first run (bz #950329)
