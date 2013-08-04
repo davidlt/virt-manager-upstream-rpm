@@ -32,7 +32,7 @@
 
 Name: virt-manager
 Version: %{_version}
-Release: %{_release}%{_extra_release}
+Release: %{_release}%{_extra_release}.1
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -213,6 +213,9 @@ fi
 
 
 %changelog
+* Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.0-1.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
+
 * Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-1
 - Rebased to version 0.10.0
 - Fix screenshots (bz #969410)
