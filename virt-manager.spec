@@ -21,8 +21,8 @@
 
 
 %define _version 0.10.0
-%define _release 1
-
+%define _release 2
+%define gitcommit 948b5359
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
@@ -32,16 +32,25 @@
 
 Name: virt-manager
 Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Release: %{_release}.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
-Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# To prepare:
+#
+# git clone git://git.fedorahosted.org/virt-manager.git
+# cd virt-manager
+# git archive -o ../virt-manager-%{gitcommit}.tar.gz \
+#     --prefix=virt-manager-%{version} %{gitcommit}
+#
+#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+Source0: virt-manager-%{gitcommit}.tar.gz
 BuildArch: noarch
 
+Patch0: 0001-support-Change-ARM-checks-to-match-F20-versions.patch
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
@@ -103,6 +112,7 @@ machine).
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +223,9 @@ fi
 
 
 %changelog
+* Wed Aug 21 2013 Cole Robinson <crobinso@redhat.com> 0.10.0-2.git948b5359
+- Update to git snapshot for ARM support
+
 * Sun Aug 04 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 0.10.0-1.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_20_Mass_Rebuild
 

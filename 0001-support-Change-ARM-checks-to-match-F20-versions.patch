@@ -1,0 +1,29 @@
+From 946547fac40aa63f9e30c36d00b17a78f9f1bced Mon Sep 17 00:00:00 2001
+Message-Id: <946547fac40aa63f9e30c36d00b17a78f9f1bced.1377125803.git.crobinso@redhat.com>
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 21 Aug 2013 18:56:30 -0400
+Subject: [PATCH] support: Change ARM checks to match F20 versions
+
+---
+ virtinst/support.py | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/virtinst/support.py b/virtinst/support.py
+index b0a84f2..288b7ec 100644
+--- a/virtinst/support.py
++++ b/virtinst/support.py
+@@ -320,9 +320,9 @@ SUPPORT_CONN_LISTALLSTORAGEPOOLS = _make(
+                                 args=())
+ SUPPORT_CONN_LISTALLINTERFACES = _make(function="virConnect.listAllInterfaces",
+                                 args=())
+-SUPPORT_CONN_VIRTIO_MMIO = _make(version=1001002,
++SUPPORT_CONN_VIRTIO_MMIO = _make(version=1001001,
+                                  drv_version=[("qemu", 1006000)])
+-SUPPORT_CONN_DISK_SD = _make(version=1001002)
++SUPPORT_CONN_DISK_SD = _make(version=1001001)
+ 
+ 
+ # Domain checks
+-- 
+1.8.3.1
+
