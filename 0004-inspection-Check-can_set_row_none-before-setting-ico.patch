@@ -1,0 +1,46 @@
+From 89d78c1af3f84113ea0d18b4229e98d16c12bfef Mon Sep 17 00:00:00 2001
+From: "Richard W.M. Jones" <rjones@redhat.com>
+Date: Fri, 28 Jun 2013 18:45:53 +0100
+Subject: [PATCH] inspection: Check can_set_row_none before setting icon to
+ None.
+
+Previously one could set the icon field of a tree model to None, but
+with Gtk3 and older versions of pygobject3 this would fail.
+
+Use can_set_row_none to test for this condition and work around it.
+
+The previous traceback was:
+
+Traceback (most recent call last):
+  File "/home/rjones/d/virt-manager/virtManager/manager.py", line 981, in vm_inspection_changed
+    self.get_inspection_icon_pixbuf(vm, 16, 16)
+  File "/usr/lib64/python2.7/site-packages/gi/overrides/Gtk.py", line 1152, in __setitem__
+    self.model.set_value(self.iter, key, value)
+  File "/usr/lib64/python2.7/site-packages/gi/overrides/Gtk.py", line 1298, in set_value
+    Gtk.TreeStore.set_value(self, treeiter, column, value)
+  File "/usr/lib64/python2.7/site-packages/gi/types.py", line 47, in function
+    return info.invoke(*args, **kwargs)
+TypeError: Argument 3 does not allow None as a value
+
+(cherry picked from commit 9d5c1cdb1c03a8c045ae94ab5324aa7dda68e695)
+---
+ virtManager/manager.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/virtManager/manager.py b/virtManager/manager.py
+index ca9d909..3682429 100644
+--- a/virtManager/manager.py
++++ b/virtManager/manager.py
+@@ -959,8 +959,10 @@ class vmmManager(vmmGObjectUI):
+             return
+ 
+         row = self.rows[self.vm_row_key(vm)]
+-        row[ROW_INSPECTION_OS_ICON] = \
+-            self.get_inspection_icon_pixbuf(vm, 16, 16)
++        new_icon = self.get_inspection_icon_pixbuf(vm, 16, 16)
++        if not can_set_row_none:
++            new_icon = new_icon or ""
++        row[ROW_INSPECTION_OS_ICON] = new_icon
+         model.row_changed(row.path, row.iter)
+ 
+     def get_inspection_icon_pixbuf(self, vm, w, h):

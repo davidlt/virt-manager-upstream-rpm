@@ -1,0 +1,147 @@
+From 6df408590cf0c4c094bcc5e8700700118e2d71c6 Mon Sep 17 00:00:00 2001
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+Date: Fri, 16 Aug 2013 15:59:33 +0200
+Subject: [PATCH] virt-manager: ignore VIR_ERR_NO_DOMAIN when a domain was just
+ deleted
+
+Some callbacks could try to access a domain that was just deleted and
+not accessible anymore.  Detect these cases and don't propagate the
+exception.
+
+Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+(cherry picked from commit c1fa43ebb90c26c57f72faaf6c0b6a5c19221dd4)
+
+Conflicts:
+	virtManager/uihelpers.py
+---
+ virtManager/details.py   | 10 ++++++++--
+ virtManager/domain.py    | 14 +++++++++-----
+ virtManager/manager.py   | 29 ++++++++++++++++++-----------
+ virtManager/uihelpers.py |  5 +++++
+ 4 files changed, 40 insertions(+), 18 deletions(-)
+
+diff --git a/virtManager/details.py b/virtManager/details.py
+index b2d496e..79db2cf 100644
+--- a/virtManager/details.py
++++ b/virtManager/details.py
+@@ -2598,8 +2598,14 @@ class vmmDetails(vmmGObjectUI):
+ 
+         # If the dialog is visible, we want to make sure the XML is always
+         # up to date
+-        if self.is_visible():
+-            self.vm.refresh_xml()
++        try:
++            if self.is_visible():
++                self.vm.refresh_xml()
++        except libvirt.libvirtError, e:
++            if uihelpers.exception_is_libvirt_error(e, "VIR_ERR_NO_DOMAIN"):
++                self.close()
++                return
++            raise
+ 
+         # Stats page needs to be refreshed every tick
+         if (page == PAGE_DETAILS and
+diff --git a/virtManager/domain.py b/virtManager/domain.py
+index bd3d964..486664f 100644
+--- a/virtManager/domain.py
++++ b/virtManager/domain.py
+@@ -32,6 +32,7 @@ from virtinst.VirtualCharDevice import VirtualCharSpicevmcDevice
+ import virtinst.support as support
+ 
+ from virtManager import util
++from virtManager import uihelpers
+ from virtManager.libvirtobject import vmmLibvirtObject
+ 
+ 
+@@ -406,7 +407,12 @@ class vmmDomain(vmmLibvirtObject):
+                               caps=self.conn.get_capabilities())
+ 
+     def _reparse_xml(self, ignore=None):
+-        self._guest = self._build_guest(self._get_domain_xml())
++        try:
++            self._guest = self._build_guest(self._get_domain_xml())
++        except libvirt.libvirtError, e:
++            if uihelpers.exception_is_libvirt_error(e, "VIR_ERR_NO_DOMAIN"):
++                return
++            raise
+ 
+ 
+     ##############################
+@@ -1566,14 +1572,12 @@ class vmmDomain(vmmLibvirtObject):
+         """
+         try:
+             info = self._backend.info()
++            self._update_status(info[0])
+         except libvirt.libvirtError, e:
+-            if (hasattr(libvirt, "VIR_ERR_NO_DOMAIN") and
+-                e.get_error_code() == getattr(libvirt, "VIR_ERR_NO_DOMAIN")):
+-                # Possibly a transient domain that was removed on shutdown
++            if uihelpers.exception_is_libvirt_error(e, "VIR_ERR_NO_DOMAIN"):
+                 return
+             raise
+ 
+-        self._update_status(info[0])
+ 
+     def _update_status(self, status):
+         """
+diff --git a/virtManager/manager.py b/virtManager/manager.py
+index 3682429..97cb068 100644
+--- a/virtManager/manager.py
++++ b/virtManager/manager.py
+@@ -35,6 +35,7 @@ from virtManager.baseclass import vmmGObjectUI
+ from virtManager.graphwidgets import CellRendererSparkline
+ from virtManager import util as util
+ 
++import libvirt
+ 
+ # Number of data points for performance graphs
+ GRAPH_LEN = 40
+@@ -936,18 +937,24 @@ class vmmManager(vmmGObjectUI):
+         if self.vm_row_key(vm) not in self.rows:
+             return
+ 
+-        row = self.rows[self.vm_row_key(vm)]
+-        row[ROW_NAME] = vm.get_name()
+-        row[ROW_STATUS] = vm.run_status()
+-        row[ROW_STATUS_ICON] = vm.run_status_icon_name()
+-        row[ROW_IS_VM_RUNNING] = vm.is_active()
+-        row[ROW_MARKUP] = self._build_vm_markup(row)
+ 
+-        if config_changed:
+-            desc = vm.get_description()
+-            if not can_set_row_none:
+-                desc = desc or ""
+-            row[ROW_HINT] = util.xml_escape(desc)
++        try:
++            row = self.rows[self.vm_row_key(vm)]
++            row[ROW_NAME] = vm.get_name()
++            row[ROW_STATUS] = vm.run_status()
++            row[ROW_STATUS_ICON] = vm.run_status_icon_name()
++            row[ROW_IS_VM_RUNNING] = vm.is_active()
++            row[ROW_MARKUP] = self._build_vm_markup(row)
++
++            if config_changed:
++                desc = vm.get_description()
++                if not can_set_row_none:
++                    desc = desc or ""
++                    row[ROW_HINT] = util.xml_escape(desc)
++        except libvirt.libvirtError, e:
++            if uihelpers.exception_is_libvirt_error(e, "VIR_ERR_NO_DOMAIN"):
++                return
++            raise
+ 
+         model.row_changed(row.path, row.iter)
+ 
+diff --git a/virtManager/uihelpers.py b/virtManager/uihelpers.py
+index ba69ee9..ff254ab 100644
+--- a/virtManager/uihelpers.py
++++ b/virtManager/uihelpers.py
+@@ -1027,3 +1027,8 @@ def build_keycombo_menu(cb):
+ 
+     menu.show_all()
+     return menu
++
++def exception_is_libvirt_error(e, error):
++    import libvirt
++    return (hasattr(libvirt, error) and
++            e.get_error_code() == getattr(libvirt, error))

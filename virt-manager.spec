@@ -21,7 +21,7 @@
 
 
 %define _version 0.10.0
-%define _release 1
+%define _release 2
 
 
 # This macro is used for the continuous automated builds. It just
@@ -40,6 +40,17 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix parsing rawhide .treeinfo (bz #989162)
+Patch0001: 0001-Fix-rawhide-URL-installs.patch
+# Fix spice with TLS (bz #904295)
+Patch0002: 0002-console-Fix-spice-with-TLS-bz-904295.patch
+# Reduce impact of memory leak (bz #972371)
+Patch0003: 0003-manager-Disable-graph-data-func-if-graph-isn-t-visib.patch
+Patch0004: 0004-inspection-Check-can_set_row_none-before-setting-ico.patch
+Patch0005: 0005-virt-manager-ignore-VIR_ERR_NO_DOMAIN-when-a-domain-.patch
+Patch0006: 0006-manager-Merge-some-row-creation-drop-unneeded-row-ke.patch
+Patch0007: 0007-manager-Separate-stats-and-state-update-callbacks.patch
 BuildArch: noarch
 
 
@@ -103,6 +114,17 @@ machine).
 
 %prep
 %setup -q
+
+# Fix parsing rawhide .treeinfo (bz #989162)
+%patch0001 -p1
+# Fix spice with TLS (bz #904295)
+%patch0002 -p1
+# Reduce impact of memory leak (bz #972371)
+%patch0003 -p1
+%patch0004 -p1
+%patch0005 -p1
+%patch0006 -p1
+%patch0007 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +235,11 @@ fi
 
 
 %changelog
+* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-2
+- Fix parsing rawhide .treeinfo (bz #989162)
+- Fix spice with TLS (bz #904295)
+- Reduce impact of memory leak (bz #972371)
+
 * Wed Jun 19 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-1
 - Rebased to version 0.10.0
 - Fix screenshots (bz #969410)

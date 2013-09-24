@@ -1,0 +1,204 @@
+From ed5dc524c54e72ee7f75749f11eb0606dddee8ea Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 2 Sep 2013 09:09:31 -0400
+Subject: [PATCH] manager: Separate stats and state update callbacks
+
+There's no need to be resetting row keys like VM name, state, on every
+'resources-sampled' signals, since we have had finer grained status-changed
+and config-changed signals for a while. This seems to reduce the memory
+leak on F19 as well.
+
+(cherry picked from commit f141c77c452d4807b516bdc40a0e86235bf5243a)
+
+Conflicts:
+	virtManager/manager.py
+---
+ virtManager/manager.py | 100 ++++++++++++++++++++++++++-----------------------
+ 1 file changed, 53 insertions(+), 47 deletions(-)
+
+diff --git a/virtManager/manager.py b/virtManager/manager.py
+index 2770b2f..6773ff3 100644
+--- a/virtManager/manager.py
++++ b/virtManager/manager.py
+@@ -185,9 +185,9 @@ class vmmManager(vmmGObjectUI):
+         self.init_toolbar()
+         self.init_context_menus()
+ 
+-        self.vm_selected()
+-        self.widget("vm-list").get_selection().connect("changed",
+-                                                       self.vm_selected)
++        self.update_current_selection()
++        self.widget("vm-list").get_selection().connect(
++            "changed", self.update_current_selection)
+ 
+         self.max_disk_rate = 10.0
+         self.max_net_rate = 10.0
+@@ -750,9 +750,9 @@ class vmmManager(vmmGObjectUI):
+ 
+     def vm_added(self, conn, vmuuid):
+         vm = conn.get_vm(vmuuid)
++        vm.connect("config-changed", self.vm_config_changed)
+         vm.connect("status-changed", self.vm_status_changed)
+-        vm.connect("resources-sampled", self.vm_resources_sampled)
+-        vm.connect("config-changed", self.vm_resources_sampled, True)
++        vm.connect("resources-sampled", self.vm_row_updated)
+         vm.connect("inspection-changed", self.vm_inspection_changed)
+ 
+         vmlist = self.widget("vm-list")
+@@ -868,7 +868,7 @@ class vmmManager(vmmGObjectUI):
+ 
+         conn.connect("vm-added", self.vm_added)
+         conn.connect("vm-removed", self.vm_removed)
+-        conn.connect("resources-sampled", self.conn_resources_sampled)
++        conn.connect("resources-sampled", self.conn_row_updated)
+         conn.connect("state-changed", self.conn_state_changed)
+         conn.connect("connect-error", self._connect_error)
+ 
+@@ -893,7 +893,7 @@ class vmmManager(vmmGObjectUI):
+                 continue
+ 
+             newname = conn.get_pretty_desc_inactive(False, True)
+-            self.conn_resources_sampled(conn, newname)
++            self.conn_state_changed(conn, newname=newname)
+ 
+     def remove_conn(self, engine_ignore, uri):
+         model = self.widget("vm-list").get_model()
+@@ -916,28 +916,13 @@ class vmmManager(vmmGObjectUI):
+     # State/UI updating methods #
+     #############################
+ 
+-    def vm_status_changed(self, vm, oldstatus, newstatus):
+-        ignore = newstatus
+-        ignore = oldstatus
+-        parent = self.rows[vm.conn.get_uri()].iter
+-        vmlist = self.widget("vm-list")
+-        model = vmlist.get_model()
+-
+-        missing = True
+-        for row in range(model.iter_n_children(parent)):
+-            _iter = model.iter_nth_child(parent, row)
+-            if model.get_value(_iter, ROW_HANDLE) == vm:
+-                missing = False
+-                break
+-
+-        if missing:
+-            self._append_vm(model, vm, vm.conn)
+-
+-        # Update run/shutdown/pause button states
+-        self.vm_selected()
+-        self.vm_resources_sampled(vm)
++    def vm_row_updated(self, vm):
++        row = self.rows.get(self.vm_row_key(vm), None)
++        if row is None:
++            return
++        self.widget("vm-list").get_model().row_changed(row.path, row.iter)
+ 
+-    def vm_resources_sampled(self, vm, config_changed=False):
++    def vm_config_changed(self, vm):
+         row = self.rows.get(self.vm_row_key(vm), None)
+         if row is None:
+             return
+@@ -951,17 +936,37 @@ class vmmManager(vmmGObjectUI):
+             row[ROW_IS_VM_RUNNING] = vm.is_active()
+             row[ROW_MARKUP] = self._build_vm_markup(name, status)
+ 
+-            if config_changed:
+-                desc = vm.get_description()
+-                if not can_set_row_none:
+-                    desc = desc or ""
+-                    row[ROW_HINT] = util.xml_escape(desc)
++            desc = vm.get_description()
++            if not can_set_row_none:
++                desc = desc or ""
++            row[ROW_HINT] = util.xml_escape(desc)
+         except libvirt.libvirtError, e:
+             if uihelpers.exception_is_libvirt_error(e, "VIR_ERR_NO_DOMAIN"):
+                 return
+             raise
+ 
+-        self.widget("vm-list").get_model().row_changed(row.path, row.iter)
++        self.vm_row_updated(vm)
++
++    def vm_status_changed(self, vm, oldstatus, newstatus):
++        ignore = newstatus
++        ignore = oldstatus
++        parent = self.rows[vm.conn.get_uri()].iter
++        vmlist = self.widget("vm-list")
++        model = vmlist.get_model()
++
++        missing = True
++        for row in range(model.iter_n_children(parent)):
++            _iter = model.iter_nth_child(parent, row)
++            if model.get_value(_iter, ROW_HANDLE) == vm:
++                missing = False
++                break
++
++        if missing:
++            self._append_vm(model, vm, vm.conn)
++
++        # Update run/shutdown/pause button states
++        self.update_current_selection()
++        self.vm_config_changed(vm)
+ 
+     def vm_inspection_changed(self, vm):
+         row = self.rows.get(self.vm_row_key(vm), None)
+@@ -974,16 +979,10 @@ class vmmManager(vmmGObjectUI):
+             new_icon = new_icon or ""
+         row[ROW_INSPECTION_OS_ICON] = new_icon
+ 
+-        self.widget("vm-list").get_model().row_changed(row.path, row.iter)
+-
+-    def conn_state_changed(self, conn):
+-        self.conn_resources_sampled(conn)
+-        self.vm_selected()
++        self.vm_row_updated(vm)
+ 
+-    def conn_resources_sampled(self, conn, newname=None):
+-        model = self.widget("vm-list").get_model()
++    def conn_state_changed(self, conn, newname=None):
+         row = self.rows[conn.get_uri()]
+-
+         if newname:
+             row[ROW_SORT_KEY] = newname
+         row[ROW_MARKUP] = self._build_conn_markup(conn, row[ROW_SORT_KEY])
+@@ -994,20 +993,27 @@ class vmmManager(vmmGObjectUI):
+         if conn.get_state() in [vmmConnection.STATE_DISCONNECTED,
+                                 vmmConnection.STATE_CONNECTING]:
+             # Connection went inactive, delete any VM child nodes
+-            parent = self.rows[conn.get_uri()].iter
++            parent = row.iter
+             if parent is not None:
++                model = self.widget("vm-list").get_model()
+                 child = model.iter_children(parent)
+                 while child is not None:
+-                    del self.rows[self.vm_row_key(model.get_value(child,
+-                                                                  ROW_HANDLE))]
++                    vm = model[child][ROW_HANDLE]
++                    del self.rows[self.vm_row_key(vm)]
+                     model.remove(child)
+                     child = model.iter_children(parent)
+ 
++        self.conn_row_updated(conn)
++        self.update_current_selection()
++
++    def conn_row_updated(self, conn):
++        row = self.rows[conn.get_uri()]
++
+         self.max_disk_rate = max(self.max_disk_rate, conn.disk_io_max_rate())
+         self.max_net_rate = max(self.max_net_rate,
+                                 conn.network_traffic_max_rate())
+ 
+-        model.row_changed(row.path, row.iter)
++        self.widget("vm-list").get_model().row_changed(row.path, row.iter)
+ 
+     def change_run_text(self, can_restore):
+         if can_restore:
+@@ -1019,7 +1025,7 @@ class vmmManager(vmmGObjectUI):
+         self.vmmenu_items["run"].get_child().set_label(text)
+         self.widget("vm-run").set_label(strip_text)
+ 
+-    def vm_selected(self, ignore=None):
++    def update_current_selection(self, ignore=None):
+         vm = self.current_vm()
+ 
+         show_open = bool(vm)

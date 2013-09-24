@@ -1,0 +1,94 @@
+From 11eb5ff728413ca1b3c6404e4e42550add553355 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 1 Sep 2013 16:08:14 -0400
+Subject: [PATCH] console: Fix spice with TLS (bz #904295)
+
+We now use the same CA trust store as virt-viewer's default, which is:
+
+~/.spicec/spice_truststore.pem
+
+(cherry picked from commit cdc82e62a236d0e737851c693d6673f65ca278c1)
+
+Conflicts:
+	virtManager/console.py
+---
+ virtManager/console.py | 26 +++++++++++++++-----------
+ 1 file changed, 15 insertions(+), 11 deletions(-)
+
+diff --git a/virtManager/console.py b/virtManager/console.py
+index 001318e..90db31c 100644
+--- a/virtManager/console.py
++++ b/virtManager/console.py
+@@ -63,6 +63,7 @@ class ConnectionInfo(object):
+         self.gport      = gdev.port and str(gdev.port) or None
+         self.gsocket    = gdev.socket
+         self.gaddr      = gdev.listen or "127.0.0.1"
++        self.gtlsport   = gdev.tlsPort or None
+ 
+         self.transport, self.connuser = conn.get_transport()
+         self._connhost = conn.get_uri_hostname() or "127.0.0.1"
+@@ -80,19 +81,22 @@ class ConnectionInfo(object):
+     def get_conn_host(self):
+         host = self._connhost
+         port = self._connport
++        tlsport = None
+ 
+         if not self.need_tunnel():
+             port = self.gport
++            tlsport = self.gtlsport
+             if self.gaddr != "0.0.0.0":
+                 host = self.gaddr
+ 
+-        return host, port
++        return host, port, tlsport
+ 
+     def logstring(self):
+         return ("proto=%s trans=%s connhost=%s connuser=%s "
+-                "connport=%s gaddr=%s gport=%s gsocket=%s" %
++                "connport=%s gaddr=%s gport=%s gtlsport=%s gsocket=%s" %
+                 (self.gtype, self.transport, self._connhost, self.connuser,
+-                 self._connport, self.gaddr, self.gport, self.gsocket))
++                 self._connport, self.gaddr, self.gport, self.gtlsport,
++                 self.gsocket))
+     def console_active(self):
+         if self.gsocket:
+             return True
+@@ -111,7 +115,7 @@ class Tunnel(object):
+         if self.outfd is not None:
+             return -1
+ 
+-        host, port = ginfo.get_conn_host()
++        host, port, ignore = ginfo.get_conn_host()
+ 
+         # Build SSH cmd
+         argv = ["ssh", "ssh"]
+@@ -406,7 +410,7 @@ class VNCViewer(Viewer):
+         return self.display.is_open()
+ 
+     def open_host(self, ginfo, password=None):
+-        host, port = ginfo.get_conn_host()
++        host, port, ignore = ginfo.get_conn_host()
+ 
+         if not ginfo.gsocket:
+             logging.debug("VNC connection to %s:%s", host, port)
+@@ -553,14 +557,14 @@ class SpiceViewer(Viewer):
+         return self.display_channel.get_properties("width", "height")
+ 
+     def open_host(self, ginfo, password=None):
+-        host, port = ginfo.get_conn_host()
+-
+-        uri = "spice://"
+-        uri += str(host) + "?port=" + str(port)
+-        logging.debug("spice uri: %s", uri)
++        host, port, tlsport = ginfo.get_conn_host()
+ 
+         self.spice_session = SpiceClientGLib.Session()
+-        self.spice_session.set_property("uri", uri)
++        SpiceClientGLib.set_session_option(self.spice_session)
++        self.spice_session.set_property("host", str(host))
++        self.spice_session.set_property("port", str(port))
++        if tlsport:
++            self.spice_session.set_property("tls-port", str(tlsport))
+         if password:
+             self.spice_session.set_property("password", password)
+         GObject.GObject.connect(self.spice_session, "channel-new",

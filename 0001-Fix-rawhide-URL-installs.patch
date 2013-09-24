@@ -1,0 +1,24 @@
+From 17406905d786734e9d30b3a808314f7bb1e28891 Mon Sep 17 00:00:00 2001
+From: Lars Seipel <lars.seipel@gmail.com>
+Date: Mon, 29 Jul 2013 12:28:22 -0400
+Subject: [PATCH] Fix rawhide URL installs
+
+https://bugzilla.redhat.com/show_bug.cgi?id=989162
+(cherry picked from commit 72648c9185e3ccb27fb9896a4e7a48f1769c8a4e)
+---
+ virtinst/OSDistro.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtinst/OSDistro.py b/virtinst/OSDistro.py
+index 5ecfdf6..780823c 100644
+--- a/virtinst/OSDistro.py
++++ b/virtinst/OSDistro.py
+@@ -512,7 +512,7 @@ class FedoraDistro(RedHatDistro):
+             if ret:
+                 lateststr, latestnum = self._latestFedoraVariant()
+                 ver = self.treeinfo.get("general", "version")
+-                if ver == "development":
++                if ver == "development" or ver == "rawhide":
+                     self.os_variant = self._latestFedoraVariant()
+                 elif ver:
+                     vernum = int(str(ver).split("-")[0])
