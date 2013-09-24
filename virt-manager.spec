@@ -21,8 +21,8 @@
 
 
 %define _version 0.10.0
-%define _release 2
-%define gitcommit 948b5359
+%define _release 3
+%define gitcommit a2e52067
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
@@ -44,7 +44,7 @@ URL: http://virt-manager.org/
 # git clone git://git.fedorahosted.org/virt-manager.git
 # cd virt-manager
 # git archive -o ../virt-manager-%{gitcommit}.tar.gz \
-#     --prefix=virt-manager-%{version} %{gitcommit}
+#     --prefix=virt-manager-%{version}/ %{gitcommit}
 #
 #Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source0: virt-manager-%{gitcommit}.tar.gz
@@ -71,7 +71,7 @@ BuildRequires: /usr/bin/pod2man
 
 %description
 Virtual Machine Manager provides a graphical tool for administering virtual
-machines for KVM, Xen, and QEmu. Start, stop, add or remove virtual devices,
+machines for KVM, Xen, and LXC. Start, stop, add or remove virtual devices,
 connect to a graphical or serial console, and see resource usage statistics
 for existing VMs on local or remote machines. Uses libvirt as the backend
 management API.
@@ -192,6 +192,7 @@ fi
 %{_datadir}/%{name}/icons
 %{_datadir}/icons/hicolor/*/apps/*
 
+%{_datadir}/appdata/%{name}.appdata.xml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/glib-2.0/schemas/org.virt-manager.virt-manager.gschema.xml
 
@@ -223,6 +224,17 @@ fi
 
 
 %changelog
+* Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-3.gita2e52067
+- Sync with git
+- Don't try to launch multiple ssh askpass dialogs at once (bz #811346)
+- Fix confusion when multiple progress dialogs are run (bz #1003101)
+- Fix error adding macvtap nic (bz #1006324)
+- Add an appdata file (bz #1011120)
+- virt-install: fix nfs:// style URLs (bz #1011177)
+- Fix spice with TLS (bz #904295)
+- Reduce impact of memory leak (bz #972371)
+- Fix parsing rawhide .treeinfo (bz #989162)
+
 * Wed Aug 21 2013 Cole Robinson <crobinso@redhat.com> 0.10.0-2.git948b5359
 - Update to git snapshot for ARM support
 
