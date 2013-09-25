@@ -21,7 +21,7 @@
 
 
 %define _version 0.10.0
-%define _release 2
+%define _release 3
 
 
 # This macro is used for the continuous automated builds. It just
@@ -51,6 +51,8 @@ Patch0004: 0004-inspection-Check-can_set_row_none-before-setting-ico.patch
 Patch0005: 0005-virt-manager-ignore-VIR_ERR_NO_DOMAIN-when-a-domain-.patch
 Patch0006: 0006-manager-Merge-some-row-creation-drop-unneeded-row-ke.patch
 Patch0007: 0007-manager-Separate-stats-and-state-update-callbacks.patch
+# Make cache=default when adding new disk to existing VM (bz #976925)
+Patch0008: 0008-addhw-disk-cache-default-should-be-default-not-none.patch
 BuildArch: noarch
 
 
@@ -125,6 +127,8 @@ machine).
 %patch0005 -p1
 %patch0006 -p1
 %patch0007 -p1
+# Make cache=default when adding new disk to existing VM (bz #976925)
+%patch0008 -p1
 
 %build
 %if %{qemu_user}
@@ -235,6 +239,9 @@ fi
 
 
 %changelog
+* Wed Sep 25 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-3
+- Make cache=default when adding new disk to existing VM (bz #976925)
+
 * Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-2
 - Fix parsing rawhide .treeinfo (bz #989162)
 - Fix spice with TLS (bz #904295)

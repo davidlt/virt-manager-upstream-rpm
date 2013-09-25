@@ -1,4 +1,4 @@
-From 6df408590cf0c4c094bcc5e8700700118e2d71c6 Mon Sep 17 00:00:00 2001
+From 8b3bb638f500f2aa4ef21f704771edaa16b2d9e7 Mon Sep 17 00:00:00 2001
 From: Giuseppe Scrivano <gscrivan@redhat.com>
 Date: Fri, 16 Aug 2013 15:59:33 +0200
 Subject: [PATCH] virt-manager: ignore VIR_ERR_NO_DOMAIN when a domain was just

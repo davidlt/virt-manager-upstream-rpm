@@ -1,4 +1,4 @@
-From c3e576155228cc3f3f05d3953edadbf589b74d8c Mon Sep 17 00:00:00 2001
+From 2f8eb759c74783f6440c81cfcb714cb313a7aebb Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Sun, 1 Sep 2013 18:36:58 -0400
 Subject: [PATCH] manager: Merge some row creation, drop unneeded row keys

@@ -1,4 +1,4 @@
-From ed5dc524c54e72ee7f75749f11eb0606dddee8ea Mon Sep 17 00:00:00 2001
+From 28445979692b178f5e3fdbbd7e8178f4c7b5628c Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 2 Sep 2013 09:09:31 -0400
 Subject: [PATCH] manager: Separate stats and state update callbacks
