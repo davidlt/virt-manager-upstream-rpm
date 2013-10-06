@@ -1,0 +1,38 @@
+From a4e1df7fb3c835cb84344a59df82fa33cf1fe1aa Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 6 Oct 2013 15:30:01 -0400
+Subject: [PATCH] console: Fix console_active() logic
+
+(cherry picked from commit 79196cdfcf8f2ac58c87074c326ca3237f84dca6)
+
+Conflicts:
+	virtManager/console.py
+---
+ virtManager/console.py | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/virtManager/console.py b/virtManager/console.py
+index 90db31c..8058af9 100644
+--- a/virtManager/console.py
++++ b/virtManager/console.py
+@@ -100,9 +100,9 @@ class ConnectionInfo(object):
+     def console_active(self):
+         if self.gsocket:
+             return True
+-        if not self.gport:
++        if (self.gport in [None, -1] and self.gtlsport in [None, -1]):
+             return False
+-        return int(self.gport) == -1
++        return True
+ 
+ 
+ class Tunnel(object):
+@@ -1129,7 +1129,7 @@ class vmmConsolePages(vmmGObjectUI):
+             self.activate_unavailable_page(msg)
+             return
+ 
+-        if ginfo.console_active():
++        if not ginfo.console_active():
+             self.activate_unavailable_page(
+                             _("Graphical console is not yet active for guest"))
+             self.schedule_retry()

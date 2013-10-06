@@ -21,7 +21,7 @@
 
 
 %define _version 0.10.0
-%define _release 3
+%define _release 4
 
 
 # This macro is used for the continuous automated builds. It just
@@ -53,6 +53,8 @@ Patch0006: 0006-manager-Merge-some-row-creation-drop-unneeded-row-ke.patch
 Patch0007: 0007-manager-Separate-stats-and-state-update-callbacks.patch
 # Make cache=default when adding new disk to existing VM (bz #976925)
 Patch0008: 0008-addhw-disk-cache-default-should-be-default-not-none.patch
+# Another fix for TLS (bz #904295)
+Patch0009: 0009-console-Fix-console_active-logic.patch
 BuildArch: noarch
 
 
@@ -60,7 +62,7 @@ Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
-Requires: gnome-python2-gconf
+Requires: dconf
 Requires: libxml2-python
 Requires: vte3
 
@@ -129,6 +131,8 @@ machine).
 %patch0007 -p1
 # Make cache=default when adding new disk to existing VM (bz #976925)
 %patch0008 -p1
+# Another fix for TLS (bz #904295)
+%patch0009 -p1
 
 %build
 %if %{qemu_user}
@@ -239,6 +243,10 @@ fi
 
 
 %changelog
+* Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-4
+- Another fix for TLS (bz #904295)
+- Add dep on dconf (bz #1012884)
+
 * Wed Sep 25 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-3
 - Make cache=default when adding new disk to existing VM (bz #976925)
 
