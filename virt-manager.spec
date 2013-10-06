@@ -8,7 +8,6 @@
 %define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
-%define default_graphics           "spice"
 
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
@@ -21,8 +20,8 @@
 
 
 %define _version 0.10.0
-%define _release 3
-%define gitcommit a2e52067
+%define _release 4
+%define gitcommit 79196cdf
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
@@ -50,15 +49,13 @@ URL: http://virt-manager.org/
 Source0: virt-manager-%{gitcommit}.tar.gz
 BuildArch: noarch
 
-Patch0: 0001-support-Change-ARM-checks-to-match-F20-versions.patch
-
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
-Requires: gnome-python2-gconf
 Requires: libxml2-python
 Requires: vte3
+Requires: dconf
 
 # For console widget
 Requires: gtk-vnc2
@@ -112,7 +109,6 @@ machine).
 
 %prep
 %setup -q
-%patch0 -p1
 
 %build
 %if %{qemu_user}
@@ -139,10 +135,6 @@ machine).
 %define _disable_unsupported_rhel --hide-unsupported-rhel-options
 %endif
 
-%if %{default_graphics}
-%define _default_graphics --default-graphics=%{default_graphics}
-%endif
-
 python setup.py configure \
     --pkgversion="%{version}" \
     %{?_qemu_user} \
@@ -150,8 +142,7 @@ python setup.py configure \
     %{?_libvirt_packages} \
     %{?_askpass_package} \
     %{?_preferred_distros} \
-    %{?_disable_unsupported_rhel} \
-    %{?_default_graphics}
+    %{?_disable_unsupported_rhel}
 
 
 %install
@@ -224,6 +215,12 @@ fi
 
 
 %changelog
+* Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-4.git79196cdf
+- Fix cdrom ordering if added via 'customize' (bz #905439)
+- Default to spice/qxl for virt-install (bz #911734)
+- Fill in cache and io values for new VMs (bz #967643)
+- Add dep on dconf (bz #1012884)
+
 * Tue Sep 24 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-3.gita2e52067
 - Sync with git
 - Don't try to launch multiple ssh askpass dialogs at once (bz #811346)
