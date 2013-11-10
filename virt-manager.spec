@@ -20,8 +20,8 @@
 
 
 %define _version 0.10.0
-%define _release 4
-%define gitcommit 79196cdf
+%define _release 5
+%define gitcommit 1ffcc0cc
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
@@ -47,6 +47,10 @@ URL: http://virt-manager.org/
 #
 #Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 Source0: virt-manager-%{gitcommit}.tar.gz
+
+# Fix running virt-manager on rawhide (bz #1024569)
+# Remove this when pygobject is built with the fix
+Patch0001: 0001-virtManager-do-not-call-set_cell_data_func-with-an-e.patch
 BuildArch: noarch
 
 Requires: virt-manager-common = %{verrel}
@@ -109,6 +113,10 @@ machine).
 
 %prep
 %setup -q
+
+# Fix running virt-manager on rawhide (bz #1024569)
+# Remove this when pygobject is built with the fix
+%patch0001 -p1
 
 %build
 %if %{qemu_user}
@@ -215,6 +223,18 @@ fi
 
 
 %changelog
+* Sun Nov 10 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-5.git1ffcc0cc
+- Fix running virt-manager on rawhide (bz #1024569)
+- Fix vcpu vs. maxvcpu UI (bz #1016318)
+- Fix app startup when run as root (bz #1016435)
+- Release serial console when details window is closed (bz #1016445)
+- Clarify snapshot VM state UI (bz #1016604)
+- Fix adding qemu-guest-agent by default (bz #1016613)
+- Fix first run app install (bz #1016825)
+- Fix error reporting if initrd fetch fails (bz #1017419)
+- Fix error reporting if app is run with no DISPLAY (bz #1021482)
+- Fix usage of install media in /home/crobinso (bz #1025355)
+
 * Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-4.git79196cdf
 - Fix cdrom ordering if added via 'customize' (bz #905439)
 - Default to spice/qxl for virt-install (bz #911734)
