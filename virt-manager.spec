@@ -2,7 +2,7 @@
 
 
 %define with_guestfs               0
-%define disable_unsupported_rhel   0
+%define stable_defaults            0
 %define askpass_package            "openssh-askpass"
 %define qemu_user                  "qemu"
 %define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
@@ -12,16 +12,16 @@
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
 %define kvm_packages               "qemu-kvm"
-%define disable_unsupported_rhel   1
+%define stable_defaults            1
 %endif
 
 
 # End local config
 
 
-%define _version 0.10.0
-%define _release 5
-%define gitcommit 1ffcc0cc
+%define _version 1.0.0
+%define _release 1
+
 
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
@@ -31,27 +31,16 @@
 
 Name: virt-manager
 Version: %{_version}
-Release: %{_release}.git%{gitcommit}%{_extra_release}
+Release: %{_release}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
-# To prepare:
-#
-# git clone git://git.fedorahosted.org/virt-manager.git
-# cd virt-manager
-# git archive -o ../virt-manager-%{gitcommit}.tar.gz \
-#     --prefix=virt-manager-%{version}/ %{gitcommit}
-#
-#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Source0: virt-manager-%{gitcommit}.tar.gz
-
-# Fix running virt-manager on rawhide (bz #1024569)
-# Remove this when pygobject is built with the fix
-Patch0001: 0001-virtManager-do-not-call-set_cell_data_func-with-an-e.patch
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildArch: noarch
+
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
@@ -60,6 +49,7 @@ Requires: libvirt-glib >= 0.0.9
 Requires: libxml2-python
 Requires: vte3
 Requires: dconf
+Requires: dbus-x11
 
 # For console widget
 Requires: gtk-vnc2
@@ -103,6 +93,7 @@ Provides: virt-install
 Provides: virt-clone
 Provides: virt-image
 Provides: virt-convert
+Provides: virt-xml
 Obsoletes: python-virtinst
 
 %description -n virt-install
@@ -113,10 +104,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix running virt-manager on rawhide (bz #1024569)
-# Remove this when pygobject is built with the fix
-%patch0001 -p1
 
 %build
 %if %{qemu_user}
@@ -139,8 +126,8 @@ machine).
 %define _askpass_package --askpass-package-names=%{askpass_package}
 %endif
 
-%if %{disable_unsupported_rhel}
-%define _disable_unsupported_rhel --hide-unsupported-rhel-options
+%if %{stable_defaults}
+%define _stable_defaults --stable-defaults
 %endif
 
 python setup.py configure \
@@ -150,7 +137,7 @@ python setup.py configure \
     %{?_libvirt_packages} \
     %{?_askpass_package} \
     %{?_preferred_distros} \
-    %{?_disable_unsupported_rhel}
+    %{?_stable_defaults}
 
 
 %install
@@ -208,6 +195,7 @@ fi
 %{_mandir}/man1/virt-install.1*
 %{_mandir}/man1/virt-clone.1*
 %{_mandir}/man1/virt-convert.1*
+%{_mandir}/man1/virt-xml.1*
 %{_mandir}/man1/virt-image.1*
 %{_mandir}/man5/virt-image.5*
 
@@ -215,14 +203,22 @@ fi
 %{_datadir}/%{name}/virt-clone
 %{_datadir}/%{name}/virt-image
 %{_datadir}/%{name}/virt-convert
+%{_datadir}/%{name}/virt-xml
 
 %{_bindir}/virt-install
 %{_bindir}/virt-clone
 %{_bindir}/virt-image
 %{_bindir}/virt-convert
+%{_bindir}/virt-xml
 
 
 %changelog
+* Fri Feb 14 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-1
+- Rebased to version 1.0.0
+- New tool virt-xml: Edit libvirt XML in one shot from the command line
+- Improved defaults: qcow2, USB2, host CPU model, guest agent channel
+- Introspect command line options like --disk=? or --network=help
+
 * Sun Nov 10 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-5.git1ffcc0cc
 - Fix running virt-manager on rawhide (bz #1024569)
 - Fix vcpu vs. maxvcpu UI (bz #1016318)
