@@ -1,4 +1,4 @@
-From e3a0d7f0246dcc115d8c62d6aa29b7cc526a28df Mon Sep 17 00:00:00 2001
+From 6c9020ba65619e32640edb99b19841961aa07065 Mon Sep 17 00:00:00 2001
 From: "Richard W.M. Jones" <rjones@redhat.com>
 Date: Fri, 28 Jun 2013 18:45:53 +0100
 Subject: [PATCH] inspection: Check can_set_row_none before setting icon to

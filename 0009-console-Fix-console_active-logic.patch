@@ -1,4 +1,4 @@
-From a4e1df7fb3c835cb84344a59df82fa33cf1fe1aa Mon Sep 17 00:00:00 2001
+From 30409b06663f9eed75f61c8bef42b9c6324f04ab Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Sun, 6 Oct 2013 15:30:01 -0400
 Subject: [PATCH] console: Fix console_active() logic

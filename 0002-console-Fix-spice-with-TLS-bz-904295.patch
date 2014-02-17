@@ -1,4 +1,4 @@
-From 1cbf848d4e7bb5938c8d74484484d6e0376295a2 Mon Sep 17 00:00:00 2001
+From 4b89c62f5f3e8b7828dfae5a46ef2c5605d364ef Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Sun, 1 Sep 2013 16:08:14 -0400
 Subject: [PATCH] console: Fix spice with TLS (bz #904295)

@@ -1,4 +1,4 @@
-From 3b85e3ebb39f7a374235827ab86b49f4f19fa6a3 Mon Sep 17 00:00:00 2001
+From 24ccc61b17f92ee75dfb6a0152c12885bbdd14ff Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Sun, 1 Sep 2013 21:35:23 -0400
 Subject: [PATCH] manager: Disable graph data func if graph isn't visible

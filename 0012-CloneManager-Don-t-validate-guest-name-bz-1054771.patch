@@ -1,0 +1,39 @@
+From 8a0134c48cd6dab97ddf2420b10231b3547e6126 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 17 Feb 2014 12:16:59 -0500
+Subject: [PATCH] CloneManager: Don't validate guest name (bz 1054771)
+
+---
+ virtinst/CloneManager.py | 2 +-
+ virtinst/Guest.py        | 5 +++--
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/virtinst/CloneManager.py b/virtinst/CloneManager.py
+index 5350348..620920a 100644
+--- a/virtinst/CloneManager.py
++++ b/virtinst/CloneManager.py
+@@ -184,7 +184,7 @@ class CloneDesign(object):
+         return self._clone_name
+     def set_clone_name(self, name):
+         try:
+-            self._valid_guest.set_name(name)
++            self._valid_guest.set_name(name, validate=False)
+         except ValueError, e:
+             raise ValueError(_("Invalid name for new guest: %s") % e)
+ 
+diff --git a/virtinst/Guest.py b/virtinst/Guest.py
+index 6702444..35103d2 100644
+--- a/virtinst/Guest.py
++++ b/virtinst/Guest.py
+@@ -291,8 +291,9 @@ class Guest(XMLBuilderDomain.XMLBuilderDomain):
+     # Domain name of the guest
+     def get_name(self):
+         return self._name
+-    def set_name(self, val):
+-        util.validate_name(_("Guest"), val, lencheck=True)
++    def set_name(self, val, validate=True):
++        if validate:
++            util.validate_name(_("Guest"), val, lencheck=True)
+ 
+         do_fail = False
+         if self.replace is not True:

@@ -1,0 +1,27 @@
+From ba9a37c8c3ee3de1dee624bea8520306f0164f7d Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 14 Dec 2013 11:43:19 -0500
+Subject: [PATCH] spec: Require dbus-x11 (bz 1039803)
+
+virt-manager is one of those tools that people will often install when
+no traditional desktop is present. dbus-x11 is pulled in by desktop
+environments, but not by gtk3 for (presumably) legitimate reasons.
+But we need it to do anything worthwhile with dbus.
+
+(cherry picked from commit e57cd46904689c07befd1eed82a7f8163a3956a1)
+---
+ virt-manager.spec.in | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/virt-manager.spec.in b/virt-manager.spec.in
+index 9929d5b..bb1d718 100644
+--- a/virt-manager.spec.in
++++ b/virt-manager.spec.in
+@@ -50,6 +50,7 @@ Requires: libvirt-glib >= 0.0.9
+ Requires: libxml2-python
+ Requires: vte3
+ Requires: dconf
++Requires: dbus-x11
+ 
+ # For console widget
+ Requires: gtk-vnc2

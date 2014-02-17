@@ -1,4 +1,4 @@
-From 4d22adaf9306248350fca5f5542afa01d3cf992a Mon Sep 17 00:00:00 2001
+From ca87c73cb4148e17192085c0f920a3d158219727 Mon Sep 17 00:00:00 2001
 From: Lars Seipel <lars.seipel@gmail.com>
 Date: Mon, 29 Jul 2013 12:28:22 -0400
 Subject: [PATCH] Fix rawhide URL installs

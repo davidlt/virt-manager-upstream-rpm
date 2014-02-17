@@ -1,4 +1,4 @@
-From b3e2f2a146209459fcd3467f059657687e7aaa65 Mon Sep 17 00:00:00 2001
+From 86ab2026d7f73bfdfc1f348616338fd47e421e43 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 9 Sep 2013 10:50:56 -0400
 Subject: [PATCH] addhw: disk cache default should be 'default' not 'none'

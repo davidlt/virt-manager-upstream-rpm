@@ -21,7 +21,7 @@
 
 
 %define _version 0.10.0
-%define _release 4
+%define _release 5
 
 
 # This macro is used for the continuous automated builds. It just
@@ -55,6 +55,13 @@ Patch0007: 0007-manager-Separate-stats-and-state-update-callbacks.patch
 Patch0008: 0008-addhw-disk-cache-default-should-be-default-not-none.patch
 # Another fix for TLS (bz #904295)
 Patch0009: 0009-console-Fix-console_active-logic.patch
+# Add dep on dconf and dbus-x11 (bz #1039803)
+Patch0010: 0010-Remove-gconf-dep-Require-dconf.patch
+Patch0011: 0011-spec-Require-dbus-x11-bz-1039803.patch
+# Fix clone name validation error (bz #1039803)
+Patch0012: 0012-CloneManager-Don-t-validate-guest-name-bz-1054771.patch
+# Fix scaling=always behavior (bz #994456)
+Patch0013: 0013-console-Bunch-of-scaling-fixes-bz-969416.patch
 BuildArch: noarch
 
 
@@ -63,6 +70,7 @@ Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
 Requires: dconf
+Requires: dbus-x11
 Requires: libxml2-python
 Requires: vte3
 
@@ -133,6 +141,13 @@ machine).
 %patch0008 -p1
 # Another fix for TLS (bz #904295)
 %patch0009 -p1
+# Add dep on dconf and dbus-x11 (bz #1039803)
+%patch0010 -p1
+%patch0011 -p1
+# Fix clone name validation error (bz #1039803)
+%patch0012 -p1
+# Fix scaling=always behavior (bz #994456)
+%patch0013 -p1
 
 %build
 %if %{qemu_user}
@@ -243,6 +258,11 @@ fi
 
 
 %changelog
+* Mon Feb 17 2014 Cole Robinson <crobinso@redhat.com> - 0.10.0-5
+- Add dep on dconf and dbus-x11 (bz #1039803)
+- Fix clone name validation error (bz #1039803)
+- Fix scaling=always behavior (bz #994456)
+
 * Sun Oct 06 2013 Cole Robinson <crobinso@redhat.com> - 0.10.0-4
 - Another fix for TLS (bz #904295)
 - Add dep on dconf (bz #1012884)
