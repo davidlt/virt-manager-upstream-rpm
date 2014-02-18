@@ -1,0 +1,23 @@
+From 3aef95607e3462f6f738a1bad24c4ccfb615997c Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 17 Feb 2014 10:22:24 -0500
+Subject: [PATCH] connect: Fix connecting to lxc:/// URI
+
+(cherry picked from commit 0169042c1ee45fed779fc106476fc98265236651)
+---
+ virtManager/connect.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtManager/connect.py b/virtManager/connect.py
+index 7cd4da7..1247d75 100644
+--- a/virtManager/connect.py
++++ b/virtManager/connect.py
+@@ -364,7 +364,7 @@ class vmmConnect(vmmGObjectUI):
+         hvstr = ""
+         if hv == HV_XEN:
+             hvstr = "xen"
+-        elif hv == HV_QEMU or HV_QEMU_SESSION:
++        elif hv == HV_QEMU or hv == HV_QEMU_SESSION:
+             hvstr = "qemu"
+         else:
+             hvstr = "lxc"
