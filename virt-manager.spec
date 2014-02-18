@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.0
-%define _release 1
+%define _release 2
 
 
 # This macro is used for the continuous automated builds. It just
@@ -39,6 +39,14 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix open connection->lxc
+Patch0001: 0001-connect-Fix-connecting-to-lxc-URI.patch
+# Fix issues creating ppc64 guests
+Patch0002: 0002-create-Fix-non-x86-qemu-kvm-guest-creation.patch
+Patch0003: 0003-caps-Simplify-guest-lookup-routines.patch
+# Fix generating disk targets from customize->addhw
+Patch0004: 0004-create-Don-t-alter-caps-machine-list.patch
 BuildArch: noarch
 
 
@@ -104,6 +112,14 @@ machine).
 
 %prep
 %setup -q
+
+# Fix open connection->lxc
+%patch0001 -p1
+# Fix issues creating ppc64 guests
+%patch0002 -p1
+%patch0003 -p1
+# Fix generating disk targets from customize->addhw
+%patch0004 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +229,11 @@ fi
 
 
 %changelog
+* Tue Feb 18 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-2
+- Fix open connection->lxc
+- Fix issues creating ppc64 guests
+- Fix generating disk targets from customize->addhw
+
 * Fri Feb 14 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-1
 - Rebased to version 1.0.0
 - New tool virt-xml: Edit libvirt XML in one shot from the command line
