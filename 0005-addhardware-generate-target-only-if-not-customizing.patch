@@ -1,0 +1,44 @@
+From c7312ce1f5f13d77daf922924cef2f4f7b550e42 Mon Sep 17 00:00:00 2001
+From: Martin Kletzander <mkletzan@redhat.com>
+Date: Tue, 18 Feb 2014 11:38:56 +0100
+Subject: [PATCH] addhardware: generate target only if not customizing
+
+Commit 078e1a4d0503d98884b5b61df83021941bf32e8d changed the fact that
+disk target was generated only when adding new disk, not when current
+disk is being customized, so fix that back.
+
+Signed-off-by: Martin Kletzander <mkletzan@redhat.com>
+(cherry picked from commit bc5d84b0407257b1e257e7cabaf619430a7e8f83)
+---
+ virtManager/addhardware.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/virtManager/addhardware.py b/virtManager/addhardware.py
+index ecb5fc8..b1f6251 100644
+--- a/virtManager/addhardware.py
++++ b/virtManager/addhardware.py
+@@ -1471,20 +1471,22 @@ class vmmAddHardware(vmmGObjectUI):
+             return disk
+ 
+         try:
++            used = []
+             disk.bus = bus
+             if cache:
+                 disk.driver_cache = cache
+ 
+             # Generate target
+             if not self.is_customize_dialog:
+-                used = []
+                 disks = (self.vm.get_disk_devices() +
+                          self.vm.get_disk_devices(inactive=True))
+                 for d in disks:
+                     used.append(d.target)
+ 
+             prefer_ctrl = self._set_disk_controller(disk, controller_model, disks)
+-            disk.generate_target(used, prefer_ctrl)
++
++            if not self.is_customize_dialog:
++                disk.generate_target(used, prefer_ctrl)
+ 
+         except Exception, e:
+             return self.err.val_err(_("Storage parameter error."), e)
