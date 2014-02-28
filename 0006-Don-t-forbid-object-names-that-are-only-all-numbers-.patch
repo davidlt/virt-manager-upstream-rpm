@@ -1,0 +1,29 @@
+From f6756e8367757301d095dc35fbe477f234ba20d1 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 25 Feb 2014 14:54:06 -0500
+Subject: [PATCH] Don't forbid object names that are only all numbers (bz
+ 1067127)
+
+Just let libvirt error, since in the case of things like storage pools
+this is totally legitimate.
+
+(cherry picked from commit 3efbefe91a1ec23cbcf3d4f5a72a02fab87daa83)
+---
+ virtinst/util.py | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/virtinst/util.py b/virtinst/util.py
+index 31ccd38..2fe00d3 100644
+--- a/virtinst/util.py
++++ b/virtinst/util.py
+@@ -140,10 +140,6 @@ def validate_uuid(val):
+ 
+ 
+ def validate_name(name_type, val):
+-    if re.match("^[0-9]+$", val):
+-        raise ValueError(_("%s name can not be only numeric characters") %
+-                          name_type)
+-
+     # Rather than try and match libvirt's regex, just forbid things we
+     # know don't work
+     forbid = [" "]

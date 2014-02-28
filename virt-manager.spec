@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.0
-%define _release 2
+%define _release 3
 
 
 # This macro is used for the continuous automated builds. It just
@@ -45,8 +45,17 @@ Patch0001: 0001-connect-Fix-connecting-to-lxc-URI.patch
 # Fix issues creating ppc64 guests
 Patch0002: 0002-create-Fix-non-x86-qemu-kvm-guest-creation.patch
 Patch0003: 0003-caps-Simplify-guest-lookup-routines.patch
-# Fix generating disk targets from customize->addhw
 Patch0004: 0004-create-Don-t-alter-caps-machine-list.patch
+# Fix generating disk targets from customize->addhw
+Patch0005: 0005-addhardware-generate-target-only-if-not-customizing.patch
+# Fix creating storage paths if directory is all digits (bz #1069351)
+Patch0006: 0006-Don-t-forbid-object-names-that-are-only-all-numbers-.patch
+# Properly close connection if tick fails (bz #1069351)
+Patch0007: 0007-engine-Fix-closing-connection-when-tick-fails-bz-106.patch
+# virt-manager: Handle unrefreshed storage pools (bz #1070883)
+Patch0008: 0008-vmm-connection-Handle-missing-storage-volumes-bz-107.patch
+# Fix unsetting 'auto resize' console property
+Patch0009: 0009-console-Fix-unsetting-resize-guest-property-from-UI.patch
 BuildArch: noarch
 
 
@@ -118,8 +127,17 @@ machine).
 # Fix issues creating ppc64 guests
 %patch0002 -p1
 %patch0003 -p1
-# Fix generating disk targets from customize->addhw
 %patch0004 -p1
+# Fix generating disk targets from customize->addhw
+%patch0005 -p1
+# Fix creating storage paths if directory is all digits (bz #1069351)
+%patch0006 -p1
+# Properly close connection if tick fails (bz #1069351)
+%patch0007 -p1
+# virt-manager: Handle unrefreshed storage pools (bz #1070883)
+%patch0008 -p1
+# Fix unsetting 'auto resize' console property
+%patch0009 -p1
 
 %build
 %if %{qemu_user}
@@ -229,6 +247,12 @@ fi
 
 
 %changelog
+* Fri Feb 28 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-3
+- Fix creating storage paths if directory is all digits (bz #1069351)
+- Properly close connection if tick fails (bz #1069351)
+- virt-manager: Handle unrefreshed storage pools (bz #1070883)
+- Fix unsetting 'auto resize' console property
+
 * Tue Feb 18 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-2
 - Fix open connection->lxc
 - Fix issues creating ppc64 guests
