@@ -1,0 +1,40 @@
+From 732b00a33ef5a3f26b2842fe28dbcea855c1870b Mon Sep 17 00:00:00 2001
+From: Chen Hanxiao <chenhanxiao@cn.fujitsu.com>
+Date: Wed, 5 Mar 2014 10:31:59 +0800
+Subject: [PATCH] formats: make sure 'unar' is existed
+
+Commit 0b4a72fd77f74e5a9f6885179febe601156df617
+need unar command to do something.
+
+But if we haven't installed it, the error message
+told us nothing valuable as:
+"OSError: [Errno 2] No such file or directory"
+
+This patch will impove the error message.
+
+Signed-off-by: Chen Hanxiao <chenhanxiao@cn.fujitsu.com>
+(cherry picked from commit 98a27fc7fd5622eb498ce9746275a0ecd04ad139)
+---
+ virtconv/formats.py | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/virtconv/formats.py b/virtconv/formats.py
+index 5eb4356..0663190 100644
+--- a/virtconv/formats.py
++++ b/virtconv/formats.py
+@@ -132,6 +132,15 @@ def _find_input(input_file, parser, print_cb):
+                     prefix="virt-convert-tmp", dir=basedir)
+ 
+             base = os.path.basename(input_file)
++
++            # check if 'unar' command existed.
++            if not find_executable("unar"):
++                raise RuntimeError(_("%s appears to be an archive, "
++                    "but 'unar' is not installed. "
++                    "Please either install 'unar', or extract the archive "
++                    "yourself and point virt-convert at "
++                    "the extracted directory.") % base)
++
+             cmd = ["unar", "-o", tempdir, base]
+             print_cb(_("%s appears to be an archive, running: %s") %
+                 (base, " ".join(cmd)))

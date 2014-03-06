@@ -1,0 +1,35 @@
+From 71de6fb1d9ae2894b644006135237e8502f68e47 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 6 Mar 2014 11:31:09 -0500
+Subject: [PATCH] details: Fix fallback if fetching CPU models fails (bz
+ 1072704)
+
+(cherry picked from commit b078ba8c3d69b62fe748d9182babef8971914277)
+---
+ virtManager/details.py | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/virtManager/details.py b/virtManager/details.py
+index 72e79da..aa66bdb 100644
+--- a/virtManager/details.py
++++ b/virtManager/details.py
+@@ -965,8 +965,9 @@ class vmmDetails(vmmGObjectUI):
+         no_default = not self.is_customize_dialog
+ 
+         try:
+-            cpu_values = caps.get_cpu_values(self.vm.get_arch())
++            cpu_names = caps.get_cpu_values(self.vm.get_arch()).cpus
+         except:
++            cpu_names = []
+             logging.exception("Error populating CPU model list")
+ 
+         # CPU model combo
+@@ -987,7 +988,7 @@ class vmmDetails(vmmGObjectUI):
+         model.append([_("Clear CPU configuration"), "3",
+             virtinst.CPU.SPECIAL_MODE_CLEAR, False])
+         model.append([None, None, None, True])
+-        for name in [c.model for c in cpu_values.cpus]:
++        for name in [c.model for c in cpu_names]:
+             model.append([name, name, name, False])
+ 
+         # Disk cache combo

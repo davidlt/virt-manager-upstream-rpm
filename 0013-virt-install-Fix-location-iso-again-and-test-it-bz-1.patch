@@ -1,0 +1,303 @@
+From 0e71d70efaa1de17cca2ff7eae8c0d1a6ca99929 Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 6 Mar 2014 12:35:01 -0500
+Subject: [PATCH] virt-install: Fix --location iso again, and test it (bz
+ 1071513)
+
+(cherry picked from commit 797afb3b273d08a74119c878b689730f0b36a252)
+---
+ tests/__init__.py                                  |   2 +
+ .../compare/virt-install-location-iso.xml          | 129 +++++++++++++++++++++
+ tests/cli-test-xml/fake.iso                        |   0
+ tests/clitest.py                                   |   1 +
+ virtinst/distroinstaller.py                        |  20 ++--
+ virtinst/urlfetcher.py                             |  35 +++---
+ 6 files changed, 167 insertions(+), 20 deletions(-)
+ create mode 100644 tests/cli-test-xml/compare/virt-install-location-iso.xml
+ create mode 100644 tests/cli-test-xml/fake.iso
+
+diff --git a/tests/__init__.py b/tests/__init__.py
+index 1b1c902..8b26f5b 100644
+--- a/tests/__init__.py
++++ b/tests/__init__.py
+@@ -21,6 +21,8 @@ import logging
+ import os
+ 
+ os.environ["VIRTINST_TEST_SUITE"] = "1"
++os.environ["VIRTINST_TEST_URL_DIR"] = os.path.abspath(
++    "tests/cli-test-xml/fakefedoratree/")
+ 
+ import virtinst
+ virtinst.stable_defaults = False
+diff --git a/tests/cli-test-xml/compare/virt-install-location-iso.xml b/tests/cli-test-xml/compare/virt-install-location-iso.xml
+new file mode 100644
+index 0000000..64ce9e6
+--- /dev/null
++++ b/tests/cli-test-xml/compare/virt-install-location-iso.xml
+@@ -0,0 +1,129 @@
++<domain type="kvm">
++  <name>foobar</name>
++  <uuid>00000000-1111-2222-3333-444444444444</uuid>
++  <memory>65536</memory>
++  <currentMemory>65536</currentMemory>
++  <vcpu>1</vcpu>
++  <os>
++    <type arch="x86_64">hvm</type>
++    <kernel>./virtinst-vmlinuz.</kernel>
++    <initrd>./virtinst-initrd.img.</initrd>
++  </os>
++  <features>
++    <acpi/>
++    <apic/>
++    <pae/>
++  </features>
++  <cpu mode="custom" match="exact">
++    <model>core2duo</model>
++  </cpu>
++  <clock offset="utc">
++    <timer name="rtc" tickpolicy="catchup"/>
++    <timer name="pit" tickpolicy="delay"/>
++    <timer name="hpet" present="no"/>
++  </clock>
++  <on_poweroff>destroy</on_poweroff>
++  <on_reboot>destroy</on_reboot>
++  <on_crash>destroy</on_crash>
++  <devices>
++    <emulator>/usr/bin/qemu-kvm</emulator>
++    <disk type="file" device="cdrom">
++      <driver name="qemu"/>
++      <source file="/home/crobinso/src/virt-manager/tests/cli-test-xml/fake.iso"/>
++      <target dev="hda" bus="ide"/>
++      <readonly/>
++    </disk>
++    <controller type="usb" index="0" model="ich9-ehci1"/>
++    <controller type="usb" index="0" model="ich9-uhci1">
++      <master startport="0"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci2">
++      <master startport="2"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci3">
++      <master startport="4"/>
++    </controller>
++    <interface type="bridge">
++      <source bridge="eth0"/>
++      <mac address="00:11:22:33:44:55"/>
++      <model type="virtio"/>
++    </interface>
++    <input type="tablet" bus="usb"/>
++    <graphics type="spice" port="-1" tlsPort="-1" autoport="yes"/>
++    <console type="pty"/>
++    <channel type="spicevmc">
++      <target type="virtio" name="com.redhat.spice.0"/>
++    </channel>
++    <sound model="ich6"/>
++    <video>
++      <model type="qxl"/>
++    </video>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++  </devices>
++</domain>
++<domain type="kvm">
++  <name>foobar</name>
++  <uuid>00000000-1111-2222-3333-444444444444</uuid>
++  <memory>65536</memory>
++  <currentMemory>65536</currentMemory>
++  <vcpu>1</vcpu>
++  <os>
++    <type arch="x86_64">hvm</type>
++    <boot dev="hd"/>
++  </os>
++  <features>
++    <acpi/>
++    <apic/>
++    <pae/>
++  </features>
++  <cpu mode="custom" match="exact">
++    <model>core2duo</model>
++  </cpu>
++  <clock offset="utc">
++    <timer name="rtc" tickpolicy="catchup"/>
++    <timer name="pit" tickpolicy="delay"/>
++    <timer name="hpet" present="no"/>
++  </clock>
++  <on_poweroff>destroy</on_poweroff>
++  <on_reboot>restart</on_reboot>
++  <on_crash>restart</on_crash>
++  <devices>
++    <emulator>/usr/bin/qemu-kvm</emulator>
++    <disk type="block" device="cdrom">
++      <target dev="hda" bus="ide"/>
++      <readonly/>
++    </disk>
++    <controller type="usb" index="0" model="ich9-ehci1"/>
++    <controller type="usb" index="0" model="ich9-uhci1">
++      <master startport="0"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci2">
++      <master startport="2"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci3">
++      <master startport="4"/>
++    </controller>
++    <interface type="bridge">
++      <source bridge="eth0"/>
++      <mac address="00:11:22:33:44:55"/>
++      <model type="virtio"/>
++    </interface>
++    <input type="tablet" bus="usb"/>
++    <graphics type="spice" port="-1" tlsPort="-1" autoport="yes"/>
++    <console type="pty"/>
++    <channel type="spicevmc">
++      <target type="virtio" name="com.redhat.spice.0"/>
++    </channel>
++    <sound model="ich6"/>
++    <video>
++      <model type="qxl"/>
++    </video>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++  </devices>
++</domain>
+diff --git a/tests/cli-test-xml/fake.iso b/tests/cli-test-xml/fake.iso
+new file mode 100644
+index 0000000..e69de29
+diff --git a/tests/clitest.py b/tests/clitest.py
+index dd94bd3..32c29c7 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -528,6 +528,7 @@ c.add_compare("--os-variant fedora20 --nodisks --boot fd --graphics sdl --arch s
+ c.add_compare("--arch armv7l --machine vexpress-a9 --boot kernel=/f19-arm.kernel,initrd=/f19-arm.initrd,dtb=/f19-arm.dtb,extra_args=\"console=ttyAMA0 rw root=/dev/mmcblk0p3\" --disk %(EXISTIMG1)s --nographics", "arm-vexpress-plain", skip_check=support.SUPPORT_CONN_DISK_SD)
+ c.add_compare("--arch armv7l --machine vexpress-a15 --boot kernel=/f19-arm.kernel,initrd=/f19-arm.initrd,dtb=/f19-arm.dtb,kernel_args=\"console=ttyAMA0 rw root=/dev/vda3\",extra_args=foo --disk %(EXISTIMG1)s --nographics --os-variant fedora19", "arm-vexpress-f19", skip_check=support.SUPPORT_CONN_VIRTIO_MMIO)
+ c.add_compare("--arch ppc64 --machine pseries --boot network --disk %(EXISTIMG1)s --os-variant fedora20", "ppc64-pseries-f20")
++c.add_compare("--nodisks --location tests/cli-test-xml/fake.iso", "location-iso")  # Using --location iso mounting
+ c.add_valid("--cdrom %(EXISTIMG2)s --file %(EXISTIMG1)s --os-variant win2k3 --wait 0 --sound")  # HVM windows install with disk
+ c.add_valid("--os-variant fedora20 --file %(EXISTIMG1)s --location %(TREEDIR)s --extra-args console=ttyS0 --sound")  # F14 Directory tree URL install with extra-args
+ c.add_invalid("--nodisks --boot network --machine foobar")  # Unknown machine type
+diff --git a/virtinst/distroinstaller.py b/virtinst/distroinstaller.py
+index 13ceb6b..ec63ec3 100644
+--- a/virtinst/distroinstaller.py
++++ b/virtinst/distroinstaller.py
+@@ -299,11 +299,12 @@ def _upload_media(conn, scratchdir, system_scratchdir,
+ 
+ 
+ # Enum of the various install media types we can have
+-(MEDIA_LOCATION_PATH,
++(MEDIA_LOCATION_DIR,
++ MEDIA_LOCATION_CDROM,
+  MEDIA_LOCATION_URL,
+  MEDIA_CDROM_PATH,
+  MEDIA_CDROM_URL,
+- MEDIA_CDROM_IMPLIED) = range(1, 6)
++ MEDIA_CDROM_IMPLIED) = range(1, 7)
+ 
+ 
+ class DistroInstaller(Installer):
+@@ -324,7 +325,11 @@ class DistroInstaller(Installer):
+ 
+         if self.location and _is_url(self.conn, self.location):
+             return self.cdrom and MEDIA_CDROM_URL or MEDIA_LOCATION_URL
+-        return self.cdrom and MEDIA_CDROM_PATH or MEDIA_LOCATION_PATH
++        if self.cdrom:
++            return MEDIA_CDROM_PATH
++        if self.location and os.path.isdir(self.location):
++            return MEDIA_LOCATION_DIR
++        return MEDIA_LOCATION_CDROM
+ 
+     def _prepare_local(self):
+         transient = True
+@@ -374,7 +379,7 @@ class DistroInstaller(Installer):
+     def _get_bootdev(self, isinstall, guest):
+         mediatype = self._get_media_type()
+         local = mediatype in [MEDIA_CDROM_PATH, MEDIA_CDROM_IMPLIED,
+-                              MEDIA_LOCATION_PATH]
++                              MEDIA_LOCATION_DIR, MEDIA_LOCATION_CDROM]
+         persistent_cd = (local and
+                          self.cdrom and
+                          self.livecd)
+@@ -420,9 +425,10 @@ class DistroInstaller(Installer):
+             return
+ 
+         dev = None
+-        if mediatype == MEDIA_CDROM_PATH:
++        if mediatype == MEDIA_CDROM_PATH or mediatype == MEDIA_LOCATION_CDROM:
+             dev = self._prepare_local()
+-        else:
++
++        if mediatype != MEDIA_CDROM_PATH:
+             fetcher = urlfetcher.fetcherForURI(self.location,
+                                                scratchdir, meter)
+             try:
+@@ -454,7 +460,7 @@ class DistroInstaller(Installer):
+ 
+         mediatype = self._get_media_type()
+         return mediatype in [MEDIA_CDROM_URL, MEDIA_LOCATION_URL,
+-                             MEDIA_LOCATION_PATH]
++                             MEDIA_LOCATION_DIR, MEDIA_LOCATION_CDROM]
+ 
+     def check_location(self, guest):
+         mediatype = self._get_media_type()
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index 3c273e3..0d9a066 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -189,10 +189,16 @@ class _MountedImageFetcher(_LocalImageFetcher):
+     Fetcher capable of extracting files from a NFS server
+     or loopback mounted file, or local CDROM device
+     """
++    _in_test_suite = bool("VIRTINST_TEST_SUITE" in os.environ)
++
+     def prepareLocation(self):
+         cmd = None
+-        self.srcdir = tempfile.mkdtemp(prefix="virtinstmnt.",
+-                                       dir=self.scratchdir)
++
++        if self._in_test_suite:
++            self.srcdir = os.environ["VIRTINST_TEST_URL_DIR"]
++        else:
++            self.srcdir = tempfile.mkdtemp(prefix="virtinstmnt.",
++                                           dir=self.scratchdir)
+         mountcmd = "/bin/mount"
+ 
+         logging.debug("Preparing mount at " + self.srcdir)
+@@ -207,21 +213,24 @@ class _MountedImageFetcher(_LocalImageFetcher):
+ 
+         logging.debug("mount cmd: %s", cmd)
+ 
+-        ret = subprocess.call(cmd)
+-        if ret != 0:
+-            self.cleanupLocation()
+-            raise ValueError(_("Mounting location '%s' failed") %
+-                             (self.location))
++        if not self._in_test_suite:
++            ret = subprocess.call(cmd)
++            if ret != 0:
++                self.cleanupLocation()
++                raise ValueError(_("Mounting location '%s' failed") %
++                                 (self.location))
+         return True
+ 
+     def cleanupLocation(self):
+         logging.debug("Cleaning up mount at " + self.srcdir)
+-        cmd = ["/bin/umount", self.srcdir]
+-        subprocess.call(cmd)
+-        try:
+-            os.rmdir(self.srcdir)
+-        except:
+-            pass
++
++        if not self._in_test_suite:
++            cmd = ["/bin/umount", self.srcdir]
++            subprocess.call(cmd)
++            try:
++                os.rmdir(self.srcdir)
++            except:
++                pass
+ 
+ 
+ class _DirectImageFetcher(_LocalImageFetcher):
