@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.0
-%define _release 4
+%define _release 5
 
 
 # This macro is used for the continuous automated builds. It just
@@ -68,6 +68,8 @@ Patch0013: 0013-virt-install-Fix-location-iso-again-and-test-it-bz-1.patch
 Patch0014: 0014-Handle-libvirt-generating-invalid-volume-XML-bz-1072.patch
 Patch0015: 0015-xmlbuilder-Log-broken-XML-if-we-can-t-parse-it.patch
 Patch0016: 0016-xmlbuilder-Actually-import-logging.patch
+# addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
+Patch0017: 0017-addhardware-Fix-adding-disk-through-customize-dialog.patch
 BuildArch: noarch
 
 
@@ -162,6 +164,8 @@ machine).
 %patch0014 -p1
 %patch0015 -p1
 %patch0016 -p1
+# addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
+%patch0017 -p1
 
 %build
 %if %{qemu_user}
@@ -271,6 +275,9 @@ fi
 
 
 %changelog
+* Fri Mar 07 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-5
+- addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
+
 * Thu Mar 06 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-4
 - virt-convert: better error if unar is not installed
 - details: Fix fallback if fetching CPU models fails (bz #1072704)

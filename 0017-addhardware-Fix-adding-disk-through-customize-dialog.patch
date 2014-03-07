@@ -1,0 +1,32 @@
+From d07fba2758c57897c3cb2e39681894090534f04f Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Fri, 7 Mar 2014 09:37:08 -0500
+Subject: [PATCH] addhardware: Fix adding disk through 'customize' dialog (bz
+ 1073808)
+
+(cherry picked from commit 7ef9d7fbfc4173b6a6e88b6fb74e895293ffda55)
+---
+ virtManager/addhardware.py | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/virtManager/addhardware.py b/virtManager/addhardware.py
+index b1f6251..aba6f89 100644
+--- a/virtManager/addhardware.py
++++ b/virtManager/addhardware.py
+@@ -1477,13 +1477,15 @@ class vmmAddHardware(vmmGObjectUI):
+                 disk.driver_cache = cache
+ 
+             # Generate target
++            disks = []
+             if not self.is_customize_dialog:
+                 disks = (self.vm.get_disk_devices() +
+                          self.vm.get_disk_devices(inactive=True))
+                 for d in disks:
+                     used.append(d.target)
+ 
+-            prefer_ctrl = self._set_disk_controller(disk, controller_model, disks)
++            prefer_ctrl = self._set_disk_controller(
++                disk, controller_model, disks)
+ 
+             if not self.is_customize_dialog:
+                 disk.generate_target(used, prefer_ctrl)
