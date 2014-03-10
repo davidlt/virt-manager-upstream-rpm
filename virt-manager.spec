@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.0
-%define _release 5
+%define _release 6
 
 
 # This macro is used for the continuous automated builds. It just
@@ -70,6 +70,9 @@ Patch0015: 0015-xmlbuilder-Log-broken-XML-if-we-can-t-parse-it.patch
 Patch0016: 0016-xmlbuilder-Actually-import-logging.patch
 # addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
 Patch0017: 0017-addhardware-Fix-adding-disk-through-customize-dialog.patch
+# connection: Handle errors when deregistering events on close (bz
+# #1069351)
+Patch0018: 0018-connection-Handle-errors-when-deregistering-events-o.patch
 BuildArch: noarch
 
 
@@ -166,6 +169,9 @@ machine).
 %patch0016 -p1
 # addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
 %patch0017 -p1
+# connection: Handle errors when deregistering events on close (bz
+# #1069351)
+%patch0018 -p1
 
 %build
 %if %{qemu_user}
@@ -275,6 +281,9 @@ fi
 
 
 %changelog
+* Mon Mar 10 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-6
+- connection: Handle errors when deregistering events on close (bz #1069351)
+
 * Fri Mar 07 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-5
 - addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
 
