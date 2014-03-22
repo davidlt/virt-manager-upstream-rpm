@@ -19,8 +19,8 @@
 # End local config
 
 
-%define _version 1.0.0
-%define _release 6
+%define _version 1.0.1
+%define _release 1
 
 
 # This macro is used for the continuous automated builds. It just
@@ -39,40 +39,6 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-
-# Fix open connection->lxc
-Patch0001: 0001-connect-Fix-connecting-to-lxc-URI.patch
-# Fix issues creating ppc64 guests
-Patch0002: 0002-create-Fix-non-x86-qemu-kvm-guest-creation.patch
-Patch0003: 0003-caps-Simplify-guest-lookup-routines.patch
-Patch0004: 0004-create-Don-t-alter-caps-machine-list.patch
-# Fix generating disk targets from customize->addhw
-Patch0005: 0005-addhardware-generate-target-only-if-not-customizing.patch
-# Fix creating storage paths if directory is all digits (bz #1069351)
-Patch0006: 0006-Don-t-forbid-object-names-that-are-only-all-numbers-.patch
-# Properly close connection if tick fails (bz #1069351)
-Patch0007: 0007-engine-Fix-closing-connection-when-tick-fails-bz-106.patch
-# virt-manager: Handle unrefreshed storage pools (bz #1070883)
-Patch0008: 0008-vmm-connection-Handle-missing-storage-volumes-bz-107.patch
-# Fix unsetting 'auto resize' console property
-Patch0009: 0009-console-Fix-unsetting-resize-guest-property-from-UI.patch
-# virt-convert: better error if unar is not installed
-Patch0010: 0010-formats-make-sure-unar-is-existed.patch
-# details: Fix fallback if fetching CPU models fails (bz #1072704)
-Patch0011: 0011-details-Fix-fallback-if-fetching-CPU-models-fails-bz.patch
-# fsdetails: Fix adding a filesystem device (bz #1073067)
-Patch0012: 0012-fsdetails-Fix-adding-a-filesystem-device-bz-1073067.patch
-# virt-install: Fix --location iso again, and test it (bz #1071513)
-Patch0013: 0013-virt-install-Fix-location-iso-again-and-test-it-bz-1.patch
-# Handle libvirt generating invalid volume XML (bz #1072770)
-Patch0014: 0014-Handle-libvirt-generating-invalid-volume-XML-bz-1072.patch
-Patch0015: 0015-xmlbuilder-Log-broken-XML-if-we-can-t-parse-it.patch
-Patch0016: 0016-xmlbuilder-Actually-import-logging.patch
-# addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
-Patch0017: 0017-addhardware-Fix-adding-disk-through-customize-dialog.patch
-# connection: Handle errors when deregistering events on close (bz
-# #1069351)
-Patch0018: 0018-connection-Handle-errors-when-deregistering-events-o.patch
 BuildArch: noarch
 
 
@@ -138,40 +104,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix open connection->lxc
-%patch0001 -p1
-# Fix issues creating ppc64 guests
-%patch0002 -p1
-%patch0003 -p1
-%patch0004 -p1
-# Fix generating disk targets from customize->addhw
-%patch0005 -p1
-# Fix creating storage paths if directory is all digits (bz #1069351)
-%patch0006 -p1
-# Properly close connection if tick fails (bz #1069351)
-%patch0007 -p1
-# virt-manager: Handle unrefreshed storage pools (bz #1070883)
-%patch0008 -p1
-# Fix unsetting 'auto resize' console property
-%patch0009 -p1
-# virt-convert: better error if unar is not installed
-%patch0010 -p1
-# details: Fix fallback if fetching CPU models fails (bz #1072704)
-%patch0011 -p1
-# fsdetails: Fix adding a filesystem device (bz #1073067)
-%patch0012 -p1
-# virt-install: Fix --location iso again, and test it (bz #1071513)
-%patch0013 -p1
-# Handle libvirt generating invalid volume XML (bz #1072770)
-%patch0014 -p1
-%patch0015 -p1
-%patch0016 -p1
-# addhardware: Fix adding disk through 'customize' dialog (bz #1073808)
-%patch0017 -p1
-# connection: Handle errors when deregistering events on close (bz
-# #1069351)
-%patch0018 -p1
 
 %build
 %if %{qemu_user}
@@ -281,6 +213,17 @@ fi
 
 
 %changelog
+* Sat Mar 22 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-1
+- Rebased to version 1.0.1
+- virt-install/virt-xml: New --memorybacking option (Chen Hanxiao)
+- virt-install/virt-xml: New --memtune option (Chen Hanxiao)
+- virt-manager: UI for LXC <idmap> (Chen Hanxiao)
+- virt-manager: gsettings key to disable keygrab (Kjö Hansi Glaz)
+- virt-manager: Show domain state reason in the UI (Giuseppe Scrivano)
+- Fix a number of bugs found since the 1.0.0 release
+- Fix specifying emulator when switching connections (bz #1075444)
+- Allow changing network device source for a running VM (bz #1078854)
+
 * Mon Mar 10 2014 Cole Robinson <crobinso@redhat.com> - 1.0.0-6
 - connection: Handle errors when deregistering events on close (bz #1069351)
 
