@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.1
-%define _release 1
+%define _release 2
 
 
 # This macro is used for the continuous automated builds. It just
@@ -39,6 +39,20 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# gfxdetails: Show port number for active autoport VM (bz #1081614)
+Patch0001: 0001-gfxdetails-Show-port-number-for-active-autoport-VM-b.patch
+# connection: Hook into domain balloon event (bz #1081424)
+Patch0002: 0002-connection-Hook-into-domain-balloon-event-bz-1081424.patch
+# details: Fix showing vcpus values in 'customize' dialog (bz #1083903)
+Patch0003: 0003-details-Fix-showing-vcpus-values-in-customize-dialog.patch
+# details: Fix changing graphics type (bz #1083903)
+Patch0004: 0004-details-Fix-changing-graphics-type-bz-1083903.patch
+# createpool: Clarify iscsi IQN fields (bz #1084011)
+Patch0005: 0005-createpool-Clarify-iscsi-IQN-fields-bz-1084011.patch
+# More fixes for errors on libvirtd disconnect (bz #1069351)
+Patch0006: 0006-error-Don-t-log-redundant-details-bits.patch
+Patch0007: 0007-engine-More-work-to-fix-cascading-error-dialogs.patch
 BuildArch: noarch
 
 
@@ -104,6 +118,20 @@ machine).
 
 %prep
 %setup -q
+
+# gfxdetails: Show port number for active autoport VM (bz #1081614)
+%patch0001 -p1
+# connection: Hook into domain balloon event (bz #1081424)
+%patch0002 -p1
+# details: Fix showing vcpus values in 'customize' dialog (bz #1083903)
+%patch0003 -p1
+# details: Fix changing graphics type (bz #1083903)
+%patch0004 -p1
+# createpool: Clarify iscsi IQN fields (bz #1084011)
+%patch0005 -p1
+# More fixes for errors on libvirtd disconnect (bz #1069351)
+%patch0006 -p1
+%patch0007 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +241,14 @@ fi
 
 
 %changelog
+* Wed Apr 16 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
+- gfxdetails: Show port number for active autoport VM (bz #1081614)
+- connection: Hook into domain balloon event (bz #1081424)
+- details: Fix showing vcpus values in 'customize' dialog (bz #1083903)
+- details: Fix changing graphics type (bz #1083903)
+- createpool: Clarify iscsi IQN fields (bz #1084011)
+- More fixes for errors on libvirtd disconnect (bz #1069351)
+
 * Sat Mar 22 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-1
 - Rebased to version 1.0.1
 - virt-install/virt-xml: New --memorybacking option (Chen Hanxiao)
