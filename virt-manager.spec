@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.1
-%define _release 2
+%define _release 3
 
 
 # This macro is used for the continuous automated builds. It just
@@ -53,6 +53,19 @@ Patch0005: 0005-createpool-Clarify-iscsi-IQN-fields-bz-1084011.patch
 # More fixes for errors on libvirtd disconnect (bz #1069351)
 Patch0006: 0006-error-Don-t-log-redundant-details-bits.patch
 Patch0007: 0007-engine-More-work-to-fix-cascading-error-dialogs.patch
+# filesystem: Fix target validation when editing device (bz #1089422)
+Patch0008: 0008-filesystem-Fix-target-validation-when-editing-device.patch
+# details: Explicit warn that 'format' doesn't change image format (bz
+# #1089457)
+Patch0009: 0009-details-Explicit-warn-that-format-doesn-t-change-ima.patch
+# snapshots: Fix screenshot with qxl+spice (bz #1089780)
+Patch0010: 0010-snapshots-Fix-screenshot-with-qxl-spice-bz-1089780.patch
+# Fix using storage when the directory name contains whitespace (bz
+# #1091384)
+Patch0011: 0011-Fix-using-storage-when-the-directory-name-contains-w.patch
+# packageutils: Fix install when one package is already installed (bz
+# #1090181)
+Patch0012: 0012-packageutils-Fix-install-when-one-package-is-already.patch
 BuildArch: noarch
 
 
@@ -132,6 +145,19 @@ machine).
 # More fixes for errors on libvirtd disconnect (bz #1069351)
 %patch0006 -p1
 %patch0007 -p1
+# filesystem: Fix target validation when editing device (bz #1089422)
+%patch0008 -p1
+# details: Explicit warn that 'format' doesn't change image format (bz
+# #1089457)
+%patch0009 -p1
+# snapshots: Fix screenshot with qxl+spice (bz #1089780)
+%patch0010 -p1
+# Fix using storage when the directory name contains whitespace (bz
+# #1091384)
+%patch0011 -p1
+# packageutils: Fix install when one package is already installed (bz
+# #1090181)
+%patch0012 -p1
 
 %build
 %if %{qemu_user}
@@ -241,6 +267,15 @@ fi
 
 
 %changelog
+* Tue Apr 29 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-3
+- filesystem: Fix target validation when editing device (bz #1089422)
+- details: Explicit warn that 'format' doesn't change image format (bz
+  #1089457)
+- snapshots: Fix screenshot with qxl+spice (bz #1089780)
+- Fix using storage when the directory name contains whitespace (bz #1091384)
+- packageutils: Fix install when one package is already installed (bz
+  #1090181)
+
 * Wed Apr 16 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-2
 - gfxdetails: Show port number for active autoport VM (bz #1081614)
 - connection: Hook into domain balloon event (bz #1081424)
