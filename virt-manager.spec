@@ -31,7 +31,7 @@
 
 Name: virt-manager
 Version: %{_version}
-Release: %{_release}%{_extra_release}
+Release: %{_release}%{_extra_release}.1
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -267,6 +267,9 @@ fi
 
 
 %changelog
+* Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-3.1
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
 * Tue Apr 29 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-3
 - filesystem: Fix target validation when editing device (bz #1089422)
 - details: Explicit warn that 'format' doesn't change image format (bz
