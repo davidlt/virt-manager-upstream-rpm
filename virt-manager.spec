@@ -19,10 +19,6 @@
 # End local config
 
 
-%define _version 1.0.1
-%define _release 3
-
-
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
@@ -30,8 +26,8 @@
 %define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
 
 Name: virt-manager
-Version: %{_version}
-Release: %{_release}%{_extra_release}.1
+Version: 1.1.0
+Release: 1%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -39,33 +35,6 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-
-# gfxdetails: Show port number for active autoport VM (bz #1081614)
-Patch0001: 0001-gfxdetails-Show-port-number-for-active-autoport-VM-b.patch
-# connection: Hook into domain balloon event (bz #1081424)
-Patch0002: 0002-connection-Hook-into-domain-balloon-event-bz-1081424.patch
-# details: Fix showing vcpus values in 'customize' dialog (bz #1083903)
-Patch0003: 0003-details-Fix-showing-vcpus-values-in-customize-dialog.patch
-# details: Fix changing graphics type (bz #1083903)
-Patch0004: 0004-details-Fix-changing-graphics-type-bz-1083903.patch
-# createpool: Clarify iscsi IQN fields (bz #1084011)
-Patch0005: 0005-createpool-Clarify-iscsi-IQN-fields-bz-1084011.patch
-# More fixes for errors on libvirtd disconnect (bz #1069351)
-Patch0006: 0006-error-Don-t-log-redundant-details-bits.patch
-Patch0007: 0007-engine-More-work-to-fix-cascading-error-dialogs.patch
-# filesystem: Fix target validation when editing device (bz #1089422)
-Patch0008: 0008-filesystem-Fix-target-validation-when-editing-device.patch
-# details: Explicit warn that 'format' doesn't change image format (bz
-# #1089457)
-Patch0009: 0009-details-Explicit-warn-that-format-doesn-t-change-ima.patch
-# snapshots: Fix screenshot with qxl+spice (bz #1089780)
-Patch0010: 0010-snapshots-Fix-screenshot-with-qxl-spice-bz-1089780.patch
-# Fix using storage when the directory name contains whitespace (bz
-# #1091384)
-Patch0011: 0011-Fix-using-storage-when-the-directory-name-contains-w.patch
-# packageutils: Fix install when one package is already installed (bz
-# #1090181)
-Patch0012: 0012-packageutils-Fix-install-when-one-package-is-already.patch
 BuildArch: noarch
 
 
@@ -77,6 +46,7 @@ Requires: libxml2-python
 Requires: vte3
 Requires: dconf
 Requires: dbus-x11
+Requires: libosinfo >= 0.2.10
 
 # For console widget
 Requires: gtk-vnc2
@@ -118,7 +88,6 @@ Requires: virt-manager-common = %{verrel}
 
 Provides: virt-install
 Provides: virt-clone
-Provides: virt-image
 Provides: virt-convert
 Provides: virt-xml
 Obsoletes: python-virtinst
@@ -131,33 +100,6 @@ machine).
 
 %prep
 %setup -q
-
-# gfxdetails: Show port number for active autoport VM (bz #1081614)
-%patch0001 -p1
-# connection: Hook into domain balloon event (bz #1081424)
-%patch0002 -p1
-# details: Fix showing vcpus values in 'customize' dialog (bz #1083903)
-%patch0003 -p1
-# details: Fix changing graphics type (bz #1083903)
-%patch0004 -p1
-# createpool: Clarify iscsi IQN fields (bz #1084011)
-%patch0005 -p1
-# More fixes for errors on libvirtd disconnect (bz #1069351)
-%patch0006 -p1
-%patch0007 -p1
-# filesystem: Fix target validation when editing device (bz #1089422)
-%patch0008 -p1
-# details: Explicit warn that 'format' doesn't change image format (bz
-# #1089457)
-%patch0009 -p1
-# snapshots: Fix screenshot with qxl+spice (bz #1089780)
-%patch0010 -p1
-# Fix using storage when the directory name contains whitespace (bz
-# #1091384)
-%patch0011 -p1
-# packageutils: Fix install when one package is already installed (bz
-# #1090181)
-%patch0012 -p1
 
 %build
 %if %{qemu_user}
@@ -250,23 +192,39 @@ fi
 %{_mandir}/man1/virt-clone.1*
 %{_mandir}/man1/virt-convert.1*
 %{_mandir}/man1/virt-xml.1*
-%{_mandir}/man1/virt-image.1*
-%{_mandir}/man5/virt-image.5*
 
 %{_datadir}/%{name}/virt-install
 %{_datadir}/%{name}/virt-clone
-%{_datadir}/%{name}/virt-image
 %{_datadir}/%{name}/virt-convert
 %{_datadir}/%{name}/virt-xml
 
 %{_bindir}/virt-install
 %{_bindir}/virt-clone
-%{_bindir}/virt-image
 %{_bindir}/virt-convert
 %{_bindir}/virt-xml
 
 
 %changelog
+* Sun Sep 07 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-1
+- Rebased to version 1.1.0
+- Switch to libosinfo as OS metadata database (Giuseppe Scrivano)
+- Use libosinfo for OS detection from CDROM media labels (Giuseppe
+  Scrivano)
+- Use libosinfo for improved OS defaults, like recommended disk size
+  (Giuseppe Scrivano)
+- virt-image tool has been removed, as previously announced
+- Enable Hyper-V enlightenments for Windows VMs
+- Revert virtio-console default, back to plain serial console
+- Experimental q35 option in new VM 'customize' dialog
+- UI for virtual network QoS settings (Giuseppe Scrivano)
+- virt-install: --disk discard= support (Jim Minter)
+- addhardware: Add spiceport UI (Marc-André Lureau)
+- virt-install: --events on_poweroff etc. support (Chen Hanxiao)
+- cli --network portgroup= support and UI support
+- cli --boot initargs= and UI support
+- addhardware: allow setting controller model (Chen Hanxiao)
+- virt-install: support setting hugepage options (Chen Hanxiao)
+
 * Sun Jun 08 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.0.1-3.1
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
 
