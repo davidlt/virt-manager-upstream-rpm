@@ -1,0 +1,30 @@
+From cda87b1bafae20840ae71fa945ca0d303f16491d Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 8 Sep 2014 11:15:26 -0400
+Subject: [PATCH] Custom F20 fix for ubuntu vmvga default (bug 1129803)
+
+---
+ virtinst/guest.py | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index df43a5e..615c79f 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -949,12 +949,13 @@ class Guest(XMLBuilder):
+             self._add_spice_sound()
+             self._add_spice_usbredir()
+ 
+-        if has_spice() and self.os.is_x86():
++        video_model = self._lookup_osdict_key("videomodel", "cirrus")
++        # HACK for fedora 20 for ubuntu video default, virt-manager.git has
++        # the proper fix but it's specific to libosinfo.
++        if has_spice() and self.os.is_x86() and video_model != "vmvga":
+             video_model = "qxl"
+         elif self.os.is_ppc64() and self.os.machine == "pseries":
+             video_model = "vga"
+-        else:
+-            video_model = self._lookup_osdict_key("videomodel", "cirrus")
+ 
+         for video in self.get_devices("video"):
+             if video.model == video.MODEL_DEFAULT:

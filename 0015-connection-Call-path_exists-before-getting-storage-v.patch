@@ -1,0 +1,30 @@
+From c3bd3589544bedd3f891800b01276523c2629d2c Mon Sep 17 00:00:00 2001
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 30 Apr 2014 16:00:34 -0400
+Subject: [PATCH] connection: Call path_exists before getting storage volume
+ (bz 1092739)
+
+path_exists will check to ensure the volume actually survives a pool
+refresh, incase it was deleted behind libvirt's back. This makes the
+delete dialog happier at least.
+
+(cherry picked from commit 5c28a00d3e28ba7446f323a31ac47a194eb200b1)
+---
+ virtManager/connection.py | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/virtManager/connection.py b/virtManager/connection.py
+index 1d067fd..1d755c3 100644
+--- a/virtManager/connection.py
++++ b/virtManager/connection.py
+@@ -752,6 +752,10 @@ class vmmConnection(vmmGObject):
+         return self.get_pool_by_name("default")
+ 
+     def get_vol_by_path(self, path):
++        # path_exists will handle stuff like refreshing a busted pool
++        if not virtinst.VirtualDisk.path_exists(self.get_backend(), path):
++            return None
++
+         for pool in self.pools.values():
+             for vol in pool.get_volumes().values():
+                 if vol.get_target_path() == path:

@@ -20,7 +20,7 @@
 
 
 %define _version 1.0.1
-%define _release 3
+%define _release 4
 
 
 # This macro is used for the continuous automated builds. It just
@@ -66,6 +66,14 @@ Patch0011: 0011-Fix-using-storage-when-the-directory-name-contains-w.patch
 # packageutils: Fix install when one package is already installed (bz
 # #1090181)
 Patch0012: 0012-packageutils-Fix-install-when-one-package-is-already.patch
+# Fix error reporting when checking libvirt version at conn startup (bz
+# #1074120)
+Patch0013: 0013-connection-Report-error-if-things-fall-over-during-c.patch
+# Fix error reporting from delete dialog (bz #1092739)
+Patch0014: 0014-engine-Show-error-if-launching-delete-dialog-fails.patch
+Patch0015: 0015-connection-Call-path_exists-before-getting-storage-v.patch
+# Fix ubuntu video default (bz #1129803)
+Patch0016: 0016-Custom-F20-fix-for-ubuntu-vmvga-default-bug-1129803.patch
 BuildArch: noarch
 
 
@@ -158,6 +166,14 @@ machine).
 # packageutils: Fix install when one package is already installed (bz
 # #1090181)
 %patch0012 -p1
+# Fix error reporting when checking libvirt version at conn startup (bz
+# #1074120)
+%patch0013 -p1
+# Fix error reporting from delete dialog (bz #1092739)
+%patch0014 -p1
+%patch0015 -p1
+# Fix ubuntu video default (bz #1129803)
+%patch0016 -p1
 
 %build
 %if %{qemu_user}
@@ -267,6 +283,12 @@ fi
 
 
 %changelog
+* Mon Sep 08 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-4
+- Fix error reporting when checking libvirt version at conn startup (bz
+  #1074120)
+- Fix error reporting from delete dialog (bz #1092739)
+- Fix ubuntu video default (bz #1129803)
+
 * Tue Apr 29 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-3
 - filesystem: Fix target validation when editing device (bz #1089422)
 - details: Explicit warn that 'format' doesn't change image format (bz
