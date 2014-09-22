@@ -24,18 +24,21 @@
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
 %define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
+%global gitcommit 30db9ece2
 
 Name: virt-manager
 Version: 1.1.0
-Release: 1%{_extra_release}
+Release: 2.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
-Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildArch: noarch
+#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Generated with: git archive --prefix virt-manager-%{version}/ --output virt-manager-%{version}-%{gitcommit}.tar.gz %{gitcommit}
+Source0: virt-manager-%{version}-%{gitcommit}.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
@@ -205,6 +208,12 @@ fi
 
 
 %changelog
+* Mon Sep 22 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-2.git30db9ece2
+- Fix app hanging at connection startup with remote host (bz #1123266)
+- Fix several issues creating host bridges (bz #1122743)
+- Only use 2 usb redir devs by default to free up USB ports (bz #1135488)
+- Create qemu-ga channels for rhel/centos 6/7 VMs (bz #1139109)
+
 * Sun Sep 07 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-1
 - Rebased to version 1.1.0
 - Switch to libosinfo as OS metadata database (Giuseppe Scrivano)
