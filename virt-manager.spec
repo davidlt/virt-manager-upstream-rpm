@@ -24,11 +24,11 @@
 # to the release. This distinguishes automated builds, from formal
 # Fedora RPM builds
 %define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
-%global gitcommit 30db9ece2
+%global gitcommit 310f6527
 
 Name: virt-manager
 Version: 1.1.0
-Release: 2.git%{gitcommit}%{_extra_release}
+Release: 3.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -208,6 +208,9 @@ fi
 
 
 %changelog
+* Tue Sep 23 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-3.git310f6527
+- Fix defaults for arm and aarch64 VMs
+
 * Mon Sep 22 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-2.git30db9ece2
 - Fix app hanging at connection startup with remote host (bz #1123266)
 - Fix several issues creating host bridges (bz #1122743)
