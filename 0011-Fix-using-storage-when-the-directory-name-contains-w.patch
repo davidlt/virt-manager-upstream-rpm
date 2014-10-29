@@ -1,8 +1,7 @@
-From ca6d90b3d6d759e407855dfd4ba869c4f85542d3 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 29 Apr 2014 14:09:14 -0400
-Subject: [PATCH] Fix using storage when the directory name contains whitespace
- (bz 1091384)
+Subject: [PATCH virt-manager] Fix using storage when the directory name
+ contains whitespace (bz 1091384)
 
 (cherry picked from commit feadd98fed045ec40d5d5cf8250c7b05517eb9c9)
 ---

@@ -1,8 +1,7 @@
-From c3bd3589544bedd3f891800b01276523c2629d2c Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 30 Apr 2014 16:00:34 -0400
-Subject: [PATCH] connection: Call path_exists before getting storage volume
- (bz 1092739)
+Subject: [PATCH virt-manager] connection: Call path_exists before getting
+ storage volume (bz 1092739)
 
 path_exists will check to ensure the volume actually survives a pool
 refresh, incase it was deleted behind libvirt's back. This makes the

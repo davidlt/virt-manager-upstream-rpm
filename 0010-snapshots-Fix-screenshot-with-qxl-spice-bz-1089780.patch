@@ -1,7 +1,7 @@
-From c8cb642b0f7069e0eb803d6e0c4d8a44df0c57d2 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 29 Apr 2014 13:26:26 -0400
-Subject: [PATCH] snapshots: Fix screenshot with qxl+spice (bz 1089780)
+Subject: [PATCH virt-manager] snapshots: Fix screenshot with qxl+spice (bz
+ 1089780)
 
 (cherry picked from commit 2272166844f84943342fc097af927a09737ee57f)
 ---

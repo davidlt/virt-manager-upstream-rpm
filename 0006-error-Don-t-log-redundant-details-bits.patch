@@ -1,7 +1,6 @@
-From 5b6694efd7686684272c2d662bde52386ea1dc4f Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 16 Apr 2014 12:12:07 -0400
-Subject: [PATCH] error: Don't log redundant details bits
+Subject: [PATCH virt-manager] error: Don't log redundant details bits
 
 (cherry picked from commit 341a453d28e2b8dc97d22cd810d40bffac948af0)
 ---

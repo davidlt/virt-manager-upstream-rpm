@@ -1,8 +1,7 @@
-From 842835b3120d5c0825fa30f7dcc9c4090454c7e2 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Thu, 3 Apr 2014 10:30:37 -0400
-Subject: [PATCH] details: Fix showing vcpus values in 'customize' dialog (bz
- 1083903)
+Subject: [PATCH virt-manager] details: Fix showing vcpus values in 'customize'
+ dialog (bz 1083903)
 
 (cherry picked from commit ee6a541167b787a84cc5c7e553089cbd5ab9ada3)
 ---

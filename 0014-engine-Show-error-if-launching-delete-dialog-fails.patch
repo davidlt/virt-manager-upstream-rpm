@@ -1,7 +1,7 @@
-From 6ac3a18d533897dbf12a8d8d300b71ed2f863c2e Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 30 Apr 2014 15:54:00 -0400
-Subject: [PATCH] engine: Show error if launching delete dialog fails
+Subject: [PATCH virt-manager] engine: Show error if launching delete dialog
+ fails
 
 (cherry picked from commit f35438a01bbf3ba54b4e448d14e7981110a74f08)
 ---

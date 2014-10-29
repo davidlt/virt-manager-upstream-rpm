@@ -1,8 +1,7 @@
-From f3d8bec24a5f459d5aab199db309af5d3b5d3d54 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 21 Apr 2014 16:51:23 -0400
-Subject: [PATCH] filesystem: Fix target validation when editing device (bz
- 1089422)
+Subject: [PATCH virt-manager] filesystem: Fix target validation when editing
+ device (bz 1089422)
 
 (cherry picked from commit e6a67fc7099ac39257108080c8cbcfcdc6371e56)
 ---

@@ -1,7 +1,7 @@
-From 33a602c79792cfdbdc97be4e6c6c9acc04e4ba97 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 31 Mar 2014 12:43:49 -0400
-Subject: [PATCH] connection: Hook into domain balloon event (bz 1081424)
+Subject: [PATCH virt-manager] connection: Hook into domain balloon event (bz
+ 1081424)
 
 (cherry picked from commit adf3545671b155ca37c82bff0ab96d0c038ffee8)
 ---

@@ -1,8 +1,7 @@
-From b52f1f0eb36a347971cb380f13044b549a92b9c4 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 21 Apr 2014 17:04:33 -0400
-Subject: [PATCH] details: Explicit warn that 'format' doesn't change image
- format (bz 1089457)
+Subject: [PATCH virt-manager] details: Explicit warn that 'format' doesn't
+ change image format (bz 1089457)
 
 (cherry picked from commit 70da20682c9aba1e2bc738b19dfc6bb714d38496)
 ---

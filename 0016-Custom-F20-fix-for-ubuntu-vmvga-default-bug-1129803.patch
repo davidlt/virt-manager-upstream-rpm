@@ -1,7 +1,7 @@
-From cda87b1bafae20840ae71fa945ca0d303f16491d Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Mon, 8 Sep 2014 11:15:26 -0400
-Subject: [PATCH] Custom F20 fix for ubuntu vmvga default (bug 1129803)
+Subject: [PATCH virt-manager] Custom F20 fix for ubuntu vmvga default (bug
+ 1129803)
 
 ---
  virtinst/guest.py | 7 ++++---

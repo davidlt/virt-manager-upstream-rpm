@@ -1,7 +1,6 @@
-From a9d30657b1865fa6efbced51e744b0450298e48a Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Wed, 16 Apr 2014 10:32:52 -0400
-Subject: [PATCH] engine: More work to fix cascading error dialogs
+Subject: [PATCH virt-manager] engine: More work to fix cascading error dialogs
 
 If a remote network connection stalls, the tick queue becomes backed
 up while we wait for the hung connection to continue. While this

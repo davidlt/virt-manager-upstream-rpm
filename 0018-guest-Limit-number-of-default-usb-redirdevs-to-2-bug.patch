@@ -1,0 +1,277 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 20 Sep 2014 20:16:31 -0400
+Subject: [PATCH virt-manager] guest: Limit number of default usb redirdevs to
+ 2 (bug 1135488)
+
+If we use 4 devices here, we fill up all the emulated USB2 slots,
+and directly assigned devices are forced to fall back to USB1
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1135488
+(cherry picked from commit 3933ff101b880898c9e7a502efd641db9c4bf8a5)
+
+Conflicts:
+	tests/virtconv-files/libvirt_output/vmx2libvirt_test-nodisks.libvirt
+	virtinst/guest.py
+---
+ tests/cli-test-xml/compare/virt-convert-ovf-compare.xml             | 2 --
+ tests/cli-test-xml/compare/virt-convert-vmx-compare.xml             | 2 --
+ tests/cli-test-xml/compare/virt-install-kvm-machine.xml             | 2 --
+ tests/cli-test-xml/compare/virt-install-kvm-win2k3-cdrom.xml        | 6 ------
+ tests/cli-test-xml/compare/virt-install-kvm-xenner.xml              | 2 --
+ tests/cli-test-xml/compare/virt-install-location-iso.xml            | 4 ----
+ tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml       | 2 --
+ tests/cli-test-xml/compare/virt-install-qemu-plain.xml              | 2 --
+ .../virtconv-files/libvirt_output/ovf2libvirt_ovf_directory.libvirt | 2 --
+ tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt       | 2 --
+ .../libvirt_output/ovf2libvirt_test1.libvirt.disk_qcow2             | 2 --
+ tests/virtconv-files/libvirt_output/ovf2libvirt_test2.libvirt       | 2 --
+ .../virtconv-files/libvirt_output/vmx2libvirt_test-vmx-zip.libvirt  | 2 --
+ tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt       | 2 --
+ .../libvirt_output/vmx2libvirt_test1.libvirt.disk_raw               | 2 --
+ tests/virtconv-files/libvirt_output/vmx2libvirt_vmx-dir.libvirt     | 2 --
+ virtinst/guest.py                                                   | 5 ++++-
+ 17 files changed, 4 insertions(+), 39 deletions(-)
+
+diff --git a/tests/cli-test-xml/compare/virt-convert-ovf-compare.xml b/tests/cli-test-xml/compare/virt-convert-ovf-compare.xml
+index a1d2f75..03431a9 100644
+--- a/tests/cli-test-xml/compare/virt-convert-ovf-compare.xml
++++ b/tests/cli-test-xml/compare/virt-convert-ovf-compare.xml
+@@ -66,7 +66,5 @@ Copying testfile to /tmp/testfile
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-convert-vmx-compare.xml b/tests/cli-test-xml/compare/virt-convert-vmx-compare.xml
+index ffe7b59..8916e14 100644
+--- a/tests/cli-test-xml/compare/virt-convert-vmx-compare.xml
++++ b/tests/cli-test-xml/compare/virt-convert-vmx-compare.xml
+@@ -62,7 +62,5 @@ Running /usr/bin/qemu-img convert -O qcow2 fedora.vmdk /var/lib/libvirt/images/f
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-kvm-machine.xml b/tests/cli-test-xml/compare/virt-install-kvm-machine.xml
+index ccd23ab..dfc7029 100644
+--- a/tests/cli-test-xml/compare/virt-install-kvm-machine.xml
++++ b/tests/cli-test-xml/compare/virt-install-kvm-machine.xml
+@@ -56,7 +56,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-kvm-win2k3-cdrom.xml b/tests/cli-test-xml/compare/virt-install-kvm-win2k3-cdrom.xml
+index 601c561..10fc485 100644
+--- a/tests/cli-test-xml/compare/virt-install-kvm-win2k3-cdrom.xml
++++ b/tests/cli-test-xml/compare/virt-install-kvm-win2k3-cdrom.xml
+@@ -55,8 +55,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ <domain type="kvm">
+@@ -115,8 +113,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ <domain type="kvm">
+@@ -175,7 +171,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-kvm-xenner.xml b/tests/cli-test-xml/compare/virt-install-kvm-xenner.xml
+index 58f339a..364bdd1 100644
+--- a/tests/cli-test-xml/compare/virt-install-kvm-xenner.xml
++++ b/tests/cli-test-xml/compare/virt-install-kvm-xenner.xml
+@@ -40,7 +40,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-location-iso.xml b/tests/cli-test-xml/compare/virt-install-location-iso.xml
+index 21043b0..bb72569 100644
+--- a/tests/cli-test-xml/compare/virt-install-location-iso.xml
++++ b/tests/cli-test-xml/compare/virt-install-location-iso.xml
+@@ -60,8 +60,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ <domain type="kvm">
+@@ -123,7 +121,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml b/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
+index 3303105..c7e5da5 100644
+--- a/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
++++ b/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
+@@ -42,7 +42,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/cli-test-xml/compare/virt-install-qemu-plain.xml b/tests/cli-test-xml/compare/virt-install-qemu-plain.xml
+index d76ef7c..4177846 100644
+--- a/tests/cli-test-xml/compare/virt-install-qemu-plain.xml
++++ b/tests/cli-test-xml/compare/virt-install-qemu-plain.xml
+@@ -59,7 +59,5 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+diff --git a/tests/virtconv-files/libvirt_output/ovf2libvirt_ovf_directory.libvirt b/tests/virtconv-files/libvirt_output/ovf2libvirt_ovf_directory.libvirt
+index 597a0c5..26128ab 100644
+--- a/tests/virtconv-files/libvirt_output/ovf2libvirt_ovf_directory.libvirt
++++ b/tests/virtconv-files/libvirt_output/ovf2libvirt_ovf_directory.libvirt
+@@ -58,8 +58,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt b/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt
+index 83c3f90..5b892f3 100644
+--- a/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt
++++ b/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt
+@@ -64,8 +64,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt.disk_qcow2 b/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt.disk_qcow2
+index 1b50422..ae563e8 100644
+--- a/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt.disk_qcow2
++++ b/tests/virtconv-files/libvirt_output/ovf2libvirt_test1.libvirt.disk_qcow2
+@@ -64,8 +64,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/ovf2libvirt_test2.libvirt b/tests/virtconv-files/libvirt_output/ovf2libvirt_test2.libvirt
+index 9d28269..5d61795 100644
+--- a/tests/virtconv-files/libvirt_output/ovf2libvirt_test2.libvirt
++++ b/tests/virtconv-files/libvirt_output/ovf2libvirt_test2.libvirt
+@@ -59,8 +59,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/vmx2libvirt_test-vmx-zip.libvirt b/tests/virtconv-files/libvirt_output/vmx2libvirt_test-vmx-zip.libvirt
+index 9e2058f..68e9ee2 100644
+--- a/tests/virtconv-files/libvirt_output/vmx2libvirt_test-vmx-zip.libvirt
++++ b/tests/virtconv-files/libvirt_output/vmx2libvirt_test-vmx-zip.libvirt
+@@ -63,8 +63,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt b/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt
+index a6fc259..a82d279 100644
+--- a/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt
++++ b/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt
+@@ -61,8 +61,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt.disk_raw b/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt.disk_raw
+index 9c3d6e2..85381cb 100644
+--- a/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt.disk_raw
++++ b/tests/virtconv-files/libvirt_output/vmx2libvirt_test1.libvirt.disk_raw
+@@ -61,8 +61,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/tests/virtconv-files/libvirt_output/vmx2libvirt_vmx-dir.libvirt b/tests/virtconv-files/libvirt_output/vmx2libvirt_vmx-dir.libvirt
+index 74f3541..7821337 100644
+--- a/tests/virtconv-files/libvirt_output/vmx2libvirt_vmx-dir.libvirt
++++ b/tests/virtconv-files/libvirt_output/vmx2libvirt_vmx-dir.libvirt
+@@ -62,8 +62,6 @@
+     </video>
+     <redirdev bus="usb" type="spicevmc"/>
+     <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+-    <redirdev bus="usb" type="spicevmc"/>
+   </devices>
+ </domain>
+ 
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index 615c79f..bd60965 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -932,7 +932,10 @@ class Guest(XMLBuilder):
+         if not self.conn.check_support(self.conn.SUPPORT_CONN_USBREDIR):
+             return
+ 
+-        for ignore in range(4):
++        # If we use 4 devices here, we fill up all the emulated USB2 slots,
++        # and directly assigned devices are forced to fall back to USB1
++        # https://bugzilla.redhat.com/show_bug.cgi?id=1135488
++        for ignore in range(2):
+             dev = virtinst.VirtualRedirDevice(self.conn)
+             dev.bus = "usb"
+             dev.type = "spicevmc"

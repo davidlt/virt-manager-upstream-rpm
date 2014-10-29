@@ -1,7 +1,6 @@
-From e8e4ad674d537c8531eb665a87dc6d40e6e3dd25 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Thu, 3 Apr 2014 10:53:54 -0400
-Subject: [PATCH] details: Fix changing graphics type (bz 1083903)
+Subject: [PATCH virt-manager] details: Fix changing graphics type (bz 1083903)
 
 And clean up the API usage to avoid these types of issues in the future.
 

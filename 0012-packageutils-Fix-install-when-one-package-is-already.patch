@@ -1,8 +1,7 @@
-From aa9a8aedfbbca635eb34f168b8e04ba9730584f5 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Tue, 29 Apr 2014 14:34:31 -0400
-Subject: [PATCH] packageutils: Fix install when one package is already
- installed (bz 1090181)
+Subject: [PATCH virt-manager] packageutils: Fix install when one package is
+ already installed (bz 1090181)
 
 (cherry picked from commit 15449eb12601ec1b88aa6d8ee52986ef5ab41ae2)
 ---

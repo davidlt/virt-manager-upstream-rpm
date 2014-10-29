@@ -1,7 +1,7 @@
-From e99370e30b845b4ca645c9ace040f80356264e9e Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Thu, 3 Apr 2014 11:19:03 -0400
-Subject: [PATCH] createpool: Clarify iscsi IQN fields (bz 1084011)
+Subject: [PATCH virt-manager] createpool: Clarify iscsi IQN fields (bz
+ 1084011)
 
 (cherry picked from commit 8fa2aad1d31f811bb09505595c6401bdf6b90d78)
 ---

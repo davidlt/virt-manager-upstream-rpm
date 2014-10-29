@@ -1,8 +1,7 @@
-From 5307267536c7c1f7bf09bae81bff9aec3ee2622a Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Sun, 30 Mar 2014 17:34:26 -0400
-Subject: [PATCH] gfxdetails: Show port number for active autoport VM (bz
- 1081614)
+Subject: [PATCH virt-manager] gfxdetails: Show port number for active autoport
+ VM (bz 1081614)
 
 (cherry picked from commit 7f802e287c21a6395a0e9f5435c1eab78b2ce6b5)
 ---

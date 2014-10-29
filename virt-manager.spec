@@ -18,11 +18,6 @@
 
 # End local config
 
-
-%define _version 1.0.1
-%define _release 4
-
-
 # This macro is used for the continuous automated builds. It just
 # allows an extra fragment based on the timestamp to be appended
 # to the release. This distinguishes automated builds, from formal
@@ -30,8 +25,8 @@
 %define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
 
 Name: virt-manager
-Version: %{_version}
-Release: %{_release}%{_extra_release}
+Version: 1.0.1
+Release: 5%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -74,6 +69,10 @@ Patch0014: 0014-engine-Show-error-if-launching-delete-dialog-fails.patch
 Patch0015: 0015-connection-Call-path_exists-before-getting-storage-v.patch
 # Fix ubuntu video default (bz #1129803)
 Patch0016: 0016-Custom-F20-fix-for-ubuntu-vmvga-default-bug-1129803.patch
+# Fix F21 URL installs (bz #1147720)
+Patch0017: 0017-urlfetcher-Bunch-of-distro-detection-fixes.patch
+# Only add 2 usbredir devices by default (bz #1135488)
+Patch0018: 0018-guest-Limit-number-of-default-usb-redirdevs-to-2-bug.patch
 BuildArch: noarch
 
 
@@ -174,6 +173,10 @@ machine).
 %patch0015 -p1
 # Fix ubuntu video default (bz #1129803)
 %patch0016 -p1
+# Fix F21 URL installs (bz #1147720)
+%patch0017 -p1
+# Only add 2 usbredir devices by default (bz #1135488)
+%patch0018 -p1
 
 %build
 %if %{qemu_user}
@@ -283,6 +286,10 @@ fi
 
 
 %changelog
+* Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-5
+- Fix F21 URL installs (bz #1147720)
+- Only add 2 usbredir devices by default (bz #1135488)
+
 * Mon Sep 08 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-4
 - Fix error reporting when checking libvirt version at conn startup (bz
   #1074120)

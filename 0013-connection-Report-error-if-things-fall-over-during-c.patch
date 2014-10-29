@@ -1,8 +1,7 @@
-From f981509e84a99dccf99d8767d3754adf0eccecb9 Mon Sep 17 00:00:00 2001
 From: Cole Robinson <crobinso@redhat.com>
 Date: Fri, 4 Jul 2014 17:37:42 -0400
-Subject: [PATCH] connection: Report error if things fall over during
- connection bring up
+Subject: [PATCH virt-manager] connection: Report error if things fall over
+ during connection bring up
 
 (cherry picked from commit e12d7a6a8c21f0d8e0331fa06f53523258bdfaae)
 
