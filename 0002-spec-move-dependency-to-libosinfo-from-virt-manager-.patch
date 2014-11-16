@@ -1,0 +1,31 @@
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+Date: Fri, 31 Oct 2014 20:09:54 +0100
+Subject: [PATCH virt-manager] spec: move dependency to libosinfo from
+ virt-manager to common
+
+Closes: https://bugzilla.redhat.com/show_bug.cgi?id=1159370
+(cherry picked from commit 23d2047576b40e9bb3342cf98d05649dd709b91b)
+---
+ virt-manager.spec.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virt-manager.spec.in b/virt-manager.spec.in
+index 6463fa0..607a4b6 100644
+--- a/virt-manager.spec.in
++++ b/virt-manager.spec.in
+@@ -46,7 +46,6 @@ Requires: libxml2-python
+ Requires: vte3
+ Requires: dconf
+ Requires: dbus-x11
+-Requires: libosinfo >= 0.2.10
+ 
+ # For console widget
+ Requires: gtk-vnc2
+@@ -75,6 +74,7 @@ Requires: libvirt-python >= 0.7.0
+ Requires: libxml2-python
+ Requires: python-urlgrabber
+ Requires: python-ipaddr
++Requires: libosinfo >= 0.2.10
+ 
+ %description common
+ Common files used by the different virt-manager interfaces, as well as

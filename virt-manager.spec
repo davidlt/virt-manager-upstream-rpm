@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 3.git%{gitcommit}%{_extra_release}
+Release: 4.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -40,6 +40,13 @@ BuildArch: noarch
 # Generated with: git archive --prefix virt-manager-%{version}/ --output virt-manager-%{version}-%{gitcommit}.tar.gz %{gitcommit}
 Source0: virt-manager-%{version}-%{gitcommit}.tar.gz
 
+# Fix crash when rebooting VMs after install (bz #1135546)
+Patch0001: 0001-tunnels-do-not-close-unowned-fd.patch
+# Fix dep on libosinfo (bz #1159370)
+Patch0002: 0002-spec-move-dependency-to-libosinfo-from-virt-manager-.patch
+# Fix PCI/USB hotplug (bz #1146297)
+Patch0003: 0003-addhardware-Fix-attaching-USB-PCI-hostdev-bz-1146297.patch
+
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
@@ -49,7 +56,6 @@ Requires: libxml2-python
 Requires: vte3
 Requires: dconf
 Requires: dbus-x11
-Requires: libosinfo >= 0.2.10
 
 # For console widget
 Requires: gtk-vnc2
@@ -78,6 +84,7 @@ Requires: libvirt-python >= 0.7.0
 Requires: libxml2-python
 Requires: python-urlgrabber
 Requires: python-ipaddr
+Requires: libosinfo >= 0.2.10
 
 %description common
 Common files used by the different virt-manager interfaces, as well as
@@ -103,6 +110,13 @@ machine).
 
 %prep
 %setup -q
+
+# Fix crash when rebooting VMs after install (bz #1135546)
+%patch0001 -p1
+# Fix dep on libosinfo (bz #1159370)
+%patch0002 -p1
+# Fix PCI/USB hotplug (bz #1146297)
+%patch0003 -p1
 
 %build
 %if %{qemu_user}
@@ -208,6 +222,11 @@ fi
 
 
 %changelog
+* Sun Nov 16 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-4.git310f6527
+- Fix crash when rebooting VMs after install (bz #1135546)
+- Fix dep on libosinfo (bz #1159370)
+- Fix PCI/USB hotplug (bz #1146297)
+
 * Tue Sep 23 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-3.git310f6527
 - Fix defaults for arm and aarch64 VMs
 

@@ -1,0 +1,31 @@
+From: =?UTF-8?q?Marc-Andr=C3=A9=20Lureau?= <marcandre.lureau@redhat.com>
+Date: Sun, 9 Nov 2014 22:02:30 +0100
+Subject: [PATCH virt-manager] tunnels: do not close unowned fd
+
+The fd is handed to spice-gtk and gtk-vnc. They will close it when no
+longer needed. Double closing leads to various race issues, since the
+same fd may be opened for a different usage.
+
+Fixes:
+https://bugzilla.redhat.com/show_bug.cgi?id=1081227
+(cherry picked from commit 5daee287d91080d24c4e7ae8a0eaf4e356331bae)
+---
+ virtManager/sshtunnels.py | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
+
+diff --git a/virtManager/sshtunnels.py b/virtManager/sshtunnels.py
+index b6bcf88..3a338a4 100644
+--- a/virtManager/sshtunnels.py
++++ b/virtManager/sshtunnels.py
+@@ -153,10 +153,7 @@ class _Tunnel(object):
+                       self.outfd and self.outfd.fileno() or self._outfds,
+                       self.errfd and self.errfd.fileno() or self._errfds)
+ 
+-        if self.outfd:
+-            self.outfd.close()
+-        elif self._outfds:
+-            self._outfds[0].close()
++        if self._outfds:
+             self._outfds[1].close()
+         self.outfd = None
+         self._outfds = None
