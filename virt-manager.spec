@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 4.git%{gitcommit}%{_extra_release}
+Release: 5.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -46,6 +46,8 @@ Patch0001: 0001-tunnels-do-not-close-unowned-fd.patch
 Patch0002: 0002-spec-move-dependency-to-libosinfo-from-virt-manager-.patch
 # Fix PCI/USB hotplug (bz #1146297)
 Patch0003: 0003-addhardware-Fix-attaching-USB-PCI-hostdev-bz-1146297.patch
+# Fix BuildRequires for f22/rawhide
+Patch0004: 0004-spec-Add-BuildRequires-python-for-f22-rawhide.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -62,6 +64,7 @@ Requires: gtk-vnc2
 Requires: spice-gtk3
 
 
+BuildRequires: python
 BuildRequires: intltool
 BuildRequires: /usr/bin/pod2man
 
@@ -117,6 +120,8 @@ machine).
 %patch0002 -p1
 # Fix PCI/USB hotplug (bz #1146297)
 %patch0003 -p1
+# Fix BuildRequires for f22/rawhide
+%patch0004 -p1
 
 %build
 %if %{qemu_user}
@@ -222,6 +227,9 @@ fi
 
 
 %changelog
+* Sun Feb 22 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-5.git310f6527
+- Fix BuildRequires for f22/rawhide
+
 * Sun Nov 16 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-4.git310f6527
 - Fix crash when rebooting VMs after install (bz #1135546)
 - Fix dep on libosinfo (bz #1159370)
