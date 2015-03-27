@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 4.git%{gitcommit}%{_extra_release}
+Release: 5.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -46,6 +46,16 @@ Patch0001: 0001-tunnels-do-not-close-unowned-fd.patch
 Patch0002: 0002-spec-move-dependency-to-libosinfo-from-virt-manager-.patch
 # Fix PCI/USB hotplug (bz #1146297)
 Patch0003: 0003-addhardware-Fix-attaching-USB-PCI-hostdev-bz-1146297.patch
+# Fix new VM disk image names when VM name changes (bz #1169141)
+Patch0004: 0004-create-Fix-default-storage-path-when-VM-name-is-chan.patch
+# Fix missing virt-install dep on pygobject (bz #1195794)
+Patch0005: 0005-spec-Add-pygobject3-base-dep-for-virt-install-bz-119.patch
+# Fix changing VM video type away from qxl (bz #1182710)
+Patch0006: 0006-virt-manager-reset-vgamem-for-video-when-changing-de.patch
+# Clear vendor field when changing CPU (bz #1190851)
+Patch0007: 0007-cpu-Drop-vendor-and-features-if-setting-host-model-b.patch
+# Drop bogus network domain name validation (bz #1195873)
+Patch0008: 0008-createnet-Drop-incorrect-domain-name-validation-bz-1.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -85,6 +95,8 @@ Requires: libxml2-python
 Requires: python-urlgrabber
 Requires: python-ipaddr
 Requires: libosinfo >= 0.2.10
+# Required for gobject-introspection infrastructure
+Requires: pygobject3-base
 
 %description common
 Common files used by the different virt-manager interfaces, as well as
@@ -117,6 +129,16 @@ machine).
 %patch0002 -p1
 # Fix PCI/USB hotplug (bz #1146297)
 %patch0003 -p1
+# Fix new VM disk image names when VM name changes (bz #1169141)
+%patch0004 -p1
+# Fix missing virt-install dep on pygobject (bz #1195794)
+%patch0005 -p1
+# Fix changing VM video type away from qxl (bz #1182710)
+%patch0006 -p1
+# Clear vendor field when changing CPU (bz #1190851)
+%patch0007 -p1
+# Drop bogus network domain name validation (bz #1195873)
+%patch0008 -p1
 
 %build
 %if %{qemu_user}
@@ -222,6 +244,13 @@ fi
 
 
 %changelog
+* Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-5.git310f6527
+- Fix new VM disk image names when VM name changes (bz #1169141)
+- Fix missing virt-install dep on pygobject (bz #1195794)
+- Fix changing VM video type away from qxl (bz #1182710)
+- Clear vendor field when changing CPU (bz #1190851)
+- Drop bogus network domain name validation (bz #1195873)
+
 * Sun Nov 16 2014 Cole Robinson <crobinso@redhat.com> - 1.1.0-4.git310f6527
 - Fix crash when rebooting VMs after install (bz #1135546)
 - Fix dep on libosinfo (bz #1159370)

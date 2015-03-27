@@ -1,0 +1,74 @@
+From: Giuseppe Scrivano <gscrivan@redhat.com>
+Date: Mon, 1 Dec 2014 15:56:29 +0100
+Subject: [PATCH virt-manager] virt-manager: reset vgamem for video when
+ changing device type
+
+Closes: https://bugzilla.redhat.com/show_bug.cgi?id=1169295
+
+Signed-off-by: Giuseppe Scrivano <gscrivan@redhat.com>
+(cherry picked from commit 51e5a471202a67e3c9c1dd53c0afc333d77933c9)
+---
+ tests/xmlparse-xml/change-videos-out.xml | 2 +-
+ tests/xmlparse.py                        | 1 +
+ virtManager/domain.py                    | 1 +
+ virtinst/devicevideo.py                  | 4 ++--
+ 4 files changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/tests/xmlparse-xml/change-videos-out.xml b/tests/xmlparse-xml/change-videos-out.xml
+index ea357ef..15cb0b0 100644
+--- a/tests/xmlparse-xml/change-videos-out.xml
++++ b/tests/xmlparse-xml/change-videos-out.xml
+@@ -30,7 +30,7 @@
+       <model type="vmvga" heads="5"/>
+     </video>
+     <video>
+-      <model type="qxl" ram="100"/>
++      <model type="qxl" vgamem="8192" ram="100"/>
+     </video>
+   </devices>
+ </domain>
+diff --git a/tests/xmlparse.py b/tests/xmlparse.py
+index 870bf36..c4bcb20 100644
+--- a/tests/xmlparse.py
++++ b/tests/xmlparse.py
+@@ -624,6 +624,7 @@ class XMLParseTest(unittest.TestCase):
+         check = self._make_checker(dev3)
+         check("model", "cirrus", "cirrus", "qxl")
+         check("ram", None, 100)
++        check("vgamem", None, 8192)
+ 
+         self._alter_compare(guest.get_xml_config(), outfile)
+ 
+diff --git a/virtManager/domain.py b/virtManager/domain.py
+index 585f64b..4a98f7f 100644
+--- a/virtManager/domain.py
++++ b/virtManager/domain.py
+@@ -860,6 +860,7 @@ class vmmDomain(vmmLibvirtObject):
+             editdev.vram = None
+             editdev.heads = None
+             editdev.ram = None
++            editdev.vgamem = None
+ 
+         return self._redefine_device(change, devobj, use_live_device)
+ 
+diff --git a/virtinst/devicevideo.py b/virtinst/devicevideo.py
+index 088c9ad..1d8ee10 100644
+--- a/virtinst/devicevideo.py
++++ b/virtinst/devicevideo.py
+@@ -35,14 +35,14 @@ class VirtualVideoDevice(VirtualDevice):
+             return model.upper()
+         return model.capitalize()
+ 
+-
+-    _XML_PROP_ORDER = ["model", "vram", "heads"]
++    _XML_PROP_ORDER = ["model", "vram", "heads", "vgamem"]
+     model = XMLProperty("./model/@type",
+                         default_cb=lambda s: "cirrus",
+                         default_name=MODEL_DEFAULT)
+     vram = XMLProperty("./model/@vram", is_int=True)
+     ram = XMLProperty("./model/@ram", is_int=True)
+     heads = XMLProperty("./model/@heads", is_int=True)
++    vgamem = XMLProperty("./model/@vgamem", is_int=True)
+ 
+ 
+ VirtualVideoDevice.register_type()

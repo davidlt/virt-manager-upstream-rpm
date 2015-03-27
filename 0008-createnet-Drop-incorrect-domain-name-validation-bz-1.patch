@@ -1,0 +1,33 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 26 Mar 2015 17:11:23 -0400
+Subject: [PATCH virt-manager] createnet: Drop incorrect domain name validation
+ (bz 1195873)
+
+Just let libvirt error if something is wrong
+
+(cherry picked from commit af562320a5c4f9148dd7710547386ab203dd9849)
+---
+ virtManager/createnet.py | 10 ----------
+ 1 file changed, 10 deletions(-)
+
+diff --git a/virtManager/createnet.py b/virtManager/createnet.py
+index 6c0634c..0f09732 100644
+--- a/virtManager/createnet.py
++++ b/virtManager/createnet.py
+@@ -425,16 +425,6 @@ class vmmCreateNetwork(vmmGObjectUI):
+         return True
+ 
+     def validate_miscellaneous(self):
+-        domain_name = self.widget("net-domain-name").get_text()
+-        if len(domain_name) > 0:
+-            if len(domain_name) > 16:
+-                return self.err.val_err(_("Invalid Domain Name"),
+-                            _("Domain name must be less than 17 characters"))
+-            if re.match("^[a-zA-Z0-9_]*$", domain_name) is None:
+-                return self.err.val_err(_("Invalid Domain Name"),
+-                            _("Domain name may contain alphanumeric and '_' "
+-                              "characters only"))
+-
+         return True
+ 
+     def validate(self, page_num):

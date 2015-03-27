@@ -1,0 +1,23 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 24 Feb 2015 11:23:46 -0500
+Subject: [PATCH virt-manager] spec: Add pygobject3-base dep for virt-install
+ (bz 1195794)
+
+(cherry picked from commit 72324a857591e23c9d8998366e2eef337a9fd4e9)
+---
+ virt-manager.spec.in | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/virt-manager.spec.in b/virt-manager.spec.in
+index 607a4b6..b378749 100644
+--- a/virt-manager.spec.in
++++ b/virt-manager.spec.in
+@@ -75,6 +75,8 @@ Requires: libxml2-python
+ Requires: python-urlgrabber
+ Requires: python-ipaddr
+ Requires: libosinfo >= 0.2.10
++# Required for gobject-introspection infrastructure
++Requires: pygobject3-base
+ 
+ %description common
+ Common files used by the different virt-manager interfaces, as well as

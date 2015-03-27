@@ -1,0 +1,63 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 3 Dec 2014 13:08:18 -0500
+Subject: [PATCH virt-manager] create: Fix default storage path when VM name is
+ changed (bz 1169141)
+
+Regressed with 2e7ebd4 . Use skip_disk_page() to determine when we
+shouldn't assume default storage
+
+(cherry picked from commit 4a678f05439da9f17c8cd89f22a59df1b27eddd6)
+---
+ virtManager/addstorage.py | 6 +-----
+ virtManager/create.py     | 7 ++++---
+ 2 files changed, 5 insertions(+), 8 deletions(-)
+
+diff --git a/virtManager/addstorage.py b/virtManager/addstorage.py
+index 9b2a673..91cce73 100644
+--- a/virtManager/addstorage.py
++++ b/virtManager/addstorage.py
+@@ -108,9 +108,6 @@ class vmmAddStorage(vmmGObjectUI):
+         hd_label = ("<span color='#484848'>%s</span>" % hd_label)
+         widget.set_markup(hd_label)
+ 
+-    def _is_default_storage(self):
+-        return bool(self.widget("config-storage-create").get_active())
+-
+     def _check_default_pool_active(self):
+         default_pool = self.conn.get_default_pool()
+         if default_pool and not default_pool.is_active():
+@@ -257,8 +254,7 @@ class vmmAddStorage(vmmGObjectUI):
+         return path
+ 
+     def is_default_storage(self):
+-        return self.widget("config-storage-create").is_visible() and \
+-               self.widget("config-storage-create").get_active()
++        return self.widget("config-storage-create").get_active()
+ 
+     def _check_ideal_path(self, path, vmname, collidelist):
+         # See if the ideal disk path (/default/pool/vmname.img)
+diff --git a/virtManager/create.py b/virtManager/create.py
+index f15763c..0f9bdaa 100644
+--- a/virtManager/create.py
++++ b/virtManager/create.py
+@@ -1062,9 +1062,8 @@ class vmmCreate(vmmGObjectUI):
+         return self.addstorage.get_default_path(name)
+ 
+     def is_default_storage(self):
+-        usedef = self.addstorage.is_default_storage()
+-        isimport = (self.get_config_install_page() == INSTALL_PAGE_IMPORT)
+-        return usedef and not isimport
++        return (self.addstorage.is_default_storage() and
++                not self.skip_disk_page())
+ 
+     def get_config_customize(self):
+         return self.widget("summary-customize").get_active()
+@@ -1718,6 +1717,8 @@ class vmmCreate(vmmGObjectUI):
+         if name != self.guest.name:
+             self.guest.name = name
+             if self.is_default_storage():
++                logging.debug("User changed VM name and using default storage,"
++                    "re-validating with new default storage path.")
+                 # User changed the name and we are using default storage
+                 # which depends on the VM name. Revalidate things
+                 if not self.validate_storage_page():
