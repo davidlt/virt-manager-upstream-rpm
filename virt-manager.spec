@@ -19,16 +19,11 @@
 # End local config
 
 
-# This macro is used for the continuous automated builds. It just
-# allows an extra fragment based on the timestamp to be appended
-# to the release. This distinguishes automated builds, from formal
-# Fedora RPM builds
-%define _extra_release %{?dist:%{dist}}%{?extra_release:%{extra_release}}
-%global gitcommit 310f6527
+%global gitcommit 8ca8490c
 
 Name: virt-manager
 Version: 1.1.0
-Release: 5.git%{gitcommit}%{_extra_release}
+Release: 6.git%{gitcommit}%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -40,16 +35,6 @@ BuildArch: noarch
 # Generated with: git archive --prefix virt-manager-%{version}/ --output virt-manager-%{version}-%{gitcommit}.tar.gz %{gitcommit}
 Source0: virt-manager-%{version}-%{gitcommit}.tar.gz
 
-# Fix crash when rebooting VMs after install (bz #1135546)
-Patch0001: 0001-tunnels-do-not-close-unowned-fd.patch
-# Fix dep on libosinfo (bz #1159370)
-Patch0002: 0002-spec-move-dependency-to-libosinfo-from-virt-manager-.patch
-# Fix PCI/USB hotplug (bz #1146297)
-Patch0003: 0003-addhardware-Fix-attaching-USB-PCI-hostdev-bz-1146297.patch
-# Fix BuildRequires for f22/rawhide
-Patch0004: 0004-spec-Add-BuildRequires-python-for-f22-rawhide.patch
-
-
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
@@ -58,10 +43,9 @@ Requires: libxml2-python
 Requires: vte3
 Requires: dconf
 Requires: dbus-x11
-
-# For console widget
 Requires: gtk-vnc2
 Requires: spice-gtk3
+Requires: gnome-icon-theme
 
 
 BuildRequires: python
@@ -88,6 +72,8 @@ Requires: libxml2-python
 Requires: python-urlgrabber
 Requires: python-ipaddr
 Requires: libosinfo >= 0.2.10
+# Required for gobject-introspection infrastructure
+Requires: pygobject3-base
 
 %description common
 Common files used by the different virt-manager interfaces, as well as
@@ -113,15 +99,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix crash when rebooting VMs after install (bz #1135546)
-%patch0001 -p1
-# Fix dep on libosinfo (bz #1159370)
-%patch0002 -p1
-# Fix PCI/USB hotplug (bz #1146297)
-%patch0003 -p1
-# Fix BuildRequires for f22/rawhide
-%patch0004 -p1
 
 %build
 %if %{qemu_user}
@@ -199,6 +176,7 @@ fi
 %{_datadir}/appdata/%{name}.appdata.xml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/glib-2.0/schemas/org.virt-manager.virt-manager.gschema.xml
+%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %files common -f %{name}.lang
@@ -227,6 +205,17 @@ fi
 
 
 %changelog
+* Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-6.git8ca8490c
+- Update to latest git
+- Fix new VM disk image names when VM name changes (bz #1169141)
+- Fix missing virt-install dep on pygobject (bz #1195794)
+- Fix changing VM video type away from qxl (bz #1182710)
+- Don't use vmvga for ubuntu VMs on remote centos hosts (bz #1147662)
+- Clear vendor field when changing CPU (bz #1190851)
+- Drop bogus network domain name validation (bz #1195873)
+- Fix Fedora URL examples in virt-install man page (bz #1172818)
+- Fix misleading virt-install text after --import install (bz #1180558)
+
 * Sun Feb 22 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-5.git310f6527
 - Fix BuildRequires for f22/rawhide
 
