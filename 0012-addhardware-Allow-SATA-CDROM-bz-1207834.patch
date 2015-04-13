@@ -1,0 +1,22 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 4 Apr 2015 19:07:39 -0400
+Subject: [PATCH virt-manager] addhardware: Allow SATA CDROM (bz 1207834)
+
+(cherry picked from commit dd8f7c90c0ab2ccccf341e344f0abd90853d8711)
+---
+ virtManager/addhardware.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtManager/addhardware.py b/virtManager/addhardware.py
+index 0c989df..5e8c0b3 100644
+--- a/virtManager/addhardware.py
++++ b/virtManager/addhardware.py
+@@ -800,7 +800,7 @@ class vmmAddHardware(vmmGObjectUI):
+         disk_buses = ["ide", "sata", "scsi", "sd",
+                       "usb", "virtio", "virtio-scsi", "xen"]
+         floppy_buses = ["fdc"]
+-        cdrom_buses = ["ide", "scsi"]
++        cdrom_buses = ["ide", "sata", "scsi"]
+         lun_buses = ["virtio-scsi"]
+ 
+         if bus in disk_buses:

@@ -1,0 +1,65 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 8 Apr 2015 09:53:30 -0400
+Subject: [PATCH virt-manager] domcapabilities: Can and log error fetching XML
+ (bz #1209723)
+
+(cherry picked from commit 6634053533e878d8e4ed6541350c060b22a096f6)
+---
+ virtManager/domain.py       | 12 ++----------
+ virtinst/domcapabilities.py | 22 ++++++++++++++++++++++
+ 2 files changed, 24 insertions(+), 10 deletions(-)
+
+diff --git a/virtManager/domain.py b/virtManager/domain.py
+index 4a98f7f..a00c0db 100644
+--- a/virtManager/domain.py
++++ b/virtManager/domain.py
+@@ -508,17 +508,9 @@ class vmmDomain(vmmLibvirtObject):
+                      "image allocated to the guest.")
+ 
+     def get_domain_capabilities(self):
+-        if not self.conn.check_support(
+-            self.conn.SUPPORT_CONN_DOMAIN_CAPABILITIES):
+-            self._domain_caps = DomainCapabilities(self.conn.get_backend())
+-
+         if not self._domain_caps:
+-            xml = self.conn.get_backend().getDomainCapabilities(
+-                self.get_xmlobj().emulator, self.get_xmlobj().os.arch,
+-                self.get_xmlobj().os.machine, self.get_xmlobj().type)
+-            self._domain_caps = DomainCapabilities(self.conn.get_backend(),
+-                parsexml=xml)
+-
++            self._domain_caps = DomainCapabilities.build_from_guest(
++                self.get_xmlobj())
+         return self._domain_caps
+ 
+ 
+diff --git a/virtinst/domcapabilities.py b/virtinst/domcapabilities.py
+index 6de7afb..bdec335 100644
+--- a/virtinst/domcapabilities.py
++++ b/virtinst/domcapabilities.py
+@@ -79,3 +79,25 @@ class DomainCapabilities(XMLBuilder):
+     _XML_ROOT_NAME = "domainCapabilities"
+     os = XMLChildProperty(_OS, is_single=True)
+     devices = XMLChildProperty(_Devices, is_single=True)
++
++    @staticmethod
++    def build_from_params(conn, emulator, arch, machine, hvtype):
++        xml = None
++        if conn.check_support(
++            conn.SUPPORT_CONN_DOMAIN_CAPABILITIES):
++            try:
++                xml = conn.getDomainCapabilities(emulator, arch,
++                    machine, hvtype)
++            except:
++                logging.debug("Error fetching domcapabilities XML",
++                    exc_info=True)
++
++        if not xml:
++            # If not supported, just use a stub object
++            return DomainCapabilities(conn)
++        return DomainCapabilities(conn, parsexml=xml)
++
++    @staticmethod
++    def build_from_guest(guest):
++        return DomainCapabilities.build_from_params(guest.conn,
++            guest.emulator, guest.os.arch, guest.os.machine, guest.type)

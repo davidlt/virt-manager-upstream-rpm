@@ -1,0 +1,51 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 6 Apr 2015 13:36:54 -0400
+Subject: [PATCH virt-manager] addhardware: Don't advertise IDE for Q35 (bz
+ #1207834)
+
+Laine suggests we hide it altogether
+
+(cherry picked from commit feb010621b480387bd6e4d31573de9e5426cb9f3)
+---
+ virtManager/addhardware.py | 5 +++--
+ virtinst/osxml.py          | 4 ++++
+ 2 files changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/virtManager/addhardware.py b/virtManager/addhardware.py
+index 5e8c0b3..a379438 100644
+--- a/virtManager/addhardware.py
++++ b/virtManager/addhardware.py
+@@ -770,7 +770,9 @@ class vmmAddHardware(vmmGObjectUI):
+         model.clear()
+ 
+         if self.vm.is_hvm():
+-            model.append(["ide", "IDE"])
++            if not self.vm.get_xmlobj().os.is_q35():
++                model.append(["ide", "IDE"])
++            model.append(["sata", "SATA"])
+             model.append(["fdc", "Floppy"])
+ 
+             if not self.vm.stable_defaults():
+@@ -778,7 +780,6 @@ class vmmAddHardware(vmmGObjectUI):
+                 model.append(["usb", "USB"])
+ 
+         if self.vm.get_hv_type() in ["qemu", "kvm", "test"]:
+-            model.append(["sata", "SATA"])
+             model.append(["sd", "SD"])
+             model.append(["virtio", "VirtIO"])
+             model.append(["virtio-scsi", "VirtIO SCSI"])
+diff --git a/virtinst/osxml.py b/virtinst/osxml.py
+index 78b12da..32fcf84 100644
+--- a/virtinst/osxml.py
++++ b/virtinst/osxml.py
+@@ -50,6 +50,10 @@ class OSXML(XMLBuilder):
+ 
+     def is_x86(self):
+         return self.arch == "x86_64" or self.arch == "i686"
++    def is_q35(self):
++        return (self.is_x86() and
++                self.machine and
++                "q35" in self.machine)
+ 
+     def is_arm32(self):
+         return self.arch == "armv7l"

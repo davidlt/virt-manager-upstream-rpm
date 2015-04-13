@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 5.git%{gitcommit}%{_extra_release}
+Release: 6.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -56,6 +56,17 @@ Patch0006: 0006-virt-manager-reset-vgamem-for-video-when-changing-de.patch
 Patch0007: 0007-cpu-Drop-vendor-and-features-if-setting-host-model-b.patch
 # Drop bogus network domain name validation (bz #1195873)
 Patch0008: 0008-createnet-Drop-incorrect-domain-name-validation-bz-1.patch
+# sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+Patch0009: 0009-sshtunnels-Don-t-use-socket-API-for-fd-passed-to-spi.patch
+# Fix available install options for qemu ppc64le (bz #1209720)
+Patch0010: 0010-create-Show-proper-install-options-for-ppc64le-bz-12.patch
+# Catch errors fetching domcapabilities, fix ppc64le details (bz
+# #1209723)
+Patch0011: 0011-domcapabilities-Can-and-log-error-fetching-XML-bz-12.patch
+# Improve disk defaults for qemu -M q35 (bz #1207834)
+Patch0012: 0012-addhardware-Allow-SATA-CDROM-bz-1207834.patch
+Patch0013: 0013-guest-Use-sata-by-default-for-q35-cdrom-non-virtio-b.patch
+Patch0014: 0014-addhardware-Don-t-advertise-IDE-for-Q35-bz-1207834.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -139,6 +150,17 @@ machine).
 %patch0007 -p1
 # Drop bogus network domain name validation (bz #1195873)
 %patch0008 -p1
+# sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+%patch0009 -p1
+# Fix available install options for qemu ppc64le (bz #1209720)
+%patch0010 -p1
+# Catch errors fetching domcapabilities, fix ppc64le details (bz
+# #1209723)
+%patch0011 -p1
+# Improve disk defaults for qemu -M q35 (bz #1207834)
+%patch0012 -p1
+%patch0013 -p1
+%patch0014 -p1
 
 %build
 %if %{qemu_user}
@@ -244,6 +266,12 @@ fi
 
 
 %changelog
+* Mon Apr 13 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-6.git310f6527
+- sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+- Fix available install options for qemu ppc64le (bz #1209720)
+- Catch errors fetching domcapabilities, fix ppc64le details (bz #1209723)
+- Improve disk defaults for qemu -M q35 (bz #1207834)
+
 * Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-5.git310f6527
 - Fix new VM disk image names when VM name changes (bz #1169141)
 - Fix missing virt-install dep on pygobject (bz #1195794)
