@@ -1,0 +1,22 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 11 Apr 2015 23:12:48 -0400
+Subject: [PATCH virt-manager] sshtunnels: Don't use socket API for fd passed
+ to spice (bug 1135808)
+
+---
+ virtManager/console.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtManager/console.py b/virtManager/console.py
+index b9f98de..8863511 100644
+--- a/virtManager/console.py
++++ b/virtManager/console.py
+@@ -174,7 +174,7 @@ class _Tunnel(object):
+         self._outfds = socket.socketpair()
+         self._errfds = socket.socketpair()
+ 
+-        return self._outfds[0].fileno(), self._launch_tunnel, ginfo
++        return os.dup(self._outfds[0].fileno()), self._launch_tunnel, ginfo
+ 
+     def close(self):
+         if self.closed:

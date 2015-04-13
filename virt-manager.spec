@@ -26,7 +26,7 @@
 
 Name: virt-manager
 Version: 1.0.1
-Release: 5%{_extra_release}
+Release: 6%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -73,6 +73,8 @@ Patch0016: 0016-Custom-F20-fix-for-ubuntu-vmvga-default-bug-1129803.patch
 Patch0017: 0017-urlfetcher-Bunch-of-distro-detection-fixes.patch
 # Only add 2 usbredir devices by default (bz #1135488)
 Patch0018: 0018-guest-Limit-number-of-default-usb-redirdevs-to-2-bug.patch
+# sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+Patch0019: 0019-sshtunnels-Don-t-use-socket-API-for-fd-passed-to-spi.patch
 BuildArch: noarch
 
 
@@ -177,6 +179,8 @@ machine).
 %patch0017 -p1
 # Only add 2 usbredir devices by default (bz #1135488)
 %patch0018 -p1
+# sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+%patch0019 -p1
 
 %build
 %if %{qemu_user}
@@ -286,6 +290,9 @@ fi
 
 
 %changelog
+* Mon Apr 13 2015 Cole Robinson <crobinso@redhat.com> - 1.0.1-6
+- sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
+
 * Wed Oct 29 2014 Cole Robinson <crobinso@redhat.com> - 1.0.1-5
 - Fix F21 URL installs (bz #1147720)
 - Only add 2 usbredir devices by default (bz #1135488)
