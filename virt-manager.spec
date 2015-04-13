@@ -8,6 +8,7 @@
 %define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
 %define preferred_distros          "fedora,rhel"
 %define kvm_packages               "qemu-system-x86"
+%define default_hvs                "qemu,xen"
 
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
@@ -18,12 +19,11 @@
 
 # End local config
 
-
-%global gitcommit 8ca8490c
+%global gitcommit 6dbe19bd8
 
 Name: virt-manager
 Version: 1.1.0
-Release: 6.git%{gitcommit}%{?dist}
+Release: 7.git%{gitcommit}%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -35,6 +35,7 @@ BuildArch: noarch
 # Generated with: git archive --prefix virt-manager-%{version}/ --output virt-manager-%{version}-%{gitcommit}.tar.gz %{gitcommit}
 Source0: virt-manager-%{version}-%{gitcommit}.tar.gz
 
+
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
@@ -43,9 +44,14 @@ Requires: libxml2-python
 Requires: vte3
 Requires: dconf
 Requires: dbus-x11
+
+# For console widget
 Requires: gtk-vnc2
 Requires: spice-gtk3
+
+%if 0%{?rhel} == 7
 Requires: gnome-icon-theme
+%endif
 
 
 BuildRequires: python
@@ -125,20 +131,28 @@ machine).
 %define _stable_defaults --stable-defaults
 %endif
 
+%if %{default_hvs}
+%define _default_hvs --default-hvs %{default_hvs}
+%endif
+
 python setup.py configure \
-    --pkgversion="%{version}" \
     %{?_qemu_user} \
     %{?_kvm_packages} \
     %{?_libvirt_packages} \
     %{?_askpass_package} \
     %{?_preferred_distros} \
-    %{?_stable_defaults}
+    %{?_stable_defaults} \
+    %{?_default_hvs}
 
 
 %install
-python setup.py install -O1 --root=$RPM_BUILD_ROOT
-
+python setup.py install -O1 --root=%{buildroot}
 %find_lang %{name}
+
+# The conversion script was only added to virt-manager after several
+# Fedora cycles of using gsettings. Installing it now could convert old data
+# and wipe out recent settings.
+rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %post
@@ -176,7 +190,6 @@ fi
 %{_datadir}/appdata/%{name}.appdata.xml
 %{_datadir}/applications/%{name}.desktop
 %{_datadir}/glib-2.0/schemas/org.virt-manager.virt-manager.gschema.xml
-%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %files common -f %{name}.lang
@@ -205,6 +218,13 @@ fi
 
 
 %changelog
+* Mon Apr 13 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-7.git6dbe19bd8
+- Catch ppc64le domaincapabilities errors (bz #1209723)
+- Fix missing install options for ppc64le (bz #1209720)
+- Allow adding SATA CDROM devices for q35 (bz #1207834)
+- Fix crashes with ssh spice connections (bz #1135808)
+- Drop incorrect dep on gnome-icon-theme (bz #1207061)
+
 * Fri Mar 27 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-6.git8ca8490c
 - Update to latest git
 - Fix new VM disk image names when VM name changes (bz #1169141)
