@@ -1,0 +1,21 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sat, 18 Apr 2015 16:42:35 -0400
+Subject: [PATCH virt-manager] create: Fix regression in ppc64 enablement patch
+
+---
+ virtManager/create.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtManager/create.py b/virtManager/create.py
+index 1600fda..bfc4a0d 100644
+--- a/virtManager/create.py
++++ b/virtManager/create.py
+@@ -417,7 +417,7 @@ class vmmCreate(vmmGObjectUI):
+         is_container = self.conn.is_container()
+         can_remote_url = self.conn.get_backend().support_remote_url_install()
+ 
+-        installable_arch = (self.capsinfo.arch in
++        installable_arch = (self.capsguest.arch in
+             ["i686", "x86_64", "ppc64", "ppc64le", "ia64"])
+ 
+         # Install Options

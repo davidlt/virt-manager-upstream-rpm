@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 6.git%{gitcommit}%{_extra_release}
+Release: 7.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -67,6 +67,8 @@ Patch0011: 0011-domcapabilities-Can-and-log-error-fetching-XML-bz-12.patch
 Patch0012: 0012-addhardware-Allow-SATA-CDROM-bz-1207834.patch
 Patch0013: 0013-guest-Use-sata-by-default-for-q35-cdrom-non-virtio-b.patch
 Patch0014: 0014-addhardware-Don-t-advertise-IDE-for-Q35-bz-1207834.patch
+# Fix 'new vm' regression in the previous build
+Patch0015: 0015-create-Fix-regression-in-ppc64-enablement-patch.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -161,6 +163,8 @@ machine).
 %patch0012 -p1
 %patch0013 -p1
 %patch0014 -p1
+# Fix 'new vm' regression in the previous build
+%patch0015 -p1
 
 %build
 %if %{qemu_user}
@@ -266,6 +270,9 @@ fi
 
 
 %changelog
+* Sat Apr 18 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-7.git310f6527
+- Fix 'new vm' regression in the previous build
+
 * Mon Apr 13 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-6.git310f6527
 - sshtunnels: Don't use socket API for fd passed to spice (bz #1135808)
 - Fix available install options for qemu ppc64le (bz #1209720)
