@@ -1,0 +1,61 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 27 Oct 2014 19:20:20 -0400
+Subject: [PATCH virt-manager] pylint: Ignore new warnings
+
+(cherry picked from commit cbf38cbe9f542dd28c982d44f09670b43ed9cdb0)
+---
+ tests/pylint.cfg     | 8 +-------
+ virtManager/clone.py | 1 +
+ virtinst/cli.py      | 1 +
+ 3 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/tests/pylint.cfg b/tests/pylint.cfg
+index e8e9e71..6ba0bc1 100644
+--- a/tests/pylint.cfg
++++ b/tests/pylint.cfg
+@@ -34,7 +34,7 @@ load-plugins=
+ # multiple time (only on the command line, not in the configuration file where
+ # it should appear only once).
+ 
+-disable=Design,Similarities,invalid-name,missing-docstring,line-too-long,too-many-lines,superfluous-parens,bad-whitespace,locally-disabled,no-self-use,unnecessary-lambda,star-args,fixme,global-statement,bare-except,anomalous-backslash-in-string,broad-except,cyclic-import
++disable=Design,Similarities,invalid-name,missing-docstring,line-too-long,too-many-lines,superfluous-parens,bad-whitespace,locally-disabled,no-self-use,unnecessary-lambda,star-args,fixme,global-statement,bare-except,anomalous-backslash-in-string,broad-except,cyclic-import,bad-continuation,locally-enabled
+ 
+ 
+ [REPORTS]
+@@ -44,12 +44,6 @@ disable=Design,Similarities,invalid-name,missing-docstring,line-too-long,too-man
+ # mypackage.mymodule.MyReporterClass.
+ #output-format=text
+ 
+-# Include message's id in output
+-include-ids=no
+-
+-# Include symbolic ids of messages in output
+-symbols=no
+-
+ # Put messages in a separate file for each module / package specified on the
+ # command line instead of printing them on stdout. Reports (if any) will be
+ # written in a file name "pylint_global.[txt|html]".
+diff --git a/virtManager/clone.py b/virtManager/clone.py
+index 8170186..924010b 100644
+--- a/virtManager/clone.py
++++ b/virtManager/clone.py
+@@ -378,6 +378,7 @@ class vmmCloneVM(vmmGObjectUI):
+                                              devtype)
+ 
+             def storage_add(failinfo=None):
++                # pylint: disable=cell-var-from-loop
+                 storage_row[STORAGE_INFO_DEFINFO] = definfo
+                 storage_row[STORAGE_INFO_DO_DEFAULT] = default
+                 storage_row[STORAGE_INFO_CAN_SHARE] = bool(definfo)
+diff --git a/virtinst/cli.py b/virtinst/cli.py
+index e57ffbb..b170aa4 100644
+--- a/virtinst/cli.py
++++ b/virtinst/cli.py
+@@ -1850,6 +1850,7 @@ class ParserRNG(VirtCLIParser):
+         def set_backend_cb(opts, inst, cliname, val):
+             ignore = opts
+             ignore = inst
++            # pylint: disable=attribute-defined-outside-init
+             if cliname == "backend_mode":
+                 self._cli_backend_mode = val
+             elif cliname == "backend_type":

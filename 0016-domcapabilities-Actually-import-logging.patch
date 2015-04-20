@@ -1,0 +1,21 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 20 Apr 2015 11:26:54 -0400
+Subject: [PATCH virt-manager] domcapabilities: Actually import logging
+
+---
+ virtinst/domcapabilities.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/virtinst/domcapabilities.py b/virtinst/domcapabilities.py
+index bdec335..6474948 100644
+--- a/virtinst/domcapabilities.py
++++ b/virtinst/domcapabilities.py
+@@ -18,6 +18,8 @@
+ # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ # MA 02110-1301 USA.
+ 
++import logging
++
+ from .xmlbuilder import XMLBuilder, XMLChildProperty
+ from .xmlbuilder import XMLProperty as _XMLProperty
+ 

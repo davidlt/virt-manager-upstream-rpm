@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 7.git%{gitcommit}%{_extra_release}
+Release: 8.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -69,6 +69,9 @@ Patch0013: 0013-guest-Use-sata-by-default-for-q35-cdrom-non-virtio-b.patch
 Patch0014: 0014-addhardware-Don-t-advertise-IDE-for-Q35-bz-1207834.patch
 # Fix 'new vm' regression in the previous build
 Patch0015: 0015-create-Fix-regression-in-ppc64-enablement-patch.patch
+# Fix domcapabilities regression in previous build
+Patch0016: 0016-domcapabilities-Actually-import-logging.patch
+Patch0017: 0017-pylint-Ignore-new-warnings.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -165,6 +168,9 @@ machine).
 %patch0014 -p1
 # Fix 'new vm' regression in the previous build
 %patch0015 -p1
+# Fix domcapabilities regression in previous build
+%patch0016 -p1
+%patch0017 -p1
 
 %build
 %if %{qemu_user}
@@ -270,6 +276,9 @@ fi
 
 
 %changelog
+* Mon Apr 20 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-8.git310f6527
+- Fix domcapabilities regression in previous build
+
 * Sat Apr 18 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-7.git310f6527
 - Fix 'new vm' regression in the previous build
 
