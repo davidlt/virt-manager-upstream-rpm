@@ -6,8 +6,8 @@
 %define askpass_package            "openssh-askpass"
 %define qemu_user                  "qemu"
 %define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
+%define kvm_packages               ""
 %define preferred_distros          "fedora,rhel"
-%define kvm_packages               "qemu-system-x86"
 %define default_hvs                "qemu,xen"
 
 %if 0%{?rhel}
@@ -19,21 +19,17 @@
 
 # End local config
 
-%global gitcommit 6dbe19bd8
-
 Name: virt-manager
-Version: 1.1.0
-Release: 7.git%{gitcommit}%{?dist}
+Version: 1.2.0
+Release: 1%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 BuildArch: noarch
-#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Generated with: git archive --prefix virt-manager-%{version}/ --output virt-manager-%{version}-%{gitcommit}.tar.gz %{gitcommit}
-Source0: virt-manager-%{version}-%{gitcommit}.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
@@ -216,8 +212,10 @@ fi
 %{_bindir}/virt-convert
 %{_bindir}/virt-xml
 
-
 %changelog
+* Mon May 04 2015 Cole Robinson <crobinso@redhat.com> - 1.2.0-1
+- Rebased to version 1.2.0
+
 * Mon Apr 13 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-7.git6dbe19bd8
 - Catch ppc64le domaincapabilities errors (bz #1209723)
 - Fix missing install options for ppc64le (bz #1209720)
