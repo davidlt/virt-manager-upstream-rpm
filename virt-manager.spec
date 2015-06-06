@@ -20,7 +20,7 @@
 # End local config
 
 Name: virt-manager
-Version: 1.2.0
+Version: 1.2.1
 Release: 1%{?dist}
 %define verrel %{version}-%{release}
 
@@ -213,6 +213,14 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sat Jun 06 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-1
+- Rebased to version 1.2.1
+- Bugfix release
+- Fix connecting to older libvirt versions (Michał Kępień)
+- Fix connecting to VM console with non-IP hostname (Giuseppe Scrivano)
+- Fix addhardware/create wizard errors when a nodedev disappears
+- Fix adding a second cdrom via customize dialog
+
 * Mon May 04 2015 Cole Robinson <crobinso@redhat.com> - 1.2.0-1
 - Rebased to version 1.2.0
 
