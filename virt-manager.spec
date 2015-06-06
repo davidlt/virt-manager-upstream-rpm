@@ -28,7 +28,7 @@
 
 Name: virt-manager
 Version: 1.1.0
-Release: 8.git%{gitcommit}%{_extra_release}
+Release: 9.git%{gitcommit}%{_extra_release}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -72,6 +72,10 @@ Patch0015: 0015-create-Fix-regression-in-ppc64-enablement-patch.patch
 # Fix domcapabilities regression in previous build
 Patch0016: 0016-domcapabilities-Actually-import-logging.patch
 Patch0017: 0017-pylint-Ignore-new-warnings.patch
+# nodedev: Handle busted 'system' XML (bz #1217912)
+Patch0018: 0018-nodedev-Handle-busted-system-XML.patch
+# Clarify emulator search permission failure message (bz #1181025)
+Patch0019: 0019-addstorage-Clarify-that-VM-will-fail-if-cant-set-pat.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -171,6 +175,10 @@ machine).
 # Fix domcapabilities regression in previous build
 %patch0016 -p1
 %patch0017 -p1
+# nodedev: Handle busted 'system' XML (bz #1217912)
+%patch0018 -p1
+# Clarify emulator search permission failure message (bz #1181025)
+%patch0019 -p1
 
 %build
 %if %{qemu_user}
@@ -276,6 +284,10 @@ fi
 
 
 %changelog
+* Sat Jun 06 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-9.git310f6527
+- nodedev: Handle busted 'system' XML (bz #1217912)
+- Clarify emulator search permission failure message (bz #1181025)
+
 * Mon Apr 20 2015 Cole Robinson <crobinso@redhat.com> - 1.1.0-8.git310f6527
 - Fix domcapabilities regression in previous build
 

@@ -1,0 +1,23 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 3 May 2015 17:33:26 -0400
+Subject: [PATCH virt-manager] addstorage: Clarify that VM will fail if cant
+ set path search perms
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1181025
+(cherry picked from commit cc67f8f194e1d7469f9a8d012754c39e986a74f0)
+---
+ virtManager/addstorage.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/virtManager/addstorage.py b/virtManager/addstorage.py
+index 91cce73..8e43452 100644
+--- a/virtManager/addstorage.py
++++ b/virtManager/addstorage.py
+@@ -172,6 +172,7 @@ class vmmAddStorage(vmmGObjectUI):
+             if path not in broken_paths:
+                 continue
+             details += "%s : %s\n" % (path, error)
++        details += "\nIt is very likely the VM fill fail to start up."
+ 
+         logging.debug("Permission errors:\n%s", details)
+ 

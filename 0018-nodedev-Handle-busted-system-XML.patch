@@ -1,0 +1,125 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 26 Mar 2015 18:04:23 -0400
+Subject: [PATCH virt-manager] nodedev: Handle busted 'system' XML
+
+Libvirt can generated invalid XML for the system nodedev device:
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1184131
+
+This hits at least two people, so catch this specific case, but the
+real fix is libvirt not outputing busted XML.
+
+(cherry picked from commit e125aa69d8024fddb72dde9371f172061f388160)
+---
+ tests/nodedev.py       | 32 ++++++++++++++++++++++++++++++++
+ virtinst/nodedev.py    |  4 ++++
+ virtinst/xmlbuilder.py | 13 +++++++++++++
+ 3 files changed, 49 insertions(+)
+
+diff --git a/tests/nodedev.py b/tests/nodedev.py
+index f93a6cf..28e0603 100644
+--- a/tests/nodedev.py
++++ b/tests/nodedev.py
+@@ -1,3 +1,5 @@
++# encoding=utf-8
++#
+ # Copyright (C) 2013 Red Hat, Inc.
+ #
+ # This program is free software; you can redistribute it and/or modify
+@@ -37,6 +39,26 @@ unknown_xml = """
+ </device>
+ """
+ 
++# Requires XML_SANITIZE to parse correctly, see bug 1184131
++funky_chars_xml = """
++<device>
++  <name>computer</name>
++  <capability type='system'>
++    <hardware>
++      <vendor>LENOVOá</vendor>
++      <version>ThinkPad T61</version>
++      <serial>L3B2616</serial>
++      <uuid>97e80381-494f-11cb-8e0e-cbc168f7d753</uuid>
++    </hardware>
++    <firmware>
++      <vendor>LENOVO</vendor>
++      <version>7LET51WW (1.21 )</version>
++      <release_date>08/22/2007</release_date>
++    </firmware>
++  </capability>
++</device>
++"""
++
+ 
+ class TestNodeDev(unittest.TestCase):
+ 
+@@ -80,6 +102,16 @@ class TestNodeDev(unittest.TestCase):
+                 "name": "computer", "parent": None}
+         self._testCompare(devname, vals)
+ 
++    def testFunkyChars(self):
++        vals = {"hw_vendor": "LENOVO", "hw_version": "ThinkPad T61",
++                "hw_serial": "L3B2616",
++                "hw_uuid": "97e80381-494f-11cb-8e0e-cbc168f7d753",
++                "fw_vendor": "LENOVO", "fw_version": "7LET51WW (1.21 )",
++                "fw_date": "08/22/2007",
++                "device_type": NodeDevice.CAPABILITY_TYPE_SYSTEM,
++                "name": "computer", "parent": None}
++        self._testCompare(None, vals, funky_chars_xml)
++
+     def testNetDevice1(self):
+         devname = "net_00_1c_25_10_b1_e4"
+         vals = {"name": "net_00_1c_25_10_b1_e4", "parent": "pci_8086_1049",
+diff --git a/virtinst/nodedev.py b/virtinst/nodedev.py
+index 013fee2..5b803b8 100644
+--- a/virtinst/nodedev.py
++++ b/virtinst/nodedev.py
+@@ -102,6 +102,10 @@ class NodeDevice(XMLBuilder):
+ 
+     _XML_ROOT_NAME = "device"
+ 
++    # Libvirt can generate bogus 'system' XML:
++    # https://bugzilla.redhat.com/show_bug.cgi?id=1184131
++    _XML_SANITIZE = True
++
+     name = XMLProperty("./name")
+     parent = XMLProperty("./parent")
+     device_type = XMLProperty("./capability/@type")
+diff --git a/virtinst/xmlbuilder.py b/virtinst/xmlbuilder.py
+index ff64c16..6f701b7 100644
+--- a/virtinst/xmlbuilder.py
++++ b/virtinst/xmlbuilder.py
+@@ -23,6 +23,7 @@ import copy
+ import logging
+ import os
+ import re
++import string  # pylint: disable=deprecated-module
+ 
+ import libxml2
+ 
+@@ -760,6 +761,14 @@ class XMLBuilder(object):
+     # Name of the root XML element
+     _XML_ROOT_NAME = None
+ 
++    # In some cases, libvirt can incorrectly generate unparseable XML.
++    # These are libvirt bugs, but this allows us to work around it in
++    # for specific XML classes.
++    #
++    # Example: nodedev 'system' XML:
++    # https://bugzilla.redhat.com/show_bug.cgi?id=1184131
++    _XML_SANITIZE = False
++
+     def __init__(self, conn, parsexml=None, parsexmlnode=None,
+                  parent_xpath=None, relative_object_xpath=None):
+         """
+@@ -774,6 +783,10 @@ class XMLBuilder(object):
+         """
+         self.conn = conn
+ 
++        if self._XML_SANITIZE:
++            parsexml = parsexml.decode('ascii', 'ignore').encode('ascii')
++            parsexml = "".join([c for c in parsexml if c in string.printable])
++
+         self._propstore = {}
+         self._proporder = []
+         self._xmlstate = _XMLState(self._XML_ROOT_NAME,
