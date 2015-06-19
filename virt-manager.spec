@@ -21,7 +21,7 @@
 
 Name: virt-manager
 Version: 1.2.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -213,6 +213,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Fri Jun 19 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.1-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Sat Jun 06 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-1
 - Rebased to version 1.2.1
 - Bugfix release
