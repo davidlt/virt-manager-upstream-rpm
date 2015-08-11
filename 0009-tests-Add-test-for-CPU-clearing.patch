@@ -1,0 +1,26 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 14 Jul 2015 11:48:12 -0400
+Subject: [PATCH virt-manager] tests: Add test for CPU clearing
+
+Currently broken, fixed by the next patch
+
+(cherry picked from commit 612123563eab40b546aac977c5556371de8aed70)
+---
+ tests/xmlparse.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/tests/xmlparse.py b/tests/xmlparse.py
+index d737033..f134400 100644
+--- a/tests/xmlparse.py
++++ b/tests/xmlparse.py
+@@ -1282,8 +1282,9 @@ class XMLParseTest(unittest.TestCase):
+         basename = "clear-cpu-unknown-vals"
+         infile = "tests/xmlparse-xml/%s-in.xml" % basename
+         outfile = "tests/xmlparse-xml/%s-out.xml" % basename
+-        guest = virtinst.Guest(conn, parsexml=file(infile).read())
++        guest = virtinst.Guest(kvmconn, parsexml=file(infile).read())
+ 
++        guest.cpu.copy_host_cpu()
+         guest.cpu.clear()
+         utils.diff_compare(guest.get_xml_config(), outfile)
+ 

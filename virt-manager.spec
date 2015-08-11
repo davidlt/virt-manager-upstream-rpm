@@ -8,7 +8,7 @@
 %define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
 %define kvm_packages               ""
 %define preferred_distros          "fedora,rhel"
-%define default_hvs                "qemu,xen"
+%define default_hvs                "qemu,xen,lxc"
 
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
@@ -21,7 +21,7 @@
 
 Name: virt-manager
 Version: 1.2.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -29,6 +29,30 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix errors with missing nodedevs (bz #1225771)
+Patch0001: 0001-connection-catch-more-errors-in-filter_nodedevs-bug-.patch
+# Fix CDROM media change if device is bootable (bz #1229819)
+Patch0002: 0002-domain-Use-UpdateDevice-for-CDROM-media-change-bz-12.patch
+# Fix adding iscsi pools (bz #1231558)
+Patch0003: 0003-createpool-Fix-adding-iscsi-pools-bz-1231558.patch
+# spec: Add LXC to default connection list (bz #1235972)
+Patch0004: 0004-spec-Add-LXC-to-default-connection-list-bz-1235972.patch
+# Fix backtrace when reporting OS error (bz #1241902)
+Patch0005: 0005-create-Fix-backtrace-when-reporting-OS-error-bz-1241.patch
+Patch0006: 0006-osdict-Fix-unix-alias.patch
+# Raise upper limits for lxc ID namespaces (bz #1244490)
+Patch0007: 0007-details-Raise-upper-limits-for-lxc-ID-namespaces-bz-.patch
+# Fix 'copy host CPU definition'
+Patch0008: 0008-virtinst.cpu-fix-copy-host-cpu-definition.patch
+Patch0009: 0009-tests-Add-test-for-CPU-clearing.patch
+# Fix displaying VM machine type when connecting to old libvirt
+Patch0010: 0010-details-don-t-display-error-if-machine-is-missing-in.patch
+# Fix qemu:///session handling in 'Add Connection' dialog
+Patch0011: 0011-addconnection-Fix-qemu-session-vs.-lxc-detection.patch
+# Fix default storage path for qemu:///session, it should be
+# .local/share/...
+Patch0012: 0012-storage-session-path-should-be-.local-share-libvirt-.patch
 BuildArch: noarch
 
 
@@ -101,6 +125,30 @@ machine).
 
 %prep
 %setup -q
+
+# Fix errors with missing nodedevs (bz #1225771)
+%patch0001 -p1
+# Fix CDROM media change if device is bootable (bz #1229819)
+%patch0002 -p1
+# Fix adding iscsi pools (bz #1231558)
+%patch0003 -p1
+# spec: Add LXC to default connection list (bz #1235972)
+%patch0004 -p1
+# Fix backtrace when reporting OS error (bz #1241902)
+%patch0005 -p1
+%patch0006 -p1
+# Raise upper limits for lxc ID namespaces (bz #1244490)
+%patch0007 -p1
+# Fix 'copy host CPU definition'
+%patch0008 -p1
+%patch0009 -p1
+# Fix displaying VM machine type when connecting to old libvirt
+%patch0010 -p1
+# Fix qemu:///session handling in 'Add Connection' dialog
+%patch0011 -p1
+# Fix default storage path for qemu:///session, it should be
+# .local/share/...
+%patch0012 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +261,18 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Tue Aug 11 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-2
+- Fix errors with missing nodedevs (bz #1225771)
+- Fix CDROM media change if device is bootable (bz #1229819)
+- Fix adding iscsi pools (bz #1231558)
+- spec: Add LXC to default connection list (bz #1235972)
+- Fix backtrace when reporting OS error (bz #1241902)
+- Raise upper limits for lxc ID namespaces (bz #1244490)
+- Fix 'copy host CPU definition'
+- Fix displaying VM machine type when connecting to old libvirt
+- Fix qemu:///session handling in 'Add Connection' dialog
+- Fix default storage path for qemu:///session, it should be .local/share/...
+
 * Sat Jun 06 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-1
 - Rebased to version 1.2.1
 - Bugfix release

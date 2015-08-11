@@ -1,0 +1,30 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 10 Aug 2015 13:14:37 -0400
+Subject: [PATCH virt-manager] details: Raise upper limits for lxc ID
+ namespaces (bz 1244490)
+
+(cherry picked from commit 531260be363bf203062636b548c3d0ec7eab5500)
+---
+ ui/details.ui | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/ui/details.ui b/ui/details.ui
+index eff3417..a2d3107 100644
+--- a/ui/details.ui
++++ b/ui/details.ui
+@@ -37,13 +37,13 @@
+     <property name="page_increment">25</property>
+   </object>
+   <object class="GtkAdjustment" id="adjustment16">
+-    <property name="upper">65536</property>
++    <property name="upper">10000000</property>
+     <property name="value">1000</property>
+     <property name="step_increment">1</property>
+     <property name="page_increment">25</property>
+   </object>
+   <object class="GtkAdjustment" id="adjustment17">
+-    <property name="upper">65536</property>
++    <property name="upper">10000000</property>
+     <property name="value">1000</property>
+     <property name="step_increment">1</property>
+     <property name="page_increment">25</property>

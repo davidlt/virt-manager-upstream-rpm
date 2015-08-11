@@ -1,0 +1,24 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Sun, 9 Aug 2015 12:27:20 -0400
+Subject: [PATCH virt-manager] addconnection: Fix qemu:///session vs. lxc:///
+ detection
+
+(cherry picked from commit 4970615f4870cc5394a46ff6a049ac937b3043d6)
+---
+ virtManager/connect.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/virtManager/connect.py b/virtManager/connect.py
+index b977fea..7493d14 100644
+--- a/virtManager/connect.py
++++ b/virtManager/connect.py
+@@ -327,7 +327,8 @@ class vmmConnect(vmmGObjectUI):
+         self.populate_uri()
+ 
+     def hypervisor_changed(self, src):
+-        is_session = (src.get_active() == HV_QEMU_SESSION)
++        hv = uiutil.get_list_selection(self.widget("hypervisor"))
++        is_session = (hv == HV_QEMU_SESSION)
+         uiutil.set_grid_row_visible(
+             self.widget("session-warning-box"), is_session)
+         uiutil.set_grid_row_visible(
