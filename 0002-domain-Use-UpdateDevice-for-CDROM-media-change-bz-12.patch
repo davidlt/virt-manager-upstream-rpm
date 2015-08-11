@@ -1,0 +1,56 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Mon, 10 Aug 2015 18:30:12 -0400
+Subject: [PATCH virt-manager] domain: Use UpdateDevice for CDROM media change
+ (bz 1229819)
+
+This has been supported for a long time now, and is more tested these
+days, so let's use it rather than the old style AttachDevice method
+
+It also works around a libvirt issue described in bz 1229819
+
+(cherry picked from commit 40d4c378680275ee432fbf4825c55737bc8c3fc2)
+---
+ virtManager/domain.py | 16 +++-------------
+ 1 file changed, 3 insertions(+), 13 deletions(-)
+
+diff --git a/virtManager/domain.py b/virtManager/domain.py
+index bb8c511..6668961 100644
+--- a/virtManager/domain.py
++++ b/virtManager/domain.py
+@@ -799,10 +799,7 @@ class vmmDomain(vmmLibvirtObject):
+             _change_bus()
+ 
+         if do_hotplug:
+-            hotplug_kwargs = {"device": editdev}
+-            if path != _SENTINEL:
+-                hotplug_kwargs["storage_path"] = True
+-            self.hotplug(**hotplug_kwargs)
++            self.hotplug(device=editdev)
+         else:
+             self._redefine_xmlobj(xmlobj)
+ 
+@@ -1056,8 +1053,7 @@ class vmmDomain(vmmLibvirtObject):
+         self._backend.updateDeviceFlags(xml, flags)
+ 
+     def hotplug(self, vcpus=_SENTINEL, memory=_SENTINEL, maxmem=_SENTINEL,
+-        description=_SENTINEL, title=_SENTINEL, storage_path=_SENTINEL,
+-        device=_SENTINEL):
++        description=_SENTINEL, title=_SENTINEL, device=_SENTINEL):
+         if not self.is_active():
+             return
+ 
+@@ -1100,13 +1096,7 @@ class vmmDomain(vmmLibvirtObject):
+         if title != _SENTINEL:
+             _hotplug_metadata(title, libvirt.VIR_DOMAIN_METADATA_TITLE)
+ 
+-        if storage_path != _SENTINEL:
+-            # qemu originally only supported attach_device for updating
+-            # a device's path. Stick with that. We may need to differentiate
+-            # for other drivers that don't maintain back compat though
+-            self.attach_device(device)
+-
+-        elif device != _SENTINEL:
++        if device != _SENTINEL:
+             self._update_device(device)
+ 
+ 
