@@ -12,7 +12,6 @@
 
 %if 0%{?rhel}
 %define preferred_distros          "rhel,fedora"
-%define kvm_packages               "qemu-kvm"
 %define stable_defaults            1
 %endif
 
@@ -20,39 +19,15 @@
 # End local config
 
 Name: virt-manager
-Version: 1.2.1
-Release: 3%{?dist}
+Version: 1.3.0
+Release: 1%{?dist}
 %define verrel %{version}-%{release}
 
-Summary: Virtual Machine Manager
+Summary: Desktop tool for managing virtual machines via libvirt
 Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-
-# Fix errors with missing nodedevs (bz #1225771)
-Patch0001: 0001-connection-catch-more-errors-in-filter_nodedevs-bug-.patch
-# Fix CDROM media change if device is bootable (bz #1229819)
-Patch0002: 0002-domain-Use-UpdateDevice-for-CDROM-media-change-bz-12.patch
-# Fix adding iscsi pools (bz #1231558)
-Patch0003: 0003-createpool-Fix-adding-iscsi-pools-bz-1231558.patch
-# spec: Add LXC to default connection list (bz #1235972)
-Patch0004: 0004-spec-Add-LXC-to-default-connection-list-bz-1235972.patch
-# Fix backtrace when reporting OS error (bz #1241902)
-Patch0005: 0005-create-Fix-backtrace-when-reporting-OS-error-bz-1241.patch
-Patch0006: 0006-osdict-Fix-unix-alias.patch
-# Raise upper limits for lxc ID namespaces (bz #1244490)
-Patch0007: 0007-details-Raise-upper-limits-for-lxc-ID-namespaces-bz-.patch
-# Fix 'copy host CPU definition'
-Patch0008: 0008-virtinst.cpu-fix-copy-host-cpu-definition.patch
-Patch0009: 0009-tests-Add-test-for-CPU-clearing.patch
-# Fix displaying VM machine type when connecting to old libvirt
-Patch0010: 0010-details-don-t-display-error-if-machine-is-missing-in.patch
-# Fix qemu:///session handling in 'Add Connection' dialog
-Patch0011: 0011-addconnection-Fix-qemu-session-vs.-lxc-detection.patch
-# Fix default storage path for qemu:///session, it should be
-# .local/share/...
-Patch0012: 0012-storage-session-path-should-be-.local-share-libvirt-.patch
 BuildArch: noarch
 
 
@@ -95,7 +70,7 @@ Group: Applications/Emulators
 # however varying amounts of functionality will not be enabled.
 Requires: libvirt-python >= 0.7.0
 Requires: libxml2-python
-Requires: python-urlgrabber
+Requires: python-requests
 Requires: python-ipaddr
 Requires: libosinfo >= 0.2.10
 # Required for gobject-introspection infrastructure
@@ -125,30 +100,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix errors with missing nodedevs (bz #1225771)
-%patch0001 -p1
-# Fix CDROM media change if device is bootable (bz #1229819)
-%patch0002 -p1
-# Fix adding iscsi pools (bz #1231558)
-%patch0003 -p1
-# spec: Add LXC to default connection list (bz #1235972)
-%patch0004 -p1
-# Fix backtrace when reporting OS error (bz #1241902)
-%patch0005 -p1
-%patch0006 -p1
-# Raise upper limits for lxc ID namespaces (bz #1244490)
-%patch0007 -p1
-# Fix 'copy host CPU definition'
-%patch0008 -p1
-%patch0009 -p1
-# Fix displaying VM machine type when connecting to old libvirt
-%patch0010 -p1
-# Fix qemu:///session handling in 'Add Connection' dialog
-%patch0011 -p1
-# Fix default storage path for qemu:///session, it should be
-# .local/share/...
-%patch0012 -p1
 
 %build
 %if %{qemu_user}
@@ -190,7 +141,9 @@ python setup.py configure \
 
 
 %install
-python setup.py install -O1 --root=%{buildroot}
+python setup.py \
+    --no-update-icon-cache --no-compile-schemas \
+    install -O1 --root=%{buildroot}
 %find_lang %{name}
 
 # The conversion script was only added to virt-manager after several
@@ -261,6 +214,20 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Wed Nov 25 2015 Cole Robinson <crobinso@redhat.com> - 1.3.0-1
+- Rebased to version 1.3.0
+- Error when trying to modify existing 9p share (bz #1257565)
+- virt-manager tries to create vmport device on non-x86 backends (bz #1259998)
+- Details/Virtual networks: Allow manually specifying a bridge for
+  qemu:///session (bz #1212443)
+- [RFE] Improve Solaris 10 x86-64 support in virt-manager (bz #1262093)
+- No system tray icon in Cinnamon session (bz #1257949)
+- virt-install does not remove orphaned images on failure (bz #1212617)
+- virt-manager does not warn if it cannot find the network (bz #1212616)
+- Storage volume manager looses focus when a volume is deleted (bz #1279861)
+- Storage volume manager does not update free space (bz #1279940)
+- Reboot/Shutdown buttons does not work on aarch64 (bz #1212826)
+
 * Tue Aug 11 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-3
 - Fix errors with missing nodedevs (bz #1225771)
 - Fix CDROM media change if device is bootable (bz #1229819)
