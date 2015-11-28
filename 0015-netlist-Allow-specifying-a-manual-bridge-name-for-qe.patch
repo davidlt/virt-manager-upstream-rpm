@@ -1,0 +1,54 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Thu, 24 Sep 2015 16:32:04 -0400
+Subject: [PATCH virt-manager] netlist: Allow specifying a manual bridge name
+ for qemu:///session (bz 1212443)
+
+Since qemu has the setuid qemu-bridge-helper, give a way in the UI
+to specify a manual bridge name for qemu:///session. Might not work
+all the time but at least the users can try
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1212443
+(cherry picked from commit d57d4d0e76a00d39753b8137be7fd81255cd1d87)
+---
+ virtManager/netlist.py | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
+
+diff --git a/virtManager/netlist.py b/virtManager/netlist.py
+index bc9b1fd..c8f37f4 100644
+--- a/virtManager/netlist.py
++++ b/virtManager/netlist.py
+@@ -240,12 +240,19 @@ class vmmNetworkList(vmmGObjectUI):
+         model = net_list.get_model()
+         model.clear()
+ 
+-        # For qemu:///session
++        def _add_manual_bridge_row():
++            manual_row = self._build_source_row(
++                None, None, _("Specify shared device name"),
++                True, False, manual_bridge=True)
++            model.append(manual_row)
++
+         if self.conn.is_qemu_session():
+             nettype = virtinst.VirtualNetworkInterface.TYPE_USER
+             r = self._build_source_row(
+                 nettype, None, self._pretty_network_desc(nettype), True, True)
+             model.append(r)
++
++            _add_manual_bridge_row()
+             net_list.set_active(0)
+             return
+ 
+@@ -284,12 +291,7 @@ class vmmNetworkList(vmmGObjectUI):
+             default = [idx for idx in range(len(model)) if
+                        model[idx][2] == label][0]
+ 
+-        # After all is said and done, add a manual bridge option
+-        manual_row = self._build_source_row(
+-            None, None, _("Specify shared device name"),
+-            True, False, manual_bridge=True)
+-        model.append(manual_row)
+-
++        _add_manual_bridge_row()
+         net_list.set_active(default)
+ 
+ 

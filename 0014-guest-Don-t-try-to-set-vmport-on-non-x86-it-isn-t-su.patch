@@ -1,0 +1,106 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Fri, 4 Sep 2015 12:14:22 -0400
+Subject: [PATCH virt-manager] guest: Don't try to set vmport on non-x86, it
+ isn't supported (bz 1259998)
+
+(cherry picked from commit 5e68b0fc3d9b93491817a3c1914fa9b3633440b6)
+---
+ .../cli-test-xml/compare/virt-install-ppc64-machdefault-f20.xml  | 1 -
+ tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml    | 1 -
+ tests/cli-test-xml/compare/virt-install-ppc64le-kvm-import.xml   | 1 -
+ tests/cli-test-xml/compare/virt-xml-edit-simple-channel.xml      | 2 +-
+ tests/cli-test-xml/compare/virt-xml-edit-simple-console.xml      | 9 ---------
+ tests/cli-test-xml/compare/virt-xml-edit-simple-parallel.xml     | 2 +-
+ virtinst/guest.py                                                | 1 +
+ 7 files changed, 3 insertions(+), 14 deletions(-)
+
+diff --git a/tests/cli-test-xml/compare/virt-install-ppc64-machdefault-f20.xml b/tests/cli-test-xml/compare/virt-install-ppc64-machdefault-f20.xml
+index 6c7e573..df864f1 100644
+--- a/tests/cli-test-xml/compare/virt-install-ppc64-machdefault-f20.xml
++++ b/tests/cli-test-xml/compare/virt-install-ppc64-machdefault-f20.xml
+@@ -12,7 +12,6 @@
+     <acpi/>
+     <apic/>
+     <pae/>
+-    <vmport state="off"/>
+   </features>
+   <clock offset="utc"/>
+   <on_poweroff>destroy</on_poweroff>
+diff --git a/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml b/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
+index 6c7e573..df864f1 100644
+--- a/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
++++ b/tests/cli-test-xml/compare/virt-install-ppc64-pseries-f20.xml
+@@ -12,7 +12,6 @@
+     <acpi/>
+     <apic/>
+     <pae/>
+-    <vmport state="off"/>
+   </features>
+   <clock offset="utc"/>
+   <on_poweroff>destroy</on_poweroff>
+diff --git a/tests/cli-test-xml/compare/virt-install-ppc64le-kvm-import.xml b/tests/cli-test-xml/compare/virt-install-ppc64le-kvm-import.xml
+index 0a27562..aff7ebd 100644
+--- a/tests/cli-test-xml/compare/virt-install-ppc64le-kvm-import.xml
++++ b/tests/cli-test-xml/compare/virt-install-ppc64le-kvm-import.xml
+@@ -11,7 +11,6 @@
+   <features>
+     <acpi/>
+     <apic/>
+-    <vmport state="off"/>
+   </features>
+   <clock offset="utc"/>
+   <on_poweroff>destroy</on_poweroff>
+diff --git a/tests/cli-test-xml/compare/virt-xml-edit-simple-channel.xml b/tests/cli-test-xml/compare/virt-xml-edit-simple-channel.xml
+index 2935216..84b4a88 100644
+--- a/tests/cli-test-xml/compare/virt-xml-edit-simple-channel.xml
++++ b/tests/cli-test-xml/compare/virt-xml-edit-simple-channel.xml
+@@ -1,5 +1,5 @@
+      <console type="pty">
+-       <target type="virtio" port="0"/>
++       <target type="virtio" port="1"/>
+      </console>
+ -    <channel type="pipe">
+ +    <channel type="null">
+diff --git a/tests/cli-test-xml/compare/virt-xml-edit-simple-console.xml b/tests/cli-test-xml/compare/virt-xml-edit-simple-console.xml
+index 7bf3a19..639f1bc 100644
+--- a/tests/cli-test-xml/compare/virt-xml-edit-simple-console.xml
++++ b/tests/cli-test-xml/compare/virt-xml-edit-simple-console.xml
+@@ -1,11 +1,2 @@
+-       <target port="0"/>
+-     </parallel>
+-     <console type="pty">
+--      <target type="virtio" port="0"/>
+-+      <target type="serial" port="0"/>
+-     </console>
+-     <channel type="pipe">
+-       <source path="/tmp/guestfwd"/>
+-
+ Domain 'test-for-virtxml' defined successfully.
+ Changes will take effect after the next domain shutdown.
+\ No newline at end of file
+diff --git a/tests/cli-test-xml/compare/virt-xml-edit-simple-parallel.xml b/tests/cli-test-xml/compare/virt-xml-edit-simple-parallel.xml
+index ca2c811..8513c0e 100644
+--- a/tests/cli-test-xml/compare/virt-xml-edit-simple-parallel.xml
++++ b/tests/cli-test-xml/compare/virt-xml-edit-simple-parallel.xml
+@@ -7,7 +7,7 @@
+ +      <source path="/some/other/log"/>
+        <target port="0"/>
+      </parallel>
+-     <console type="pty">
++     <console type="null">
+ 
+ Domain 'test-for-virtxml' defined successfully.
+ Changes will take effect after the next domain shutdown.
+\ No newline at end of file
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index bf4b70b..fc5f2a8 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -847,6 +847,7 @@ class Guest(XMLBuilder):
+             self.features.pae = self.conn.caps.supports_pae()
+ 
+         if (self.features.vmport == "default" and
++            self.os.is_x86() and
+             self.has_spice() and
+             self.conn.check_support(self.conn.SUPPORT_CONN_VMPORT)):
+             self.features.vmport = False

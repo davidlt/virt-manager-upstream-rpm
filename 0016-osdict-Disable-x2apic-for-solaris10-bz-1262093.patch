@@ -1,0 +1,136 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 3 Nov 2015 11:15:26 -0500
+Subject: [PATCH virt-manager] osdict: Disable x2apic for solaris10 (bz
+ 1262093)
+
+It breaks networking:
+https://bugzilla.redhat.com/show_bug.cgi?id=1262093
+https://bugs.launchpad.net/bugs/1395217
+
+(cherry picked from commit b7e073a407451e1f3e16e98d97357802cf6b3657)
+---
+ .../compare/virt-install-solaris10-defaults.xml    | 68 ++++++++++++++++++++++
+ tests/clitest.py                                   |  1 +
+ virtinst/guest.py                                  |  4 ++
+ virtinst/osdict.py                                 |  5 ++
+ 4 files changed, 78 insertions(+)
+ create mode 100644 tests/cli-test-xml/compare/virt-install-solaris10-defaults.xml
+
+diff --git a/tests/cli-test-xml/compare/virt-install-solaris10-defaults.xml b/tests/cli-test-xml/compare/virt-install-solaris10-defaults.xml
+new file mode 100644
+index 0000000..34e89dc
+--- /dev/null
++++ b/tests/cli-test-xml/compare/virt-install-solaris10-defaults.xml
+@@ -0,0 +1,68 @@
++<domain type="kvm">
++  <name>foobar</name>
++  <uuid>00000000-1111-2222-3333-444444444444</uuid>
++  <memory>65536</memory>
++  <currentMemory>65536</currentMemory>
++  <vcpu>1</vcpu>
++  <os>
++    <type arch="x86_64">hvm</type>
++    <boot dev="hd"/>
++  </os>
++  <features>
++    <acpi/>
++    <apic/>
++    <vmport state="off"/>
++  </features>
++  <cpu mode="custom" match="exact">
++    <model>Opteron_G4</model>
++    <feature policy="disable" name="x2apic"/>
++  </cpu>
++  <clock offset="localtime">
++    <timer name="rtc" tickpolicy="catchup"/>
++    <timer name="pit" tickpolicy="delay"/>
++    <timer name="hpet" present="no"/>
++  </clock>
++  <on_poweroff>destroy</on_poweroff>
++  <on_reboot>restart</on_reboot>
++  <on_crash>restart</on_crash>
++  <pm>
++    <suspend-to-mem enabled="no"/>
++    <suspend-to-disk enabled="no"/>
++  </pm>
++  <devices>
++    <emulator>/usr/bin/qemu-kvm</emulator>
++    <disk type="file" device="disk">
++      <driver name="qemu" type="qcow2"/>
++      <source file="/var/lib/libvirt/images/foobar.qcow2"/>
++      <target dev="hda" bus="ide"/>
++    </disk>
++    <controller type="usb" index="0" model="ich9-ehci1"/>
++    <controller type="usb" index="0" model="ich9-uhci1">
++      <master startport="0"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci2">
++      <master startport="2"/>
++    </controller>
++    <controller type="usb" index="0" model="ich9-uhci3">
++      <master startport="4"/>
++    </controller>
++    <interface type="bridge">
++      <source bridge="eth0"/>
++      <mac address="00:11:22:33:44:55"/>
++    </interface>
++    <input type="mouse" bus="ps2"/>
++    <graphics type="spice" port="-1" tlsPort="-1" autoport="yes">
++      <image compression="off"/>
++    </graphics>
++    <console type="pty"/>
++    <channel type="spicevmc">
++      <target type="virtio" name="com.redhat.spice.0"/>
++    </channel>
++    <sound model="ich6"/>
++    <video>
++      <model type="qxl"/>
++    </video>
++    <redirdev bus="usb" type="spicevmc"/>
++    <redirdev bus="usb" type="spicevmc"/>
++  </devices>
++</domain>
+diff --git a/tests/clitest.py b/tests/clitest.py
+index 056ec4a..2c7ced4 100644
+--- a/tests/clitest.py
++++ b/tests/clitest.py
+@@ -700,6 +700,7 @@ c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant rhel7.0", "kvm-rhel7")  #
+ c.add_compare("--disk %(EXISTIMG1)s --pxe --os-variant centos7.0", "kvm-centos7")  # Centos 7 defaults
+ c.add_compare("--os-variant win7 --cdrom %(EXISTIMG2)s --boot loader_type=pflash,loader=CODE.fd,nvram_template=VARS.fd --disk %(EXISTIMG1)s", "win7-uefi")  # no HYPER-V with UEFI
+ c.add_compare("--machine q35 --cdrom %(EXISTIMG2)s --disk %(EXISTIMG1)s", "q35-defaults")  # proper q35 disk defaults
++c.add_compare("--disk size=20 --os-variant solaris10", "solaris10-defaults")  # test solaris OS defaults
+ c.add_compare("--connect %(URI-KVM-REMOTE)s --import --disk %(EXISTIMG1)s --os-variant fedora21 --pm suspend_to_disk=yes", "f21-kvm-remote")
+ 
+ c.add_valid("--connect %(URI-KVM-NODOMCAPS)s --arch aarch64 --nodisks --pxe")  # attempt to default to aarch64 UEFI, but it fails, but should only print warnings
+diff --git a/virtinst/guest.py b/virtinst/guest.py
+index fc5f2a8..91b078a 100644
+--- a/virtinst/guest.py
++++ b/virtinst/guest.py
+@@ -802,7 +802,11 @@ class Guest(XMLBuilder):
+         elif self.os.is_x86() and self.type == "kvm":
+             if self.os.arch != self.conn.caps.host.cpu.arch:
+                 return
++
+             self.cpu.set_special_mode(self.x86_cpu_default)
++            if self._os_object.broken_x2apic():
++                self.cpu.add_feature("x2apic", policy="disable")
++
+ 
+     def _hv_supported(self):
+         if (self.os.loader_type == "pflash" and
+diff --git a/virtinst/osdict.py b/virtinst/osdict.py
+index a6ae3ac..479d24f 100644
+--- a/virtinst/osdict.py
++++ b/virtinst/osdict.py
+@@ -426,6 +426,11 @@ class _OsVariant(object):
+     def need_old_xen_disable_acpi(self):
+         return self._is_related_to(["winxp", "win2k"], check_upgrades=False)
+ 
++    def broken_x2apic(self):
++        # x2apic breaks networking in solaris10
++        # https://bugs.launchpad.net/bugs/1395217
++        return self.name == 'solaris10'
++
+     def get_clock(self):
+         if self.is_windows() or self._family in ['solaris']:
+             return "localtime"

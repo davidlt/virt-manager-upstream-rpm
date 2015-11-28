@@ -1,0 +1,22 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 18 Nov 2015 18:48:30 -0500
+Subject: [PATCH virt-manager] systray: Fix appindicator icon name (bz 1257949)
+
+(cherry picked from commit cbef4ad84b9c241d7fad23ac7ef676e1b06ae29d)
+---
+ virtManager/systray.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtManager/systray.py b/virtManager/systray.py
+index 16e8fde..dd6ca71 100644
+--- a/virtManager/systray.py
++++ b/virtManager/systray.py
+@@ -132,7 +132,7 @@ class vmmSystray(vmmGObject):
+         if self.systray_indicator:
+             # pylint: disable=maybe-no-member
+             self.systray_icon = AppIndicator3.Indicator.new("virt-manager",
+-                                "virt-manager-icon",
++                                "virt-manager",
+                                 AppIndicator3.IndicatorCategory.OTHER)
+             self.systray_icon.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+             self.systray_icon.set_menu(self.systray_menu)

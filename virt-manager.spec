@@ -21,7 +21,7 @@
 
 Name: virt-manager
 Version: 1.2.1
-Release: 3%{?dist}
+Release: 4%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Virtual Machine Manager
@@ -29,6 +29,42 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix errors with missing nodedevs (bz #1225771)
+Patch0001: 0001-connection-catch-more-errors-in-filter_nodedevs-bug-.patch
+# Fix CDROM media change if device is bootable (bz #1229819)
+Patch0002: 0002-domain-Use-UpdateDevice-for-CDROM-media-change-bz-12.patch
+# Fix adding iscsi pools (bz #1231558)
+Patch0003: 0003-createpool-Fix-adding-iscsi-pools-bz-1231558.patch
+# spec: Add LXC to default connection list (bz #1235972)
+Patch0004: 0004-spec-Add-LXC-to-default-connection-list-bz-1235972.patch
+# Fix backtrace when reporting OS error (bz #1241902)
+Patch0005: 0005-create-Fix-backtrace-when-reporting-OS-error-bz-1241.patch
+Patch0006: 0006-osdict-Fix-unix-alias.patch
+# Raise upper limits for lxc ID namespaces (bz #1244490)
+Patch0007: 0007-details-Raise-upper-limits-for-lxc-ID-namespaces-bz-.patch
+# Fix 'copy host CPU definition'
+Patch0008: 0008-virtinst.cpu-fix-copy-host-cpu-definition.patch
+Patch0009: 0009-tests-Add-test-for-CPU-clearing.patch
+# Fix displaying VM machine type when connecting to old libvirt
+Patch0010: 0010-details-don-t-display-error-if-machine-is-missing-in.patch
+# Fix qemu:///session handling in 'Add Connection' dialog
+Patch0011: 0011-addconnection-Fix-qemu-session-vs.-lxc-detection.patch
+# Fix default storage path for qemu:///session, it should be
+# .local/share/...
+Patch0012: 0012-storage-session-path-should-be-.local-share-libvirt-.patch
+# Error when trying to modify existing 9p share (bz #1257565)
+Patch0013: 0013-fsdetails-Drop-check-for-qemu-target-collision-bz-12.patch
+# virt-manager tries to create vmport device on non-x86 backends (bz
+# #1259998)
+Patch0014: 0014-guest-Don-t-try-to-set-vmport-on-non-x86-it-isn-t-su.patch
+# Details/Virtual networks: Allow manually specifying a bridge for
+# qemu:///session (bz #1212443)
+Patch0015: 0015-netlist-Allow-specifying-a-manual-bridge-name-for-qe.patch
+# RFE Improve Solaris 10 x86-64 support in virt-manager (bz #1262093)
+Patch0016: 0016-osdict-Disable-x2apic-for-solaris10-bz-1262093.patch
+# No system tray icon in Cinnamon session (bz #1257949)
+Patch0017: 0017-systray-Fix-appindicator-icon-name-bz-1257949.patch
 BuildArch: noarch
 
 
@@ -101,6 +137,42 @@ machine).
 
 %prep
 %setup -q
+
+# Fix errors with missing nodedevs (bz #1225771)
+%patch0001 -p1
+# Fix CDROM media change if device is bootable (bz #1229819)
+%patch0002 -p1
+# Fix adding iscsi pools (bz #1231558)
+%patch0003 -p1
+# spec: Add LXC to default connection list (bz #1235972)
+%patch0004 -p1
+# Fix backtrace when reporting OS error (bz #1241902)
+%patch0005 -p1
+%patch0006 -p1
+# Raise upper limits for lxc ID namespaces (bz #1244490)
+%patch0007 -p1
+# Fix 'copy host CPU definition'
+%patch0008 -p1
+%patch0009 -p1
+# Fix displaying VM machine type when connecting to old libvirt
+%patch0010 -p1
+# Fix qemu:///session handling in 'Add Connection' dialog
+%patch0011 -p1
+# Fix default storage path for qemu:///session, it should be
+# .local/share/...
+%patch0012 -p1
+# Error when trying to modify existing 9p share (bz #1257565)
+%patch0013 -p1
+# virt-manager tries to create vmport device on non-x86 backends (bz
+# #1259998)
+%patch0014 -p1
+# Details/Virtual networks: Allow manually specifying a bridge for
+# qemu:///session (bz #1212443)
+%patch0015 -p1
+# RFE Improve Solaris 10 x86-64 support in virt-manager (bz #1262093)
+%patch0016 -p1
+# No system tray icon in Cinnamon session (bz #1257949)
+%patch0017 -p1
 
 %build
 %if %{qemu_user}
@@ -213,6 +285,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Fri Nov 27 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-4
+- Re-add incorrectly dropped patches
+
 * Wed Nov 25 2015 Cole Robinson <crobinso@redhat.com> - 1.2.1-3
 - Error when trying to modify existing 9p share (bz #1257565)
 - virt-manager tries to create vmport device on non-x86 backends (bz #1259998)

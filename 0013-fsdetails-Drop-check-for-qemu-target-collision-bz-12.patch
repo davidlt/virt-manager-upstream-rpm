@@ -1,0 +1,45 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 1 Sep 2015 12:31:53 -0400
+Subject: [PATCH virt-manager] fsdetails: Drop check for qemu target collision
+ (bz #1257565)
+
+We can fix the reported bug, but this is one of those cases where
+libvirt or qemu should be warning if there's a problem, so just drop
+our local check
+
+(cherry picked from commit fbb31bd156acda1508a2d540425e97b7ddf68737)
+---
+ virtManager/fsdetails.py | 13 -------------
+ 1 file changed, 13 deletions(-)
+
+diff --git a/virtManager/fsdetails.py b/virtManager/fsdetails.py
+index d351f0a..52bd3b7 100644
+--- a/virtManager/fsdetails.py
++++ b/virtManager/fsdetails.py
+@@ -299,10 +299,6 @@ class vmmFSDetails(vmmGObjectUI):
+         if not target:
+             return self.err.val_err(_("A filesystem target must be specified"))
+ 
+-        if self.conn.is_qemu() and self.filesystem_target_present(target):
+-            return self.err.val_err(_('Invalid target path. A filesystem with'
+-                                      ' that target already exists'))
+-
+         try:
+             self._dev = VirtualFilesystem(conn)
+             if fstype == VirtualFilesystem.TYPE_RAM:
+@@ -328,15 +324,6 @@ class vmmFSDetails(vmmGObjectUI):
+         except Exception, e:
+             return self.err.val_err(_("Filesystem parameter error"), e)
+ 
+-    def filesystem_target_present(self, target):
+-        fsdevs = self.vm.get_filesystem_devices()
+-
+-        for fs in fsdevs:
+-            if (fs.target == target):
+-                return True
+-
+-        return False
+-
+     def _browse_file(self, textent, isdir=False):
+         def set_storage_cb(src, path):
+             if path:
