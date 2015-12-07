@@ -19,7 +19,7 @@
 # End local config
 
 Name: virt-manager
-Version: 1.3.0
+Version: 1.3.1
 Release: 1%{?dist}
 %define verrel %{version}-%{release}
 
@@ -214,6 +214,10 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sun Dec 06 2015 Cole Robinson <crobinso@redhat.com> - 1.3.1-1
+- Rebased to version 1.3.1
+- Fix command line API on RHEL7 pygobject
+
 * Wed Nov 25 2015 Cole Robinson <crobinso@redhat.com> - 1.3.0-1
 - Rebased to version 1.3.0
 - Error when trying to modify existing 9p share (bz #1257565)
