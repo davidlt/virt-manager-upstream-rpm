@@ -19,7 +19,7 @@
 # End local config
 
 Name: virt-manager
-Version: 1.3.1
+Version: 1.3.2
 Release: 1%{?dist}
 %define verrel %{version}-%{release}
 
@@ -36,9 +36,14 @@ Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
 Requires: libxml2-python
-Requires: vte3
 Requires: dconf
 Requires: dbus-x11
+
+# The vte291 package is actually the latest vte with API version 2.91, while
+# the vte3 package is effectively a compat package with API version 2.90.
+# virt-manager works fine with either, so pull the latest bits so there's
+# no ambiguity.
+Requires: vte291
 
 # For console widget
 Requires: gtk-vnc2
@@ -214,6 +219,10 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Thu Dec 24 2015 Cole Robinson <crobinso@redhat.com> - 1.3.2-1
+- Rebased to version 1.3.2
+- Fix dependency issues with vte (bz #1290262)
+
 * Sun Dec 06 2015 Cole Robinson <crobinso@redhat.com> - 1.3.1-1
 - Rebased to version 1.3.1
 - Fix command line API on RHEL7 pygobject
