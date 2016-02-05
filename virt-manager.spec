@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.3.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -219,6 +219,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Fri Feb 05 2016 Fedora Release Engineering <releng@fedoraproject.org> - 1.3.2-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
+
 * Thu Dec 24 2015 Cole Robinson <crobinso@redhat.com> - 1.3.2-1
 - Rebased to version 1.3.2
 - Fix dependency issues with vte (bz #1290262)
