@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.3.2
-Release: 1%{?dist}
+Release: 2%{?dist}
 %define verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -28,6 +28,11 @@ Group: Applications/Emulators
 License: GPLv2+
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix screenshot on F24 rawhide (bz #1297988)
+Patch0001: 0001-details-Fix-screenshot-on-F24-rawhide-bz-1297988.patch
+# Fix URL installs when content-length header missing (bz #1297900)
+Patch0002: 0002-urlfetcher-Fix-URL-installs-when-content-length-head.patch
 BuildArch: noarch
 
 
@@ -105,6 +110,11 @@ machine).
 
 %prep
 %setup -q
+
+# Fix screenshot on F24 rawhide (bz #1297988)
+%patch0001 -p1
+# Fix URL installs when content-length header missing (bz #1297900)
+%patch0002 -p1
 
 %build
 %if %{qemu_user}
@@ -219,6 +229,10 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Thu Mar 17 2016 Cole Robinson <crobinso@redhat.com> - 1.3.2-2
+- Fix screenshot on F24 rawhide (bz #1297988)
+- Fix URL installs when content-length header missing (bz #1297900)
+
 * Thu Dec 24 2015 Cole Robinson <crobinso@redhat.com> - 1.3.2-1
 - Rebased to version 1.3.2
 - Fix dependency issues with vte (bz #1290262)
