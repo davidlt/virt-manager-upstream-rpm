@@ -1,0 +1,24 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Fri, 15 Jan 2016 15:07:58 -0500
+Subject: [PATCH virt-manager] details: Fix screenshot on F24 rawhide (bz
+ 1297988)
+
+(cherry picked from commit f454798b337aedb881671f62fe3b25fad703b768)
+---
+ virtManager/details.py | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/virtManager/details.py b/virtManager/details.py
+index 0bd2569..3dbd82f 100644
+--- a/virtManager/details.py
++++ b/virtManager/details.py
+@@ -1486,6 +1486,9 @@ class vmmDetails(vmmGObjectUI):
+         # and future proof it a bit
+         if type(ret) is tuple and len(ret) >= 2:
+             ret = ret[1]
++        # F24 rawhide, ret[1] is a named tuple with a 'buffer' element...
++        if hasattr(ret, "buffer"):
++            ret = ret.buffer
+ 
+         import datetime
+         now = str(datetime.datetime.now()).split(".")[0].replace(" ", "_")

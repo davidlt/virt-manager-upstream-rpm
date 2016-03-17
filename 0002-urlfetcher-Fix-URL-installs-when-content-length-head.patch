@@ -1,0 +1,29 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 12 Jan 2016 12:45:02 -0500
+Subject: [PATCH virt-manager] urlfetcher: Fix URL installs when content-length
+ header missing
+
+Suggested-by: bduff@sjm.com
+(cherry picked from commit eae7dc061968a83fef8ebb632c8f939621ff22b1)
+---
+ virtinst/urlfetcher.py | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/virtinst/urlfetcher.py b/virtinst/urlfetcher.py
+index 6181a5a..3266186 100644
+--- a/virtinst/urlfetcher.py
++++ b/virtinst/urlfetcher.py
+@@ -186,8 +186,11 @@ class _HTTPURLFetcher(_URLFetcher):
+         """
+         response = requests.get(url, stream=True)
+         response.raise_for_status()
+-        size = response.headers.get('content-length')
+-        return response, size.isdigit() and int(size) or None
++        try:
++            size = int(response.headers.get('content-length'))
++        except:
++            size = None
++        return response, size
+ 
+     def _write(self, urlobj, fileobj):
+         """
