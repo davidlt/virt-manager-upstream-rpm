@@ -1,39 +1,35 @@
 # -*- rpm-spec -*-
 
 
-%define with_guestfs               0
-%define stable_defaults            0
-%define askpass_package            "openssh-askpass"
-%define qemu_user                  "qemu"
-%define libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
-%define kvm_packages               ""
-%define preferred_distros          "fedora,rhel"
-%define default_hvs                "qemu,xen,lxc"
+%global with_guestfs               0
+%global stable_defaults            0
+%global askpass_package            "openssh-askpass"
+%global qemu_user                  "qemu"
+%global libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
+%global kvm_packages               ""
+%global preferred_distros          "fedora,rhel"
+%global default_hvs                "qemu,xen,lxc"
 
 %if 0%{?rhel}
-%define preferred_distros          "rhel,fedora"
-%define stable_defaults            1
+%global preferred_distros          "rhel,fedora"
+%global stable_defaults            1
 %endif
 
 
 # End local config
-
+%global gittag 20160520git2204de62d9
 Name: virt-manager
 Version: 1.3.2
-Release: 3%{?dist}
-%define verrel %{version}-%{release}
+Release: 4.%{gittag}%{?dist}
+%global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
 Group: Applications/Emulators
 License: GPLv2+
-URL: http://virt-manager.org/
-Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-
-# Fix screenshot on F24 rawhide (bz #1297988)
-Patch0001: 0001-details-Fix-screenshot-on-F24-rawhide-bz-1297988.patch
-# Fix URL installs when content-length header missing (bz #1297900)
-Patch0002: 0002-urlfetcher-Fix-URL-installs-when-content-length-head.patch
 BuildArch: noarch
+URL: http://virt-manager.org/
+#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+Source0: %{name}-%{version}-%{gittag}.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
@@ -111,38 +107,33 @@ machine).
 %prep
 %setup -q
 
-# Fix screenshot on F24 rawhide (bz #1297988)
-%patch0001 -p1
-# Fix URL installs when content-length header missing (bz #1297900)
-%patch0002 -p1
-
 %build
 %if %{qemu_user}
-%define _qemu_user --qemu-user=%{qemu_user}
+%global _qemu_user --qemu-user=%{qemu_user}
 %endif
 
 %if %{kvm_packages}
-%define _kvm_packages --kvm-package-names=%{kvm_packages}
+%global _kvm_packages --kvm-package-names=%{kvm_packages}
 %endif
 
 %if %{preferred_distros}
-%define _preferred_distros --preferred-distros=%{preferred_distros}
+%global _preferred_distros --preferred-distros=%{preferred_distros}
 %endif
 
 %if %{libvirt_packages}
-%define _libvirt_packages --libvirt-package-names=%{libvirt_packages}
+%global _libvirt_packages --libvirt-package-names=%{libvirt_packages}
 %endif
 
 %if %{askpass_package}
-%define _askpass_package --askpass-package-names=%{askpass_package}
+%global _askpass_package --askpass-package-names=%{askpass_package}
 %endif
 
 %if %{stable_defaults}
-%define _stable_defaults --stable-defaults
+%global _stable_defaults --stable-defaults
 %endif
 
 %if %{default_hvs}
-%define _default_hvs --default-hvs %{default_hvs}
+%global _default_hvs --default-hvs %{default_hvs}
 %endif
 
 python setup.py configure \
@@ -229,6 +220,12 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Fri May 20 2016 Cole Robinson <crobinso@redhat.com> - 1.3.2-4.20160520git2204de62d9
+- Rebase to latest git
+- Update translations (bz #1323015)
+- Fix rawhide URL installs (bz #1322011)
+- Update viewer to work with spice GL
+
 * Thu Mar 17 2016 Cole Robinson <crobinso@redhat.com> - 1.3.2-3
 - Fix screenshot on F24 rawhide (bz #1297988)
 - Fix URL installs when content-length header missing (bz #1297900)
