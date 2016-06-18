@@ -20,7 +20,7 @@
 %global gittag 20160520git2204de62d9
 Name: virt-manager
 Version: 1.4.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -54,9 +54,10 @@ Requires: gnome-icon-theme
 %endif
 
 
-BuildRequires: python
 BuildRequires: intltool
 BuildRequires: /usr/bin/pod2man
+# For python, and python2 rpm macros
+BuildRequires: python2-devel
 
 
 %description
@@ -227,6 +228,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sat Jun 18 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-2
+- Fix executing virt-* scripts (bz #1347938)
+
 * Sat Jun 18 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-1
 - Rebased to version 1.4.0
 
