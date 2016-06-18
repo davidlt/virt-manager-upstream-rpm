@@ -19,8 +19,8 @@
 # End local config
 %global gittag 20160520git2204de62d9
 Name: virt-manager
-Version: 1.3.2
-Release: 4.%{gittag}%{?dist}
+Version: 1.4.0
+Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -28,8 +28,7 @@ Group: Applications/Emulators
 License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
-#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-Source0: %{name}-%{version}-%{gittag}.tar.gz
+Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
@@ -107,6 +106,7 @@ machine).
 %prep
 %setup -q
 
+
 %build
 %if %{qemu_user}
 %global _qemu_user --qemu-user=%{qemu_user}
@@ -151,6 +151,13 @@ python setup.py \
     --no-update-icon-cache --no-compile-schemas \
     install -O1 --root=%{buildroot}
 %find_lang %{name}
+
+# Replace '#!/usr/bin/env python2' with '#!/usr/bin/python2'
+# The format is ideal for upstream, but not a distro. See:
+# https://fedoraproject.org/wiki/Features/SystemPythonExecutablesUseSystemPython
+for f in $(find %{buildroot} -type f -executable -print); do
+    sed -i "1 s|^#!/usr/bin/env python2|#!%{__python2}|" $f || :
+done
 
 # The conversion script was only added to virt-manager after several
 # Fedora cycles of using gsettings. Installing it now could convert old data
@@ -220,6 +227,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sat Jun 18 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-1
+- Rebased to version 1.4.0
+
 * Fri May 20 2016 Cole Robinson <crobinso@redhat.com> - 1.3.2-4.20160520git2204de62d9
 - Rebase to latest git
 - Update translations (bz #1323015)
