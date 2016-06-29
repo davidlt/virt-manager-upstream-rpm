@@ -20,7 +20,7 @@
 %global gittag 20160520git2204de62d9
 Name: virt-manager
 Version: 1.4.0
-Release: 2%{?dist}
+Release: 3%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -29,6 +29,9 @@ License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix italian translation from breaking the app (bz #1350185)
+Patch0001: 0001-Update-translations-and-fix-it.po-problems.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -106,6 +109,9 @@ machine).
 
 %prep
 %setup -q
+
+# Fix italian translation from breaking the app (bz #1350185)
+%patch0001 -p1
 
 
 %build
@@ -228,6 +234,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Wed Jun 29 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-3
+- Fix italian translation from breaking the app (bz #1350185)
+
 * Sat Jun 18 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-2
 - Fix executing virt-* scripts (bz #1347938)
 
