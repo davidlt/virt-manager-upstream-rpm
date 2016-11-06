@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.4.0
-Release: 3%{?dist}
+Release: 4%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -32,6 +32,10 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 
 # Fix italian translation from breaking the app (bz #1350185)
 Patch0001: 0001-Update-translations-and-fix-it.po-problems.patch
+# Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
+Patch0002: 0002-osdict-Fix-incorrect-usage-of-virtio-input.patch
+# Fix error checking extra_args for console argument
+Patch0003: 0003-virt-install-Fix-error-checking-extra_args.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -112,6 +116,10 @@ machine).
 
 # Fix italian translation from breaking the app (bz #1350185)
 %patch0001 -p1
+# Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
+%patch0002 -p1
+# Fix error checking extra_args for console argument
+%patch0003 -p1
 
 
 %build
@@ -234,6 +242,10 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sun Nov 06 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-4
+- Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
+- Fix error checking extra_args for console argument
+
 * Wed Jun 29 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-3
 - Fix italian translation from breaking the app (bz #1350185)
 
