@@ -20,7 +20,7 @@
 %global gittag 20160520git2204de62d9
 Name: virt-manager
 Version: 1.4.0
-Release: 4%{?dist}
+Release: 5%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -36,6 +36,14 @@ Patch0001: 0001-Update-translations-and-fix-it.po-problems.patch
 Patch0002: 0002-osdict-Fix-incorrect-usage-of-virtio-input.patch
 # Fix error checking extra_args for console argument
 Patch0003: 0003-virt-install-Fix-error-checking-extra_args.patch
+# Fix version check for spice GL support
+Patch0004: 0004-virtinst-fix-bad-version-check-regression-from-55327.patch
+# Don't return virtio1.0-net as a valid device name (bz #1399083)
+Patch0005: 0005-osdict-Don-t-return-virtio1.0-net-as-a-valid-device-.patch
+# Fix window size tracking on wayland (bz #1375175)
+Patch0006: 0006-manager-Fix-window-size-tracking-on-wayland-bug-1375.patch
+# Fix 'resize to VM' on wayland (bz #1397598)
+Patch0007: 0007-console-Fix-resize-to-VM-on-wayland-bug-1397598.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -120,6 +128,14 @@ machine).
 %patch0002 -p1
 # Fix error checking extra_args for console argument
 %patch0003 -p1
+# Fix version check for spice GL support
+%patch0004 -p1
+# Don't return virtio1.0-net as a valid device name (bz #1399083)
+%patch0005 -p1
+# Fix window size tracking on wayland (bz #1375175)
+%patch0006 -p1
+# Fix 'resize to VM' on wayland (bz #1397598)
+%patch0007 -p1
 
 
 %build
@@ -242,6 +258,12 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Tue Dec 13 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-5
+- Fix version check for spice GL support
+- Don't return virtio1.0-net as a valid device name (bz #1399083)
+- Fix window size tracking on wayland (bz #1375175)
+- Fix 'resize to VM' on wayland (bz #1397598)
+
 * Sun Nov 06 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-4
 - Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
 - Fix error checking extra_args for console argument
