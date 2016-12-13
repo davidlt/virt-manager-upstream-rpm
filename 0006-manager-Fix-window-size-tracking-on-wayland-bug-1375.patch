@@ -1,0 +1,49 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Tue, 13 Dec 2016 13:27:06 -0500
+Subject: [PATCH virt-manager] manager: Fix window size tracking on wayland
+ (bug 1375175)
+
+The method we were using is a common implementation bug,
+explained here: https://wiki.gnome.org/HowDoI/SaveWindowState
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1375175
+(cherry picked from commit 107aa2b1345f45384086c00c904e4786001e4827)
+---
+ virtManager/details.py | 4 ++--
+ virtManager/manager.py | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/virtManager/details.py b/virtManager/details.py
+index b2f451d..38491d4 100644
+--- a/virtManager/details.py
++++ b/virtManager/details.py
+@@ -1016,10 +1016,10 @@ class vmmDetails(vmmGObjectUI):
+     # Window state listeners #
+     ##########################
+ 
+-    def window_resized(self, ignore, event):
++    def window_resized(self, ignore, ignore2):
+         if not self.is_visible():
+             return
+-        self._window_size = (event.width, event.height)
++        self._window_size = self.topwin.get_size()
+ 
+     def popup_addhw_menu(self, widget, event):
+         ignore = widget
+diff --git a/virtManager/manager.py b/virtManager/manager.py
+index d70f4c4..31fe457 100644
+--- a/virtManager/manager.py
++++ b/virtManager/manager.py
+@@ -458,10 +458,10 @@ class vmmManager(vmmGObjectUI):
+     # Action listeners #
+     ####################
+ 
+-    def window_resized(self, ignore, event):
++    def window_resized(self, ignore, ignore2):
+         if not self.is_visible():
+             return
+-        self._window_size = (event.width, event.height)
++        self._window_size = self.topwin.get_size()
+ 
+     def exit_app(self, src_ignore=None, src2_ignore=None):
+         self.emit("action-exit-app")
