@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.4.0
-Release: 5%{?dist}
+Release: 6%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -258,6 +258,9 @@ fi
 %{_bindir}/virt-xml
 
 %changelog
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 1.4.0-6
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Tue Dec 13 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-5
 - Fix version check for spice GL support
 - Don't return virtio1.0-net as a valid device name (bz #1399083)
