@@ -17,10 +17,10 @@
 
 
 # End local config
-%global gittag 20160520git2204de62d9
+
 Name: virt-manager
-Version: 1.4.0
-Release: 5%{?dist}
+Version: 1.4.1
+Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -30,27 +30,11 @@ BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 
-# Fix italian translation from breaking the app (bz #1350185)
-Patch0001: 0001-Update-translations-and-fix-it.po-problems.patch
-# Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
-Patch0002: 0002-osdict-Fix-incorrect-usage-of-virtio-input.patch
-# Fix error checking extra_args for console argument
-Patch0003: 0003-virt-install-Fix-error-checking-extra_args.patch
-# Fix version check for spice GL support
-Patch0004: 0004-virtinst-fix-bad-version-check-regression-from-55327.patch
-# Don't return virtio1.0-net as a valid device name (bz #1399083)
-Patch0005: 0005-osdict-Don-t-return-virtio1.0-net-as-a-valid-device-.patch
-# Fix window size tracking on wayland (bz #1375175)
-Patch0006: 0006-manager-Fix-window-size-tracking-on-wayland-bug-1375.patch
-# Fix 'resize to VM' on wayland (bz #1397598)
-Patch0007: 0007-console-Fix-resize-to-VM-on-wayland-bug-1397598.patch
-
 
 Requires: virt-manager-common = %{verrel}
 Requires: pygobject3
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
-Requires: libxml2-python
 Requires: dconf
 Requires: dbus-x11
 
@@ -106,6 +90,8 @@ virt-install related tools.
 Summary: Utilities for installing virtual machines
 
 Requires: virt-manager-common = %{verrel}
+# For 'virsh console'
+Requires: libvirt-client
 
 Provides: virt-install
 Provides: virt-clone
@@ -121,21 +107,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix italian translation from breaking the app (bz #1350185)
-%patch0001 -p1
-# Fix fedora24 installs from incorrectly using virtio-input (bz #1391522)
-%patch0002 -p1
-# Fix error checking extra_args for console argument
-%patch0003 -p1
-# Fix version check for spice GL support
-%patch0004 -p1
-# Don't return virtio1.0-net as a valid device name (bz #1399083)
-%patch0005 -p1
-# Fix window size tracking on wayland (bz #1375175)
-%patch0006 -p1
-# Fix 'resize to VM' on wayland (bz #1397598)
-%patch0007 -p1
 
 
 %build
@@ -216,7 +187,7 @@ fi
 
 
 %files
-%doc README COPYING NEWS
+%doc README.md COPYING NEWS.md
 %{_bindir}/%{name}
 
 %{_mandir}/man1/%{name}.1*
@@ -257,7 +228,23 @@ fi
 %{_bindir}/virt-convert
 %{_bindir}/virt-xml
 
+
 %changelog
+* Tue Mar 14 2017 Cole Robinson <crobinso@redhat.com> - 1.4.1-1
+- Rebased to version 1.4.1
+- storage/nodedev event API support (Jovanka Gulicoska)
+- UI options for enabling spice GL (Marc-André Lureau)
+- Add default virtio-rng /dev/urandom for supported guest OS
+- Cloning and rename support for UEFI VMs (Pavel Hrdina)
+- libguestfs inspection UI improvements (Pino Toscano)
+- virt-install: Add --qemu-commandline
+- virt-install: Add --network vhostuser (Chen Hanxiao)
+- virt-install: Add --sysinfo (Charles Arnold)
+- Fix renaming UEFI VMs (bz #1265697)
+- Fix unintentional virtio-vga default (bz #1368867)
+- Use storage events to avoid incorrect USB dev listing (bz #1389662)
+- Fix missing dep on libvirt-client (bz #1416752)
+
 * Tue Dec 13 2016 Cole Robinson <crobinso@redhat.com> - 1.4.0-5
 - Fix version check for spice GL support
 - Don't return virtio1.0-net as a valid device name (bz #1399083)
