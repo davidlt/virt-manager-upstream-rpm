@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.4.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -29,6 +29,9 @@ License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix broken it/ko translations (bz #1433800)
+Patch0001: 0001-Fix-broken-it-ko-translations-bz-1433800.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -107,6 +110,9 @@ machine).
 
 %prep
 %setup -q
+
+# Fix broken it/ko translations (bz #1433800)
+%patch0001 -p1
 
 
 %build
@@ -230,6 +236,9 @@ fi
 
 
 %changelog
+* Wed Mar 22 2017 Cole Robinson <crobinso@redhat.com> - 1.4.1-2
+- Fix broken it/ko translations (bz #1433800)
+
 * Mon Mar 13 2017 Cole Robinson <crobinso@redhat.com> - 1.4.1-1
 - Rebased to version 1.4.1
 - storage/nodedev event API support (Jovanka Gulicoska)
