@@ -19,8 +19,8 @@
 # End local config
 
 Name: virt-manager
-Version: 1.4.1
-Release: 2%{?dist}
+Version: 1.4.2
+Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -29,9 +29,6 @@ License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-
-# Fix broken it/ko translations (bz #1433800)
-Patch0001: 0001-Fix-broken-it-ko-translations-bz-1433800.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -110,9 +107,6 @@ machine).
 
 %prep
 %setup -q
-
-# Fix broken it/ko translations (bz #1433800)
-%patch0001 -p1
 
 
 %build
@@ -236,6 +230,19 @@ fi
 
 
 %changelog
+* Wed Aug 09 2017 Cole Robinson <crobinso@redhat.com> - 1.4.2-1
+- Rebased to version 1.4.2
+- New VM wixard virt-bootstrap integration (Radostin Stoyanov)
+- New VM wizard support for virtuozzo containers (Mikhail Feoktistov)
+- network UI: add support to create SR-IOV VF pool (Lin Ma)
+- Nicer OS list in New VM wizard (Pino Toscano)
+- Better defaults for UEFI secureboot builds (Pavel Hrdina)
+- Fix defaults for aarch64 VMs if graphics are requested
+- virt-install: new --memdev option (Pavel Hrdina)
+- virt-install: add --disk logical/physical_block_size (Yuri Arabadji)
+- virt-install: add --features hyperv_reset=, hyperv_synic= (Venkat Datta N
+  H)
+
 * Wed Mar 22 2017 Cole Robinson <crobinso@redhat.com> - 1.4.1-2
 - Fix broken it/ko translations (bz #1433800)
 
