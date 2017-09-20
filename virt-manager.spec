@@ -19,7 +19,7 @@
 # End local config
 
 Name: virt-manager
-Version: 1.4.2
+Version: 1.4.3
 Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
@@ -230,6 +230,15 @@ fi
 
 
 %changelog
+* Tue Sep 19 2017 Cole Robinson <crobinso@redhat.com> - 1.4.3-1
+- Rebased to version 1.4.3
+- Improve install of debian/ubuntu non-x86 media (Viktor Mihajlovski, Andrew
+  Wong)
+- New virt-install --graphics listen.* (Pavel Hrdina)
+- New virt-install --disk snapshot_policy= (Pavel Hrdina)
+- New virt-install --cpu cache.* (Lin Ma)
+- Several bug fixes
+
 * Wed Aug 09 2017 Cole Robinson <crobinso@redhat.com> - 1.4.2-1
 - Rebased to version 1.4.2
 - New VM wixard virt-bootstrap integration (Radostin Stoyanov)
