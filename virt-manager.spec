@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.4.3
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -29,6 +29,9 @@ License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
+Patch0001: 0001-devicepanic-Don-t-return-empty-model-list-bz-1505532.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -107,6 +110,9 @@ machine).
 
 %prep
 %setup -q
+
+# Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
+%patch0001 -p1
 
 
 %build
@@ -230,6 +236,9 @@ fi
 
 
 %changelog
+* Tue Nov 21 2017 Cole Robinson <crobinso@redhat.com> - 1.4.3-2
+- Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
+
 * Tue Sep 19 2017 Cole Robinson <crobinso@redhat.com> - 1.4.3-1
 - Rebased to version 1.4.3
 - Improve install of debian/ubuntu non-x86 media (Viktor Mihajlovski, Andrew
