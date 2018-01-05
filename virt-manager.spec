@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.4.3
-Release: 2%{?dist}
+Release: 3%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -217,6 +217,9 @@ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %changelog
+* Fri Jan 05 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.4.3-3
+- Remove obsolete scriptlets
+
 * Tue Nov 21 2017 Cole Robinson <crobinso@redhat.com> - 1.4.3-2
 - Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
 
