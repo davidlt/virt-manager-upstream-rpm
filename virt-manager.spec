@@ -19,8 +19,8 @@
 # End local config
 
 Name: virt-manager
-Version: 1.5.0
-Release: 1%{?dist}
+Version: 1.4.3
+Release: 3%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -29,6 +29,9 @@ License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
 Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
+Patch0001: 0001-devicepanic-Don-t-return-empty-model-list-bz-1505532.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -80,8 +83,6 @@ Requires: python-ipaddr
 Requires: libosinfo >= 0.2.10
 # Required for gobject-introspection infrastructure
 Requires: pygobject3-base
-# Required for pulling files from iso media with isoinfo
-Requires: genisoimage
 
 %description common
 Common files used by the different virt-manager interfaces, as well as
@@ -109,6 +110,9 @@ machine).
 
 %prep
 %setup -q
+
+# Fix 'Add Hardware' wizard for non-x86 guests (bz #1505532)
+%patch0001 -p1
 
 
 %build
@@ -213,28 +217,6 @@ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %changelog
-* Tue Feb 06 2018 Cole Robinson <crobinso@redhat.com> - 1.5.0-1
-- Rebased to version 1.5.0
-- python3 prep work (Radostin Stoyanov, Cole Robinson, Cédric Bosdonnat)
-- Switch --location ISO to use isoinfo (Andrew Wong)
-- virt-install: add --cpu numa distance handling (Menno Lageman)
-- virt-install: fix --disk for rbd volumes with auth (Rauno Väli)
-- virt-install: add --cputune vcpupin handling (Wim ten Have)
-- details ui: Showing attached scsi devices per controller (Lin Ma)
-- network ui: Show details about SR-IOV VF pool (Lin Ma)
-- Greatly expand UI test suite coverage
-
-* Tue Feb 06 2018 Cole Robinson <crobinso@redhat.com> - 1.5.0-1
-- Rebased to version 1.5.0
-- python3 prep work (Radostin Stoyanov, Cole Robinson, Cédric Bosdonnat)
-- Switch --location ISO to use isoinfo (Andrew Wong)
-- virt-install: add --cpu numa distance handling (Menno Lageman)
-- virt-install: fix --disk for rbd volumes with auth (Rauno Väli)
-- virt-install: add --cputune vcpupin handling (Wim ten Have)
-- details ui: Showing attached scsi devices per controller (Lin Ma)
-- network ui: Show details about SR-IOV VF pool (Lin Ma)
-- Greatly expand UI test suite coverage
-
 * Fri Jan 05 2018 Igor Gnatenko <ignatenkobrain@fedoraproject.org> - 1.4.3-3
 - Remove obsolete scriptlets
 
