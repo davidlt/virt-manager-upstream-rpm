@@ -20,7 +20,7 @@
 
 Name: virt-manager
 Version: 1.5.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -32,7 +32,7 @@ Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar
 
 
 Requires: virt-manager-common = %{verrel}
-Requires: pygobject3
+Requires: python2-gobject
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
 Requires: dconf
@@ -73,13 +73,13 @@ Group: Applications/Emulators
 
 # This version not strictly required: virt-manager should work with older,
 # however varying amounts of functionality will not be enabled.
-Requires: libvirt-python >= 0.7.0
-Requires: libxml2-python
-Requires: python-requests
-Requires: python-ipaddr
+Requires: python2-libvirt >= 0.7.0
+Requires: python2-libxml2
+Requires: python2-requests
+Requires: python2-ipaddr
 Requires: libosinfo >= 0.2.10
 # Required for gobject-introspection infrastructure
-Requires: pygobject3-base
+Requires: python2-gobject-base
 # Required for pulling files from iso media with isoinfo
 Requires: genisoimage
 
@@ -213,6 +213,10 @@ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %changelog
+* Wed Feb 07 2018 Iryna Shcherbina <ishcherb@redhat.com> - 1.5.0-2
+- Update Python 2 dependency declarations to new packaging standards
+  (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
+
 * Tue Feb 06 2018 Cole Robinson <crobinso@redhat.com> - 1.5.0-1
 - Rebased to version 1.5.0
 - python3 prep work (Radostin Stoyanov, Cole Robinson, Cédric Bosdonnat)
