@@ -19,8 +19,8 @@
 # End local config
 
 Name: virt-manager
-Version: 1.5.0
-Release: 2%{?dist}
+Version: 1.5.1
+Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -213,6 +213,10 @@ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %changelog
+* Wed Feb 28 2018 Cole Robinson <crobinso@redhat.com> - 1.5.1-1
+- Rebased to version 1.5.1
+- Fix disk/net/mem stats graphs
+
 * Wed Feb 07 2018 Iryna Shcherbina <ishcherb@redhat.com> - 1.5.0-2
 - Update Python 2 dependency declarations to new packaging standards
   (See https://fedoraproject.org/wiki/FinalizingFedoraSwitchtoPython3)
