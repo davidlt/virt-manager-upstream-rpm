@@ -1,5 +1,9 @@
 # -*- rpm-spec -*-
 
+# RPM doesn't detect that code in /usr/share is python3, this forces it
+# https://fedoraproject.org/wiki/Changes/Avoid_usr_bin_python_in_RPM_Build#Python_bytecompilation
+%global __python %{__python3}
+
 
 %global with_guestfs               0
 %global stable_defaults            0
@@ -19,8 +23,8 @@
 # End local config
 
 Name: virt-manager
-Version: 1.5.1
-Release: 1%{?dist}
+Version: 1.6.0
+Release: 0.1.git3bc7ff24c%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -28,15 +32,29 @@ Group: Applications/Emulators
 License: GPLv2+
 BuildArch: noarch
 URL: http://virt-manager.org/
-Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+# Generated with:
+# git clone https://github.com/virt-manager/virt-manager
+# cd virt-manager
+# git checkout 3bc7ff24c
+# ./setup.py sdist
+Source0: virt-manager-1.6.0.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
-Requires: python2-gobject
+Requires: python3-gobject
 Requires: gtk3
 Requires: libvirt-glib >= 0.0.9
+Requires: gtk-vnc2
+Requires: spice-gtk3
+
+# virt-manager is one of those apps that people will often install onto
+# a headless machine for use over SSH. This means the virt-manager dep
+# chain needs to provide everything we need to get a usable app experience.
+# Unfortunately nothing in our chain has an explicit dep on some kind
+# of usable gsettings backend, so we explicitly depend on dconf so that
+# user settings actually persist across app runs.
 Requires: dconf
-Requires: dbus-x11
 
 # The vte291 package is actually the latest vte with API version 2.91, while
 # the vte3 package is effectively a compat package with API version 2.90.
@@ -44,19 +62,9 @@ Requires: dbus-x11
 # no ambiguity.
 Requires: vte291
 
-# For console widget
-Requires: gtk-vnc2
-Requires: spice-gtk3
-
-%if 0%{?rhel} == 7
-Requires: gnome-icon-theme
-%endif
-
-
 BuildRequires: intltool
 BuildRequires: /usr/bin/pod2man
-# For python, and python2 rpm macros
-BuildRequires: python2-devel
+BuildRequires: python3-devel
 
 
 %description
@@ -71,15 +79,12 @@ management API.
 Summary: Common files used by the different Virtual Machine Manager interfaces
 Group: Applications/Emulators
 
-# This version not strictly required: virt-manager should work with older,
-# however varying amounts of functionality will not be enabled.
-Requires: python2-libvirt >= 0.7.0
-Requires: python2-libxml2
-Requires: python2-requests
-Requires: python2-ipaddr
+Requires: python3-libvirt
+Requires: python3-libxml2
+Requires: python3-requests
 Requires: libosinfo >= 0.2.10
 # Required for gobject-introspection infrastructure
-Requires: python2-gobject-base
+Requires: python3-gobject-base
 # Required for pulling files from iso media with isoinfo
 Requires: genisoimage
 
@@ -99,7 +104,6 @@ Provides: virt-install
 Provides: virt-clone
 Provides: virt-convert
 Provides: virt-xml
-Obsoletes: python-virtinst
 
 %description -n virt-install
 Package includes several command line utilities, including virt-install
@@ -140,7 +144,7 @@ machine).
 %global _default_hvs --default-hvs %{default_hvs}
 %endif
 
-python setup.py configure \
+./setup.py configure \
     %{?_qemu_user} \
     %{?_kvm_packages} \
     %{?_libvirt_packages} \
@@ -151,22 +155,17 @@ python setup.py configure \
 
 
 %install
-python setup.py \
+./setup.py \
     --no-update-icon-cache --no-compile-schemas \
     install -O1 --root=%{buildroot}
 %find_lang %{name}
 
-# Replace '#!/usr/bin/env python2' with '#!/usr/bin/python2'
+# Replace '#!/usr/bin/env python3' with '#!/usr/bin/python3'
 # The format is ideal for upstream, but not a distro. See:
 # https://fedoraproject.org/wiki/Features/SystemPythonExecutablesUseSystemPython
 for f in $(find %{buildroot} -type f -executable -print); do
-    sed -i "1 s|^#!/usr/bin/env python2|#!%{__python2}|" $f || :
+    sed -i "1 s|^#!/usr/bin/env python3|#!%{__python3}|" $f || :
 done
-
-# The conversion script was only added to virt-manager after several
-# Fedora cycles of using gsettings. Installing it now could convert old data
-# and wipe out recent settings.
-rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %files
@@ -213,6 +212,9 @@ rm %{buildroot}%{_datadir}/GConf/gsettings/org.virt-manager.virt-manager.convert
 
 
 %changelog
+* Thu Apr 26 2018 Cole Robinson <crobinso@redhat.com> - 1.6.0-0.1.git3bc7ff24c
+- Update to latest git snapshot, contains python3 port
+
 * Wed Feb 28 2018 Cole Robinson <crobinso@redhat.com> - 1.5.1-1
 - Rebased to version 1.5.1
 - Fix disk/net/mem stats graphs
