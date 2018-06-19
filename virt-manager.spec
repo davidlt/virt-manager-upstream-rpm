@@ -24,7 +24,7 @@
 
 Name: virt-manager
 Version: 1.6.0
-Release: 0.1.git3bc7ff24c%{?dist}
+Release: 0.2.git3bc7ff24c%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -212,6 +212,9 @@ done
 
 
 %changelog
+* Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 1.6.0-0.2.git3bc7ff24c
+- Rebuilt for Python 3.7
+
 * Thu Apr 26 2018 Cole Robinson <crobinso@redhat.com> - 1.6.0-0.1.git3bc7ff24c
 - Update to latest git snapshot, contains python3 port
 
