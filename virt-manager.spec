@@ -24,7 +24,7 @@
 
 Name: virt-manager
 Version: 1.6.0
-Release: 0.2.git3bc7ff24c%{?dist}
+Release: 0.3.git3bc7ff24c%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -212,6 +212,9 @@ done
 
 
 %changelog
+* Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.6.0-0.3.git3bc7ff24c
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
+
 * Tue Jun 19 2018 Miro Hrončok <mhroncok@redhat.com> - 1.6.0-0.2.git3bc7ff24c
 - Rebuilt for Python 3.7
 
