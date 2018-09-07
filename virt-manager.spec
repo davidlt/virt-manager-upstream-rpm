@@ -24,7 +24,7 @@
 
 Name: virt-manager
 Version: 1.6.0
-Release: 0.3.git3bc7ff24c%{?dist}
+Release: 1.3.git3bc7ff24c%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -39,6 +39,11 @@ URL: http://virt-manager.org/
 # git checkout 3bc7ff24c
 # ./setup.py sdist
 Source0: virt-manager-1.6.0.tar.gz
+
+# Enable arm32+uefi (bz #1613996)
+Patch0001: 0001-domcapabilities-Whitelist-fedora-arm-and-ia32-edk2-p.patch
+Patch0002: 0002-virt-install-Support-armv7l-and-i686-uefi.patch
+Patch0003: 0003-create-Support-UEFI-installs-for-armv7l.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -113,6 +118,11 @@ machine).
 
 %prep
 %setup -q
+
+# Enable arm32+uefi (bz #1613996)
+%patch0001 -p1
+%patch0002 -p1
+%patch0003 -p1
 
 
 %build
@@ -212,6 +222,9 @@ done
 
 
 %changelog
+* Fri Sep 07 2018 Cole Robinson <crobinso@redhat.com> - 1.6.0-1.3.3.git3bc7ff24c
+- Enable arm32+uefi (bz #1613996)
+
 * Sat Jul 14 2018 Fedora Release Engineering <releng@fedoraproject.org> - 1.6.0-0.3.git3bc7ff24c
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
 

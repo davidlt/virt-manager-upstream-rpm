@@ -1,0 +1,34 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 8 Aug 2018 11:55:29 -0400
+Subject: [PATCH virt-manager] domcapabilities: Whitelist fedora arm and ia32
+ edk2 paths
+
+(cherry picked from commit b623ece2ba6736cd5b8ea2401ae9dd8504df391e)
+---
+ virtinst/domcapabilities.py | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/virtinst/domcapabilities.py b/virtinst/domcapabilities.py
+index 5ea94948..ba061c96 100644
+--- a/virtinst/domcapabilities.py
++++ b/virtinst/domcapabilities.py
+@@ -149,6 +149,9 @@ class DomainCapabilities(XMLBuilder):
+     # only use this info to do things automagically for the user, it shouldn't
+     # validate anything the user explicitly enters.
+     _uefi_arch_patterns = {
++        "i686": [
++            ".*ovmf-ia32.*",  # fedora, gerd's firmware repo
++        ],
+         "x86_64": [
+             ".*OVMF_CODE\.fd",  # RHEL
+             ".*ovmf-x64/OVMF.*\.fd",  # gerd's firmware repo
+@@ -160,6 +163,9 @@ class DomainCapabilities(XMLBuilder):
+             ".*aarch64/QEMU_EFI.*",  # gerd's firmware repo
+             ".*aarch64.*",  # generic attempt at a catchall
+         ],
++        "armv7l": [
++            ".*arm/QEMU_EFI.*",  # fedora, gerd's firmware repo
++        ],
+     }
+ 
+     def find_uefi_path_for_arch(self):
