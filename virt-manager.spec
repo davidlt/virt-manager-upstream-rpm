@@ -6,44 +6,22 @@
 
 
 %global with_guestfs               0
-%global stable_defaults            0
-%global askpass_package            "openssh-askpass"
-%global qemu_user                  "qemu"
-%global libvirt_packages           "libvirt-daemon-kvm,libvirt-daemon-config-network"
-%global kvm_packages               ""
-%global preferred_distros          "fedora,rhel"
 %global default_hvs                "qemu,xen,lxc"
-
-%if 0%{?rhel}
-%global preferred_distros          "rhel,fedora"
-%global stable_defaults            1
-%endif
 
 
 # End local config
 
 Name: virt-manager
-Version: 1.6.0
-Release: 1.3.git3bc7ff24c%{?dist}
+Version: 2.0.0
+Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
 Group: Applications/Emulators
 License: GPLv2+
 BuildArch: noarch
-URL: http://virt-manager.org/
-#Source0: http://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
-# Generated with:
-# git clone https://github.com/virt-manager/virt-manager
-# cd virt-manager
-# git checkout 3bc7ff24c
-# ./setup.py sdist
-Source0: virt-manager-1.6.0.tar.gz
-
-# Enable arm32+uefi (bz #1613996)
-Patch0001: 0001-domcapabilities-Whitelist-fedora-arm-and-ia32-edk2-p.patch
-Patch0002: 0002-virt-install-Support-armv7l-and-i686-uefi.patch
-Patch0003: 0003-create-Support-UEFI-installs-for-armv7l.patch
+URL: https://virt-manager.org/
+Source0: https://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
 
 
 Requires: virt-manager-common = %{verrel}
@@ -66,6 +44,10 @@ Requires: dconf
 # virt-manager works fine with either, so pull the latest bits so there's
 # no ambiguity.
 Requires: vte291
+
+# Weak dependencies for the common virt-manager usecase
+Recommends: (libvirt-daemon-kvm or libvirt-daemon-qemu)
+Recommends: libvirt-daemon-config-network
 
 BuildRequires: intltool
 BuildRequires: /usr/bin/pod2man
@@ -119,48 +101,13 @@ machine).
 %prep
 %setup -q
 
-# Enable arm32+uefi (bz #1613996)
-%patch0001 -p1
-%patch0002 -p1
-%patch0003 -p1
-
 
 %build
-%if %{qemu_user}
-%global _qemu_user --qemu-user=%{qemu_user}
-%endif
-
-%if %{kvm_packages}
-%global _kvm_packages --kvm-package-names=%{kvm_packages}
-%endif
-
-%if %{preferred_distros}
-%global _preferred_distros --preferred-distros=%{preferred_distros}
-%endif
-
-%if %{libvirt_packages}
-%global _libvirt_packages --libvirt-package-names=%{libvirt_packages}
-%endif
-
-%if %{askpass_package}
-%global _askpass_package --askpass-package-names=%{askpass_package}
-%endif
-
-%if %{stable_defaults}
-%global _stable_defaults --stable-defaults
-%endif
-
 %if %{default_hvs}
 %global _default_hvs --default-hvs %{default_hvs}
 %endif
 
 ./setup.py configure \
-    %{?_qemu_user} \
-    %{?_kvm_packages} \
-    %{?_libvirt_packages} \
-    %{?_askpass_package} \
-    %{?_preferred_distros} \
-    %{?_stable_defaults} \
     %{?_default_hvs}
 
 
@@ -222,6 +169,15 @@ done
 
 
 %changelog
+* Mon Oct 15 2018 Cole Robinson <crobinso@redhat.com> - 2.0.0-1
+- Rebased to version 2.0.0
+- Finish port to Python 3
+- Improved VM defaults: q35 PCIe, usb3, CPU host-model
+- Search based OS selection UI for new VMs
+- Track OS name for lifetime of domain in <metadata> XML
+- Host interface management UI has been completely removed
+- Show domain IP on interface details page
+
 * Fri Sep 07 2018 Cole Robinson <crobinso@redhat.com> - 1.6.0-1.3.3.git3bc7ff24c
 - Enable arm32+uefi (bz #1613996)
 
