@@ -1,3 +1,7 @@
+# This package depends on automagic byte compilation
+# https://fedoraproject.org/wiki/Changes/No_more_automagic_Python_bytecompilation_phase_2
+%global _python_bytecompile_extra 1
+
 # -*- rpm-spec -*-
 
 # RPM doesn't detect that code in /usr/share is python3, this forces it
@@ -12,12 +16,11 @@
 # End local config
 
 Name: virt-manager
-Version: 2.0.0
+Version: 2.1.0
 Release: 1%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
-Group: Applications/Emulators
 License: GPLv2+
 BuildArch: noarch
 URL: https://virt-manager.org/
@@ -64,8 +67,8 @@ management API.
 
 %package common
 Summary: Common files used by the different Virtual Machine Manager interfaces
-Group: Applications/Emulators
 
+Requires: python3-argcomplete
 Requires: python3-libvirt
 Requires: python3-libxml2
 Requires: python3-requests
@@ -162,6 +165,11 @@ done
 %{_datadir}/%{name}/virt-convert
 %{_datadir}/%{name}/virt-xml
 
+%{_datadir}/bash-completion/completions/virt-install
+%{_datadir}/bash-completion/completions/virt-clone
+%{_datadir}/bash-completion/completions/virt-convert
+%{_datadir}/bash-completion/completions/virt-xml
+
 %{_bindir}/virt-install
 %{_bindir}/virt-clone
 %{_bindir}/virt-convert
@@ -169,6 +177,19 @@ done
 
 
 %changelog
+* Sun Feb 03 2019 Cole Robinson <crobinso@redhat.com> - 2.1.0-1
+- Rebased to version 2.1.0
+- Bash autocompletion support (Lin Ma, Cole Robinson)
+- UI and command line --vsock support (Slavomir Kaslev)
+- virt-xml: Add --os-variant option (Andrea Bolognani)
+- virt-install: use libosinfo cpu, mem, disk size defaults (Fabiano
+  Fidencio)
+- virt-install: Better usage of libosinfo -unknown distro IDs (Fabiano
+  Fidencio)
+- virt-install: More usage of libosinfo for ISO --location detection
+- virt-install: Add --location LOCATION,kernel=X,initrd=Y for pointing to
+  kernel/initrd in media that virt-install/libosinfo fails to detect
+
 * Mon Oct 15 2018 Cole Robinson <crobinso@redhat.com> - 2.0.0-1
 - Rebased to version 2.0.0
 - Finish port to Python 3
