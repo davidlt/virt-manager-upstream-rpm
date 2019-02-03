@@ -17,7 +17,7 @@
 
 Name: virt-manager
 Version: 2.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -171,6 +171,9 @@ done
 
 
 %changelog
+* Sun Feb 03 2019 Fedora Release Engineering <releng@fedoraproject.org> - 2.0.0-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
+
 * Mon Oct 15 2018 Cole Robinson <crobinso@redhat.com> - 2.0.0-1
 - Rebased to version 2.0.0
 - Finish port to Python 3
