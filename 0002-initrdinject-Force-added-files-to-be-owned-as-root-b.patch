@@ -1,0 +1,33 @@
+From: Cole Robinson <crobinso@redhat.com>
+Date: Wed, 3 Apr 2019 18:07:12 -0400
+Subject: [PATCH virt-manager] initrdinject: Force added files to be owned as
+ root (bz 1686464)
+
+systemd in fedora30 has some new security restriction about non-root
+owned directories. Initrd inject would tickle this because the cpio
+archive would cause the root dir in the initrd to be owned by the
+uid that launched virt-install.
+
+Pass --owner=+0:+0 to cpio to force root ownership
+
+Suggested-by: James Szinger <jszinger@gmail.com>
+
+https://bugzilla.redhat.com/show_bug.cgi?id=1686464
+(cherry picked from commit c6b5f22fa61d87557b5fab23be080073d2f7906e)
+---
+ virtinst/initrdinject.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/virtinst/initrdinject.py b/virtinst/initrdinject.py
+index 9a09f20c..4032f9ba 100644
+--- a/virtinst/initrdinject.py
++++ b/virtinst/initrdinject.py
+@@ -31,7 +31,7 @@ def perform_initrd_injections(initrd, injections, scratchdir):
+                                  stderr=subprocess.PIPE,
+                                  cwd=tempdir)
+     cpio_proc = subprocess.Popen(['cpio', '--create', '--null', '--quiet',
+-                                  '--format=newc'],
++                                  '--format=newc', '--owner=+0:+0'],
+                                  stdin=find_proc.stdout,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE,

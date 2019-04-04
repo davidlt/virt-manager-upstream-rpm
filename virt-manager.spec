@@ -17,7 +17,7 @@
 
 Name: virt-manager
 Version: 2.1.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 %global verrel %{version}-%{release}
 
 Summary: Desktop tool for managing virtual machines via libvirt
@@ -25,6 +25,10 @@ License: GPLv2+
 BuildArch: noarch
 URL: https://virt-manager.org/
 Source0: https://virt-manager.org/download/sources/%{name}/%{name}-%{version}.tar.gz
+
+# Fix --initrd-inject with f30 URLs (bz #1686464)
+Patch0001: 0001-initrdinject-Use-full-option-versions-for-cpio.patch
+Patch0002: 0002-initrdinject-Force-added-files-to-be-owned-as-root-b.patch
 
 
 Requires: virt-manager-common = %{verrel}
@@ -104,6 +108,10 @@ machine).
 %prep
 %setup -q
 
+# Fix --initrd-inject with f30 URLs (bz #1686464)
+%patch0001 -p1
+%patch0002 -p1
+
 
 %build
 %if %{default_hvs}
@@ -177,6 +185,9 @@ done
 
 
 %changelog
+* Wed Apr 03 2019 Cole Robinson <crobinso@redhat.com> - 2.1.0-2
+- Fix --initrd-inject with f30 URLs (bz #1686464)
+
 * Sun Feb 03 2019 Cole Robinson <crobinso@redhat.com> - 2.1.0-1
 - Rebased to version 2.1.0
 - Bash autocompletion support (Lin Ma, Cole Robinson)
